@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (e.g. v1.7.0)'
+        description: "Release version (e.g. v1.7.0)"
         required: true
 
 defaults:
@@ -14,7 +14,7 @@ defaults:
 jobs:
   Create-Tag:
     runs-on: ubuntu-18.04
-    if: github.repository == 'rook/rook' && contains('travisn,leseb,BlaineEXE,jbw976,galexrt,satoru-takeuchi', github.actor)
+    if: github.repository == 'koor-tech/koor'
     steps:
       - name: checkout
         uses: actions/checkout@v2
