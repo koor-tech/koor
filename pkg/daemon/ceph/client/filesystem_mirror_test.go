@@ -20,10 +20,10 @@ import (
 	"encoding/base64"
 	"testing"
 
+	"github.com/koor-tech/koor/pkg/clusterd"
+	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
+	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/clusterd"
-	cephver "github.com/rook/rook/pkg/operator/ceph/version"
-	exectest "github.com/rook/rook/pkg/util/exec/test"
 	"github.com/stretchr/testify/assert"
 )
 

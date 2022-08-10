@@ -20,8 +20,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/test"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/test"
 
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"

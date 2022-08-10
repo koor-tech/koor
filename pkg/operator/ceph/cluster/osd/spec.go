@@ -23,13 +23,13 @@ import (
 	"path/filepath"
 	"strconv"
 
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	kms "github.com/koor-tech/koor/pkg/daemon/ceph/osd/kms"
+	opconfig "github.com/koor-tech/koor/pkg/operator/ceph/config"
+	cephkey "github.com/koor-tech/koor/pkg/operator/ceph/config/keyring"
+	"github.com/koor-tech/koor/pkg/operator/ceph/controller"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	kms "github.com/rook/rook/pkg/daemon/ceph/osd/kms"
-	opconfig "github.com/rook/rook/pkg/operator/ceph/config"
-	cephkey "github.com/rook/rook/pkg/operator/ceph/config/keyring"
-	"github.com/rook/rook/pkg/operator/ceph/controller"
-	"github.com/rook/rook/pkg/operator/k8sutil"
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -87,7 +87,7 @@ DEVICE="$%s"
 # https://github.com/ceph/ceph/commit/25655e5a8829e001adf467511a6bde8142b0a575
 # This limitation will be removed later. After that, we can remove this
 # fsid injection code. Probably a good time is when to remove Quincy support.
-# https://github.com/rook/rook/pull/10333#discussion_r892817877
+# https://github.com/koor-tech/koor/pull/10333#discussion_r892817877
 cp --no-preserve=mode /etc/temp-ceph/ceph.conf /etc/ceph/ceph.conf
 python3 -c "
 import configparser
@@ -225,7 +225,7 @@ fi
 	// When restarting the OSD, the PVC block might end up with a different Kernel disk allocation
 	// For instance, prior to restart the block was mapped to 8:32 and when re-attached it was on 8:16
 	// The previous "block" is still 8:32 so if we don't override it we will try to initialize on a disk that is not an OSD or worse another OSD
-	// This is mainly because in https://github.com/rook/rook/commit/ae8dcf7cc3b51cf8ca7da22f48b7a58887536c4f we switched to use HostPath to store the OSD data
+	// This is mainly because in https://github.com/koor-tech/koor/commit/ae8dcf7cc3b51cf8ca7da22f48b7a58887536c4f we switched to use HostPath to store the OSD data
 	// Since HostPath is not ephemeral, the block file must be re-hydrated each time the deployment starts
 	blockDevMapper = `
 set -xe
@@ -543,7 +543,7 @@ func (c *Cluster) makeDeployment(osdProps osdProperties, osd OSDInfo, provisionC
 	// process starts, which can cause the pod to fail without the lifecycle hook's chown command
 	// completing. It can take an arbitrarily long time for a pod restart to successfully chown the
 	// directory. This is a race condition for all OSDs; therefore, do this in an init container.
-	// See more discussion here: https://github.com/rook/rook/pull/3594#discussion_r312279176
+	// See more discussion here: https://github.com/koor-tech/koor/pull/3594#discussion_r312279176
 	initContainers = append(initContainers,
 		controller.ChownCephDataDirsInitContainer(
 			opconfig.DataPathMap{ContainerDataDir: dataPath},

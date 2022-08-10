@@ -23,11 +23,11 @@ import (
 	"sync"
 
 	"github.com/coreos/pkg/capnslog"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/daemon/ceph/osd"
-	oposd "github.com/rook/rook/pkg/operator/ceph/cluster/osd"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/osd"
+	oposd "github.com/koor-tech/koor/pkg/operator/ceph/cluster/osd"
 )
 
 const (
@@ -36,7 +36,7 @@ const (
 )
 
 var (
-	logger = capnslog.NewPackageLogger("github.com/rook/rook", "cleanup")
+	logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "cleanup")
 )
 
 // DiskSanitizer is simple struct to old the context to execute the commands

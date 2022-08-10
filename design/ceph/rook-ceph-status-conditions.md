@@ -1,4 +1,4 @@
-# Rook Ceph Operator Status Conditions
+# Koor Operator Status Conditions
 
 Reference: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md
 
@@ -13,12 +13,12 @@ Conditions simply represent the latest available observation of an object's stat
 ## System States for rook-ceph
 
 The necessary system states for the rook-ceph can be portrayed as follows:
-	   
+
 	   Ignored 		: If any of the resources gets ignored for multiple reasons
 	   Progressing 		: Marks the start of reconcile of Ceph Cluster
 	   Ready 		: When Reconcile completes successfully
 	   Not Ready 		: Either when cluster is Updated or Updating is blocked
-	   Connecting		: When the Ceph Cluster is in the state of Connecting 
+	   Connecting		: When the Ceph Cluster is in the state of Connecting
 	   Connected		: When the Ceph Cluster gets connected
 	   Available 		: The Ceph Cluster is healthy and is ready to use
 	   Failure 		: If any failure occurs in the Ceph Cluster
@@ -29,14 +29,14 @@ The necessary system states for the rook-ceph can be portrayed as follows:
 
 Reference: https://github.com/openshift/custom-resource-status/:
 
-The `Status` of the Condition can be toggled between True or False according to the state of the cluster which it goes through. This can be shown to the user in the clusterCR with along with the information about the Conditions like the `Reason`, `Message` etc. Also a readable status, which basically states the final condition of the cluster along with the Message, which gives out some detail about the Condition like whether the Cluster is 'ReadytoUse' or if there is an Update available, we can update the MESSAGE as 'UpdateAvailable'. This could make it more understandable of the state of cluster to the user. Also, a Condition which states that the Cluster is undergoing an Upgrading can be added. Cluster Upgrade happens when there is a new version is available and changes the current Cluster CR. This will help the user to know the status of the Cluster Upgrade in progress. 
-	
+The `Status` of the Condition can be toggled between True or False according to the state of the cluster which it goes through. This can be shown to the user in the clusterCR with along with the information about the Conditions like the `Reason`, `Message` etc. Also a readable status, which basically states the final condition of the cluster along with the Message, which gives out some detail about the Condition like whether the Cluster is 'ReadytoUse' or if there is an Update available, we can update the MESSAGE as 'UpdateAvailable'. This could make it more understandable of the state of cluster to the user. Also, a Condition which states that the Cluster is undergoing an Upgrading can be added. Cluster Upgrade happens when there is a new version is available and changes the current Cluster CR. This will help the user to know the status of the Cluster Upgrade in progress.
+
 	   NAME        DATADIRHOSTPATH   MONCOUNT   AGE    CONDITION	MESSAGE     HEALTH
 	   rook-ceph   /var/lib/rook     3          114s   Available	ReadyToUse  HEALTH_OK
 
 
 We can add Conditions simply in the Custom Resource struct as:
-	  
+
 	   type ClusterStatus struct{
 		FinalCondition ConditionType	  `json:"finalcondition,omitempty"`
 		Message	       string		  `json:"message,omitempty"`
@@ -48,7 +48,7 @@ After that we can just make changes inside rook ceph codebase as necessary. The 
 
 
 The definition of the type Conditions can have the following details:
-	   
+
 	   Type               RookConditionType  `json:"type" description:"type of Rook condition"`
   	   Status             ConditionStatus    `json:"status" description:"status of the condition, one of True, False, Unknown"`
   	   Reason             *string            `json:"reason,omitempty" description:"one-word CamelCase reason for the condition's last transition"`
@@ -61,7 +61,7 @@ The fields `Reason`, `Message`, `LastHeartbeatTime`, `LastTransitionTime` are op
 Condition Types field specifies the current state of the system. Condition status values may be `True`, `False`, or `Unknown`. The absence of a condition should be interpreted the same as Unknown. How controllers handle Unknown depends on the Condition in question.
 `Reason` is intended to be a one-word, CamelCase representation of the category of cause of the current status, and `Message` is intended to be a human-readable phrase or sentence, which may contain specific details of the individual occurrence. `Reason` is intended to be used in concise output, such as one-line kubectl get output, and in summarizing occurrences of causes, whereas `Message` is intended to be presented to users in detailed status explanations, such as `kubectl describe output`.
 
-In the CephClusterStatus, we can either remove the `Status.State` and `Status.Message` fields and call the `Conditions` structure from inside the `ClusterStatus`, or we can just add the `Conditions` structure by keeping the already included fields.The first method is preferred because the `Conditions` structure contains the `Conditions.Type` and `Conditions.Message` which is similar to the `Status.State` and `Status.Message`. According to the above changes, necessary changes are to be made everywhere `ClusterStatus` or one of its fields are referred. 
+In the CephClusterStatus, we can either remove the `Status.State` and `Status.Message` fields and call the `Conditions` structure from inside the `ClusterStatus`, or we can just add the `Conditions` structure by keeping the already included fields.The first method is preferred because the `Conditions` structure contains the `Conditions.Type` and `Conditions.Message` which is similar to the `Status.State` and `Status.Message`. According to the above changes, necessary changes are to be made everywhere `ClusterStatus` or one of its fields are referred.
 
 
 

@@ -21,11 +21,11 @@ import (
 	"context"
 	"testing"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	discoverDaemon "github.com/rook/rook/pkg/daemon/discover"
-	"github.com/rook/rook/pkg/operator/k8sutil"
-	"github.com/rook/rook/pkg/operator/test"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	discoverDaemon "github.com/koor-tech/koor/pkg/daemon/discover"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/pkg/operator/test"
 
 	"github.com/stretchr/testify/assert"
 

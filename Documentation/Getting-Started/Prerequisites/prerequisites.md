@@ -9,9 +9,9 @@ and Rook is granted the required privileges (see below for more information).
 
 Kubernetes **v1.17** or higher is supported for the Ceph operator.
 
-## CPU Architecture  
+## CPU Architecture
 
-Architectures released are `amd64 / x86_64` and `arm64`.  
+Architectures released are `amd64 / x86_64` and `arm64`.
 
 ## Ceph Prerequisites
 
@@ -77,7 +77,7 @@ sudo apt-get install -y lvm2
 **RancherOS**:
 
 * Since version [1.5.0](https://github.com/rancher/os/issues/2551) LVM is supported
-* Logical volumes [will not be activated](https://github.com/rook/rook/issues/5027) during the boot process. You need to add an [runcmd command](https://rancher.com/docs/os/v1.x/en/installation/configuration/running-commands/) for that.
+* Logical volumes [will not be activated](https://github.com/koor-tech/koor/issues/5027) during the boot process. You need to add an [runcmd command](https://rancher.com/docs/os/v1.x/en/installation/configuration/running-commands/) for that.
 
 ```yaml
 runcmd:

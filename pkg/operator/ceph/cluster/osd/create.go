@@ -19,12 +19,12 @@ package osd
 import (
 	"fmt"
 
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	kms "github.com/koor-tech/koor/pkg/daemon/ceph/osd/kms"
+	osdconfig "github.com/koor-tech/koor/pkg/operator/ceph/cluster/osd/config"
+	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	kms "github.com/rook/rook/pkg/daemon/ceph/osd/kms"
-	osdconfig "github.com/rook/rook/pkg/operator/ceph/cluster/osd/config"
-	opcontroller "github.com/rook/rook/pkg/operator/ceph/controller"
-	"github.com/rook/rook/pkg/operator/k8sutil"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
 )

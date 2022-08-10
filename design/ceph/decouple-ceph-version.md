@@ -45,7 +45,7 @@ spec:
 ### Ceph Version
 
 The Ceph version is defined under the property `cephVersion` in the Cluster CRD. All Ceph daemon containers launched by the Rook operator will use this image, including the mon, mgr,
-osd, rgw, and mds pods. The significance of this approach is that the Rook binary is not included in the daemon containers. All initialization performed by Rook to generate the Ceph config and prepare the daemons must be completed in an [init container](https://github.com/rook/rook/issues/2003). Once the Rook init containers complete their execution, the daemon container will run the Ceph image. The daemon container will no longer have Rook running.
+osd, rgw, and mds pods. The significance of this approach is that the Rook binary is not included in the daemon containers. All initialization performed by Rook to generate the Ceph config and prepare the daemons must be completed in an [init container](https://github.com/koor-tech/koor/issues/2003). Once the Rook init containers complete their execution, the daemon container will run the Ceph image. The daemon container will no longer have Rook running.
 
 In the following Cluster CRD example, the Ceph version is Mimic `13.2.2` built on 23 Oct 2018.
 

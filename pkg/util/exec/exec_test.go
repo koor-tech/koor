@@ -20,8 +20,8 @@ import (
 	"os/exec"
 	"testing"
 
+	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
 	"github.com/pkg/errors"
-	exectest "github.com/rook/rook/pkg/util/exec/test"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kexec "k8s.io/utils/exec"

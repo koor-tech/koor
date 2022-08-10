@@ -21,7 +21,7 @@ import (
 	"testing"
 
 	"github.com/coreos/pkg/capnslog"
-	"github.com/rook/rook/tests/framework/utils"
+	"github.com/koor-tech/koor/tests/framework/utils"
 	"github.com/stretchr/testify/assert"
 	"k8s.io/apimachinery/pkg/api/errors"
 )
@@ -37,7 +37,7 @@ const (
 )
 
 var (
-	logger              = capnslog.NewPackageLogger("github.com/rook/rook", "installer")
+	logger              = capnslog.NewPackageLogger("github.com/koor-tech/koor", "installer")
 	createArgs          = []string{"create", "-f"}
 	createFromStdinArgs = append(createArgs, "-")
 	deleteArgs          = []string{"delete", "-f"}

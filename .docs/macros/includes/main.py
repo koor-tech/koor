@@ -7,7 +7,7 @@ import re
 GitHub branch/tag URL replacer
 """
 
-regex = r"(github\.com/.+/rook/.+)/master/"
+regex = r"(github\.com/.+/koor-tech/.+)/master/"
 subst = "\\1/%s/"
 
 

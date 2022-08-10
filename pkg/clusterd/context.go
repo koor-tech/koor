@@ -18,9 +18,9 @@ package clusterd
 
 import (
 	netclient "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/client/clientset/versioned/typed/k8s.cni.cncf.io/v1"
-	rookclient "github.com/rook/rook/pkg/client/clientset/versioned"
-	"github.com/rook/rook/pkg/util/exec"
-	"github.com/rook/rook/pkg/util/sys"
+	rookclient "github.com/koor-tech/koor/pkg/client/clientset/versioned"
+	"github.com/koor-tech/koor/pkg/util/exec"
+	"github.com/koor-tech/koor/pkg/util/sys"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"

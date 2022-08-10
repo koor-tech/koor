@@ -17,10 +17,10 @@ limitations under the License.
 package integration
 
 import (
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/tests/framework/clients"
-	"github.com/rook/rook/tests/framework/installer"
-	"github.com/rook/rook/tests/framework/utils"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/tests/framework/clients"
+	"github.com/koor-tech/koor/tests/framework/installer"
+	"github.com/koor-tech/koor/tests/framework/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -41,7 +41,7 @@ func runNFSFileE2ETest(helper *clients.TestClient, k8sh *utils.K8sHelper, s *sui
 
 	if settings.TestNFSCSI {
 		// Following two commands are needed to be able to create NFS exports in ceph v17.2
-		// refer: https://github.com/rook/rook/blob/master/Documentation/CRDs/ceph-nfs-crd.md#ceph-v1721
+		// refer: https://github.com/koor-tech/koor/blob/master/Documentation/CRDs/ceph-nfs-crd.md#ceph-v1721
 		parameters := []string{"orch", "set", "backend"}
 		clusterInfo := client.AdminTestClusterInfo(settings.Namespace)
 		cmd, args := client.FinalizeCephCommandArgs("ceph", clusterInfo, parameters, k8sh.MakeContext().ConfigDir)

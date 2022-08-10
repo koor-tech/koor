@@ -21,8 +21,8 @@ import (
 	"path"
 	"path/filepath"
 
-	kms "github.com/rook/rook/pkg/daemon/ceph/osd/kms"
-	"github.com/rook/rook/pkg/operator/ceph/config"
+	kms "github.com/koor-tech/koor/pkg/daemon/ceph/osd/kms"
+	"github.com/koor-tech/koor/pkg/operator/ceph/config"
 	v1 "k8s.io/api/core/v1"
 )
 

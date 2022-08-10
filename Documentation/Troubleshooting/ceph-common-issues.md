@@ -532,7 +532,7 @@ $ dmesg
 ...
 ```
 
-It's so-called `hung_task` problem and means that there is a deadlock in the kernel. For more detail, please refer to [the corresponding issue comment](https://github.com/rook/rook/issues/3132#issuecomment-580508760).
+It's so-called `hung_task` problem and means that there is a deadlock in the kernel. For more detail, please refer to [the corresponding issue comment](https://github.com/koor-tech/koor/issues/3132#issuecomment-580508760).
 
 ### Solution
 
@@ -593,7 +593,7 @@ exec: stderr: 2020-09-17T00:30:12.145+0000 7f0c17632f40 -1 bdev(0x56212de88700 /
 To overcome this, you need to increase the value of `fs.aio-max-nr` of your sysctl configuration (typically `/etc/sysctl.conf`).
 You can do this with your favorite configuration management system.
 
-Alternatively, you can have a [DaemonSet](https://github.com/rook/rook/issues/6279#issuecomment-694390514) to apply the configuration for you on all your nodes.
+Alternatively, you can have a [DaemonSet](https://github.com/koor-tech/koor/issues/6279#issuecomment-694390514) to apply the configuration for you on all your nodes.
 
 ## Unexpected partitions created
 
@@ -632,7 +632,7 @@ sdd      8:48   0     3T  0 disk
 └─sdd3   8:51   0   6.3M  0 part
 ```
 
-You can see [GitHub rook/rook - Issue 7940 unexpected partition on disks >= 1TB (atari partitions)](https://github.com/rook/rook/issues/7940) for more detailed information and discussion.
+You can see [GitHub rook/rook - Issue 7940 unexpected partition on disks >= 1TB (atari partitions)](https://github.com/koor-tech/koor/issues/7940) for more detailed information and discussion.
 
 ### Solution
 

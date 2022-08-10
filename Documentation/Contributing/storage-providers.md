@@ -24,18 +24,18 @@ very specific set of helpers to meet the storage provider needs in the Rook proj
 
 Rook provides the following framework to assist storage providers in building an operator:
 
-* Common golang packages shared by storage providers are in the main [Rook repo](https://github.com/rook/rook).
+* Common golang packages shared by storage providers are in the main [Rook repo](https://github.com/koor-tech/koor).
 * Common build scripts for building the operator images are in the main
-  [Rook repo](https://github.com/rook/rook/tree/master/build).
+  [Rook repo](https://github.com/koor-tech/koor/tree/master/build).
 * Each provider has its own repo under the [Rook org](https://github.com/rook).
   * Multiple community members are given push access to the repo, including
     owners of the storage provider, Rook steering committee members,
     and other Rook maintainers if deemed helpful or necessary by the steering
     committee. Maintainers for the new provider are added according to the
-    [governance](https://github.com/rook/rook/blob/master/GOVERNANCE.md).
+    [governance](https://github.com/koor-tech/koor/blob/master/GOVERNANCE.md).
   * Providers added to Rook prior to 2020 are grandfathered into the main
-    [Rook repo](https://github.com/rook/rook).
-* Storage providers must follow the Rook [governance](https://github.com/rook/rook/blob/master/GOVERNANCE.md)
+    [Rook repo](https://github.com/koor-tech/koor).
+* Storage providers must follow the Rook [governance](https://github.com/koor-tech/koor/blob/master/GOVERNANCE.md)
   in the interest of the good of the overall project. Storage providers have
   autonomy in their feature work, while collaboration with the community
   is expected for shared features.
@@ -47,10 +47,10 @@ Rook provides the following framework to assist storage providers in building an
     automation that can be re-used by providers
 * Docker images are pushed to the [Rook DockerHub](https://hub.docker.com/u/rook) where
   each storage provider has its own repo.
-* Helm charts are published to [charts.rook.io](https://charts.rook.io/release)
+* Helm charts are published to [charts.koor.tech](https://charts.koor.tech/release)
 * Documentation for the storage provider is to be written by the storage provider
-  members. The build process will publish the documentation to the [Rook website](https://rook.io/docs/rook/latest/).
-* All storage providers are added to the [Rook.io website](https://rook.io/)
+  members. The build process will publish the documentation to the [Rook website](https://docs.koor.tech/docs/latest/).
+* All storage providers are added to the [Rook.io website](https://docs.koor.tech/)
 * A great Slack community is available where you can communicate amongst developers and users
 
 ## Considering Joining Rook?
@@ -83,7 +83,7 @@ The engineering costs of each storage provider include:
   of K8s, accommodate new features in the storage provider, etc.
 * Each provider maintains a ROADMAP.md in the root of their repo, updates it regularly
   (e.g. quarterly or with the release cadence), and provides input to the overall Rook
-  [roadmap](https://github.com/rook/rook/blob/master/ROADMAP.md) for common features.
+  [roadmap](https://github.com/koor-tech/koor/blob/master/ROADMAP.md) for common features.
 
 ### Inactive Providers
 

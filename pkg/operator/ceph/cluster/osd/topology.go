@@ -22,7 +22,7 @@ package osd
 import (
 	"fmt"
 
-	"github.com/rook/rook/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	corev1 "k8s.io/api/core/v1"
 )
 

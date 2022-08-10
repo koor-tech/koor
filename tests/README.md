@@ -6,7 +6,7 @@ quickly spin up a Kubernetes cluster. The Test framework is designed to install 
 
 ## Install Kubernetes
 
-To install Kubernetes follow Rook's [developer guide](https://rook.io/docs/rook/latest/development-environment.html).
+To install Kubernetes follow Rook's [developer guide](https://docs.koor.tech/docs/latest/development-environment.html).
 
 ## Run Tests
 
@@ -49,7 +49,7 @@ Please note that the integration tests erase the contents of TEST_SCRATCH_DEVICE
 To run all integration tests:
 
 ```console
-go test -v -timeout 7200s github.com/rook/rook/tests/integration
+go test -v -timeout 7200s github.com/koor-tech/koor/tests/integration
 ```
 
 After running tests, you can get test logs under "tests/integration/_output".
@@ -57,13 +57,13 @@ After running tests, you can get test logs under "tests/integration/_output".
 To run a specific suite (uses regex):
 
 ```console
-go test -v -timeout 1800s -run CephSmokeSuite github.com/rook/rook/tests/integration
+go test -v -timeout 1800s -run CephSmokeSuite github.com/koor-tech/koor/tests/integration
 ```
 
 To run specific tests inside a suite:
 
 ```console
-go test -v -timeout 1800s -run CephSmokeSuite github.com/rook/rook/tests/integration -testify.m TestARookClusterInstallation_SmokeTest
+go test -v -timeout 1800s -run CephSmokeSuite github.com/koor-tech/koor/tests/integration -testify.m TestARookClusterInstallation_SmokeTest
 ```
 
 ### 3. To run tests on OpenShift environment
@@ -83,5 +83,5 @@ export RETRY_MAX=40
 To run the `CephSmokeSuite`:
 
 ```console
-go test -v -timeout 1800s -run CephSmokeSuite github.com/rook/rook/tests/integration
+go test -v -timeout 1800s -run CephSmokeSuite github.com/koor-tech/koor/tests/integration
 ```

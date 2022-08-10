@@ -26,14 +26,14 @@ import (
 
 	"github.com/coreos/pkg/capnslog"
 	"github.com/google/go-cmp/cmp"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/ceph/config"
+	"github.com/koor-tech/koor/pkg/operator/ceph/config/keyring"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/pkg/util/display"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/ceph/config"
-	"github.com/rook/rook/pkg/operator/ceph/config/keyring"
-	"github.com/rook/rook/pkg/operator/k8sutil"
-	"github.com/rook/rook/pkg/util/display"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -69,7 +69,7 @@ type daemonConfig struct {
 	daemonID   string
 }
 
-var logger = capnslog.NewPackageLogger("github.com/rook/rook", "ceph-spec")
+var logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "ceph-spec")
 
 var (
 	cronLogRotate = `
@@ -450,7 +450,7 @@ func CheckPodMemory(name string, resources v1.ResourceRequirements, cephPodMinim
 // process starts, which can cause the pod to fail without the lifecycle hook's chown command
 // completing. It can take an arbitrarily long time for a pod restart to successfully chown the
 // directory. This is a race condition for all daemons; therefore, do this in an init container.
-// See more discussion here: https://github.com/rook/rook/pull/3594#discussion_r312279176
+// See more discussion here: https://github.com/koor-tech/koor/pull/3594#discussion_r312279176
 func ChownCephDataDirsInitContainer(
 	dpm config.DataPathMap,
 	containerImage string,

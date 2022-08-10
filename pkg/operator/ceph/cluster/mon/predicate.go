@@ -21,7 +21,7 @@ import (
 	"reflect"
 	"sort"
 
-	opcontroller "github.com/rook/rook/pkg/operator/ceph/controller"
+	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"

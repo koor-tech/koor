@@ -19,8 +19,8 @@ package config
 import (
 	"testing"
 
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/ceph/version"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/stretchr/testify/assert"
 )
 

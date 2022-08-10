@@ -68,7 +68,7 @@ Note: The cleanup jobs might not start if the resources created on top of Rook C
 
 ### Delete the Operator and related Resources
 
-This will begin the process of the Rook Ceph operator and all other resources being cleaned up.
+This will begin the process of the Koor operator and all other resources being cleaned up.
 This includes related resources such as the agent and discover daemonsets with the following commands:
 
 ```console

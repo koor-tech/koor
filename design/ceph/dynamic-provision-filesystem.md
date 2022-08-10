@@ -8,7 +8,7 @@ On consumption, the pod only has to reference the PVCs. That means, the pod mani
 
 Another benefit is that it allows us to consume StorageClass that the admin users define and create. The users don't have to worry about metadataPool, erasureCoded, affinity, toleration etc. All they care is creating a filesystem PVC and referencing a storageClass that matches their filesystem needs.
 
-This feature has already been asked by a few users in our community. An issue has been created https://github.com/rook/rook/issues/1125.
+This feature has already been asked by a few users in our community. An issue has been created https://github.com/koor-tech/koor/issues/1125.
 Also Dynamic Provision Filesystem is a concept that has already been done in https://github.com/kubernetes-incubator/external-storage/tree/master/ceph/cephfs. So Rook can adopt a similar approach.
 
 ## Current Experience

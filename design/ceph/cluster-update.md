@@ -58,7 +58,7 @@ Changing this value dynamically would very likely cause a difficult to support t
 
 #### Validation
 It is in the user's best interests to provide early feedback if they have made an update to their Cluster CRD that is invalid or not supported.
-Along with [issue 1000](https://github.com/rook/rook/issues/1000), we should use the Kubernetes CRD validation feature to verify any changes to the Cluster CRD and provide helpful error messages in the case that their update can not be fulfilled.
+Along with [issue 1000](https://github.com/koor-tech/koor/issues/1000), we should use the Kubernetes CRD validation feature to verify any changes to the Cluster CRD and provide helpful error messages in the case that their update can not be fulfilled.
 
 #### Device Name Changes
 It is important to remember that [Linux device names can change across reboots](https://wiki.archlinux.org/index.php/persistent_block_device_naming).
@@ -69,7 +69,7 @@ What is especially challenging here is that before the initial deployment of OSD
 A lot of environments do **not** have labels, IDs, UUIDs, etc. for their devices at first boot and the only way to address them is by device name, such as `sda`.
 This is unfortunate because it is a volatile identifier.
 Some environments do have IDs at first boot and we should consider allowing users to specify devices by those IDs instead of names in the near future.
-That effort is being tracked by [issue 1228](https://github.com/rook/rook/issues/1228).
+That effort is being tracked by [issue 1228](https://github.com/koor-tech/koor/issues/1228).
 
 The main approach that will be taken to solve this issue is to always compare the device UUID from a node's saved OSD config map against the device UUIDs of the current set of device names.
 If the two do not match, then it is not a safe operation to remove the OSD from the device.
@@ -199,7 +199,7 @@ Therefore, you can only increase the number of placement groups (splitting) over
 If the cluster grows such that we have too few placement groups per OSD, then we can consider increasing the number of PGs in the cluster by incrementing the `pg_num` and `pgp_num` for each storage pool.
 Similar to adding new OSDs, this increase of PGs should be done incrementally and in a coordinated fashion to avoid degrading performance significantly in the cluster.
 
-Placement group management will be tracked in further detail in [issue 560](https://github.com/rook/rook/issues/560).
+Placement group management will be tracked in further detail in [issue 560](https://github.com/koor-tech/koor/issues/560).
 
 ## Scope
 The implementation of the design described in this document could be done in a phased approach in order to get critical features out sooner.

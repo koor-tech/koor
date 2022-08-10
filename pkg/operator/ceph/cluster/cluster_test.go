@@ -21,15 +21,15 @@ import (
 	"testing"
 	"time"
 
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mon"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/telemetry"
+	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
+	testop "github.com/koor-tech/koor/pkg/operator/test"
+	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/ceph/cluster/mon"
-	"github.com/rook/rook/pkg/operator/ceph/cluster/telemetry"
-	cephver "github.com/rook/rook/pkg/operator/ceph/version"
-	testop "github.com/rook/rook/pkg/operator/test"
-	exectest "github.com/rook/rook/pkg/util/exec/test"
 	"github.com/stretchr/testify/assert"
 )
 

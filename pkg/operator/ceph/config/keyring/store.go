@@ -21,16 +21,16 @@ package keyring
 
 import (
 	"github.com/coreos/pkg/capnslog"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/k8sutil"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-var logger = capnslog.NewPackageLogger("github.com/rook/rook", "op-cfg-keyring")
+var logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "op-cfg-keyring")
 
 const (
 	keyringFileName = "keyring"

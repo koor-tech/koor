@@ -23,12 +23,12 @@ import (
 	"testing"
 	"time"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/k8sutil"
-	"github.com/rook/rook/tests/framework/clients"
-	"github.com/rook/rook/tests/framework/installer"
-	"github.com/rook/rook/tests/framework/utils"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/tests/framework/clients"
+	"github.com/koor-tech/koor/tests/framework/installer"
+	"github.com/koor-tech/koor/tests/framework/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -269,7 +269,7 @@ func runFileE2ETest(helper *clients.TestClient, k8sh *utils.K8sHelper, s *suite.
 	// TODO: there is a regression here where MDSes don't actually scale down, and this test
 	// wasn't catching it. Enabling this test causes the controller to enter into a new reconcile
 	// loop and makes the next phase of the test take much longer than it should, making it flaky.
-	// Rook issue https://github.com/rook/rook/issues/9857 is tracking this issue.
+	// Rook issue https://github.com/koor-tech/koor/issues/9857 is tracking this issue.
 	// t.Run("filesystem should be able to be scaled down", func(t *testing.T) {
 	// 	downscaleMetadataServers(helper, k8sh, t, settings.Namespace, filesystemName)
 	// })

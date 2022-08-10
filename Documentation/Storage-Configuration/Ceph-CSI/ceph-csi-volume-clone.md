@@ -23,7 +23,7 @@ for more info.
 ### Volume Cloning
 
 In
-[pvc-clone](https://github.com/rook/rook/tree/master/deploy/examples/csi/rbd/pvc-clone.yaml),
+[pvc-clone](https://github.com/koor-tech/koor/tree/master/deploy/examples/csi/rbd/pvc-clone.yaml),
 `dataSource` should be the name of the `PVC` which is already created by RBD
 CSI driver. The `dataSource` kind should be the `PersistentVolumeClaim` and also storageclass
 should be same as the source `PVC`.
@@ -64,7 +64,7 @@ kubectl delete -f deploy/examples/csi/rbd/pvc-clone.yaml
 ### Volume Cloning
 
 In
-[pvc-clone](https://github.com/rook/rook/tree/master/deploy/examples/csi/cephfs/pvc-clone.yaml),
+[pvc-clone](https://github.com/koor-tech/koor/tree/master/deploy/examples/csi/cephfs/pvc-clone.yaml),
 `dataSource` should be the name of the `PVC` which is already created by CephFS
 CSI driver. The `dataSource` kind should be the `PersistentVolumeClaim` and also storageclass
 should be same as the source `PVC`.

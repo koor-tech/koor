@@ -20,12 +20,12 @@ import (
 	"context"
 
 	"github.com/coreos/pkg/capnslog"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/osd"
+	"github.com/koor-tech/koor/pkg/operator/ceph/disruption/controllerconfig"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	mapiv1 "github.com/openshift/cluster-api/pkg/apis/machine/v1beta1"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/operator/ceph/cluster/osd"
-	"github.com/rook/rook/pkg/operator/ceph/disruption/controllerconfig"
-	"github.com/rook/rook/pkg/operator/k8sutil"
 	corev1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -39,7 +39,7 @@ const (
 	MachineFencingNamespaceLabelKey = "fencegroup.rook.io/clusterNamespace"
 )
 
-var logger = capnslog.NewPackageLogger("github.com/rook/rook", controllerName)
+var logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", controllerName)
 
 type ReconcileMachineLabel struct {
 	scheme  *runtime.Scheme

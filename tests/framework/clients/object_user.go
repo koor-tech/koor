@@ -21,10 +21,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	rgw "github.com/rook/rook/pkg/operator/ceph/object"
-	"github.com/rook/rook/tests/framework/installer"
-	"github.com/rook/rook/tests/framework/utils"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	rgw "github.com/koor-tech/koor/pkg/operator/ceph/object"
+	"github.com/koor-tech/koor/tests/framework/installer"
+	"github.com/koor-tech/koor/tests/framework/utils"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

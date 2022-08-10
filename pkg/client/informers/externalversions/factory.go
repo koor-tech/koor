@@ -23,9 +23,9 @@ import (
 	sync "sync"
 	time "time"
 
-	versioned "github.com/rook/rook/pkg/client/clientset/versioned"
-	cephrookio "github.com/rook/rook/pkg/client/informers/externalversions/ceph.rook.io"
-	internalinterfaces "github.com/rook/rook/pkg/client/informers/externalversions/internalinterfaces"
+	versioned "github.com/koor-tech/koor/pkg/client/clientset/versioned"
+	cephrookio "github.com/koor-tech/koor/pkg/client/informers/externalversions/ceph.rook.io"
+	internalinterfaces "github.com/koor-tech/koor/pkg/client/informers/externalversions/internalinterfaces"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

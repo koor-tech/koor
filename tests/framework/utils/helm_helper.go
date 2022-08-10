@@ -24,8 +24,8 @@ import (
 
 	"gopkg.in/yaml.v2"
 
+	"github.com/koor-tech/koor/pkg/util/exec"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/util/exec"
 )
 
 // HelmHelper is wrapper for running helm commands
@@ -108,16 +108,16 @@ func (h *HelmHelper) InstallLocalHelmChart(upgrade bool, namespace, chart string
 
 func (h *HelmHelper) InstallVersionedChart(namespace, chart, version string, values map[string]interface{}) error {
 
-	logger.Infof("adding rook-release helm repo")
-	cmdArgs := []string{"repo", "add", "rook-release", "https://charts.rook.io/release"}
+	logger.Infof("adding koor-release helm repo")
+	cmdArgs := []string{"repo", "add", "koor-release", "https://charts.koor.tech/release"}
 	_, err := h.Execute(cmdArgs...)
 	if err != nil {
 		// Continue on error in case the repo already was added
-		logger.Warningf("failed to add repo rook-release, err=%v", err)
+		logger.Warningf("failed to add repo koor-release, err=%v", err)
 	}
 
 	logger.Infof("installing helm chart %s with version %s", chart, version)
-	cmdArgs = []string{"install", "--create-namespace", chart, "rook-release/" + chart, "--version=" + version}
+	cmdArgs = []string{"install", "--create-namespace", chart, "koor-release/" + chart, "--version=" + version}
 	if namespace != "" {
 		cmdArgs = append(cmdArgs, "--namespace", namespace)
 	}

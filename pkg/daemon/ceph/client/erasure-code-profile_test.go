@@ -19,12 +19,12 @@ import (
 	"fmt"
 	"testing"
 
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	exectest "github.com/rook/rook/pkg/util/exec/test"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/rook/rook/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/clusterd"
 )
 
 func TestCreateProfile(t *testing.T) {
