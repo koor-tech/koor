@@ -25,7 +25,7 @@ import (
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/telemetry"
 	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
-	"github.com/rook/rook/pkg/operator/k8sutil/cmdreporter"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil/cmdreporter"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/pkg/errors"
