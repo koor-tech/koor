@@ -131,19 +131,15 @@ endif
 
 # ====================================================================================
 # docs
-
-deps.docs:
+build.docs:
 	pip3 install -r requirements_docs.txt
-
-build.docs: deps.docs
-	# Build the docs once before they are published to ensure they are correctly building
-	cd $(ROOT_DIR) && mkdocs build --strict
 
 publish.docs:
 	if ! git remote show docs > /dev/null 2>&1; then git remote add docs $(DOCS_GIT_REPO); fi
 	# If we are running in GitHub actions, remove the extraheader so our custom GitHub API token is used
 	if test "$$GITHUB_ACTIONS" = "true"; then git config --unset 'http.https://github.com/.extraheader'; fi
 	git fetch -u docs gh-pages
+
 	# Switch to root of repo and then run the build and deploy of the documentation
 	cd $(ROOT_DIR) && mike deploy --remote docs --push --rebase --branch gh-pages --update-aliases --prefix $(DOCS_PREFIX) $(DOCS_VERSION) $(DOCS_VERSION_ALIAS)
 
@@ -154,7 +150,7 @@ HELM_TEMP := $(shell mktemp -d)
 HELM_URL := $(HELM_BASE_URL)/$(CHANNEL)
 
 promote.helm: $(HELM)
-#	copy existing charts to a temp dir, then combine with new charts, reindex, and upload
+	# copy existing charts to a temp dir, then combine with new charts, reindex, and upload
 	$(S3_SYNC) s3://$(HELM_S3_BUCKET)/$(CHANNEL) $(HELM_TEMP)
 	$(S3_SYNC) s3://$(S3_BUCKET)/build/$(BRANCH_NAME)/$(VERSION)/charts $(HELM_TEMP)
 	$(HELM) repo index --url $(HELM_URL) $(HELM_TEMP)
@@ -166,6 +162,7 @@ promote.helm: $(HELM)
 
 publish.output:
 	$(S3_SYNC_DEL) $(OUTPUT_DIR) s3://$(S3_BUCKET)/build/$(BRANCH_NAME)/$(VERSION)
+
 promote.output:
 	$(S3_SYNC_DEL) s3://$(S3_BUCKET)/build/$(BRANCH_NAME)/$(VERSION) s3://$(S3_BUCKET)/$(CHANNEL)/$(VERSION)
 	$(S3_SYNC_DEL) s3://$(S3_BUCKET)/build/$(BRANCH_NAME)/$(VERSION) s3://$(S3_BUCKET)/$(CHANNEL)/current
@@ -176,32 +173,41 @@ promote.output:
 # 1: registry 2: image, 3: arch
 define repo.targets
 build.image.$(1).$(2).$(3):
-	docker tag $(BUILD_REGISTRY)/$(2)-$(3) $(1)/$(2)-$(3):$(VERSION)
+	$(DOCKERCMD) tag $(BUILD_REGISTRY)/$(2)-$(3) $(TAG_REGISTRY)/$(1)/$(2)-$(3):$(VERSION)
 	@# Save image as _output/images/linux_<arch>/<image>.tar.gz (no builds for darwin or windows)
 	mkdir -p $(OUTPUT_DIR)/images/linux_$(3)
-	docker save $(BUILD_REGISTRY)/$(2)-$(3) | gzip -c > $(OUTPUT_DIR)/images/linux_$(3)/$(2).tar.gz
+	$(DOCKERCMD) save $(BUILD_REGISTRY)/$(2)-$(3) | gzip -c > $(OUTPUT_DIR)/images/linux_$(3)/$(2).tar.gz
+
 build.all.images: build.image.$(1).$(2).$(3)
-publish.image.$(1).$(2).$(3): ; @docker push $(1)/$(2)-$(3):$(VERSION)
+
+publish.image.$(1).$(2).$(3): ; @$(DOCKERCMD) push $(TAG_REGISTRY)/$(1)/$(2)-$(3):$(VERSION)
+
 publish.all.images: publish.image.$(1).$(2).$(3)
+
 # tag the master image, but do not tag the release image with a generic channel tag
 promote.image.$(1).$(2).$(3):
-	docker pull $(1)/$(2)-$(3):$(VERSION)
-	docker tag $(1)/$(2)-$(3):$(VERSION) $(1)/$(2)-$(3):$(CHANNEL)
-	[ "$(CHANNEL)" = "release" ] || docker push $(1)/$(2)-$(3):$(CHANNEL)
+	$(DOCKERCMD) pull $(TAG_REGISTRY)/$(1)/$(2)-$(3):$(VERSION)
+	$(DOCKERCMD) tag $(TAG_REGISTRY)/$(1)/$(2)-$(3):$(VERSION) $(TAG_REGISTRY)/$(1)/$(2)-$(3):$(CHANNEL)
+	[ "$(CHANNEL)" = "release" ] || $(DOCKERCMD) push $(TAG_REGISTRY)/$(1)/$(2)-$(3):$(CHANNEL)
+
 promote.all.images: promote.image.$(1).$(2).$(3)
+
 clean.image.$(1).$(2).$(3):
-	[ -z "$$$$(docker images -q $(1)/$(2)-$(3):$(VERSION))" ] || docker rmi $(1)/$(2)-$(3):$(VERSION)
-	[ -z "$$$$(docker images -q $(1)/$(2)-$(3):$(CHANNEL))" ] || docker rmi $(1)/$(2)-$(3):$(CHANNEL)
+	[ -z "$$$$($(DOCKERCMD) images -q $(TAG_REGISTRY)/$(1)/$(2)-$(3):$(VERSION))" ] || \
+		$(DOCKERCMD) rmi $(TAG_REGISTRY)/$(1)/$(2)-$(3):$(VERSION)
+	[ -z "$$$$($(DOCKERCMD) images -q $(TAG_REGISTRY)/$(1)/$(2)-$(3):$(CHANNEL))" ] || \
+		$(DOCKERCMD) rmi $(TAG_REGISTRY)/$(1)/$(2)-$(3):$(CHANNEL)
+
 clean.all.images: clean.image.$(1).$(2).$(3)
 endef
 $(foreach r,$(REGISTRIES), $(foreach i,$(IMAGES), $(foreach a,$(IMAGE_ARCHS),$(eval $(call repo.targets,$(r),$(i),$(a))))))
 
 publish.manifest.image.%: publish.all.images $(MANIFEST_TOOL)
-	$(MANIFEST_TOOL) push from-args --platforms $(IMAGE_PLATFORMS) --template $(DOCKER_REGISTRY)/$*-ARCH:$(VERSION) --target $(DOCKER_REGISTRY)/$*:$(VERSION)
+	$(MANIFEST_TOOL) push from-args --platforms $(IMAGE_PLATFORMS:,=) --template $(DOCKER_REGISTRY)/$*-ARCH:$(VERSION) --target $(DOCKER_REGISTRY)/$*:$(VERSION)
 
 # add the "master" tag to the master image, but do not add the "release" tag for the release channel
 promote.manifest.image.%: promote.all.images $(MANIFEST_TOOL)
-	[ "$(CHANNEL)" = "release" ] || $(MANIFEST_TOOL) push from-args --platforms $(IMAGE_PLATFORMS) --template $(DOCKER_REGISTRY)/$*-ARCH:$(VERSION) --target $(DOCKER_REGISTRY)/$*:$(CHANNEL)
+	[ "$(CHANNEL)" = "release" ] || $(MANIFEST_TOOL) push from-args --platforms $(IMAGE_PLATFORMS:,=) --template $(DOCKER_REGISTRY)/$*-ARCH:$(VERSION) --target $(DOCKER_REGISTRY)/$*:$(CHANNEL)
 
 build.images: build.all.images
 publish.images: $(addprefix publish.manifest.image.,$(IMAGES))

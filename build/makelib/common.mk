@@ -24,6 +24,13 @@ else
 $(error "please install 'shasum' or 'sha256sum'")
 endif
 
+ifeq ($(origin DOCKERCMD),undefined)
+DOCKERCMD ?= $(shell docker version >/dev/null 2>&1 && echo docker)
+ifeq ($(DOCKERCMD),)
+DOCKERCMD = $(shell podman version >/dev/null 2>&1 && echo podman)
+endif
+endif
+
 ifeq ($(origin PLATFORM), undefined)
 ifeq ($(origin GOOS), undefined)
 GOOS := $(shell go env GOOS)
@@ -88,6 +95,9 @@ endif
 ifeq ($(BUILD_REGISTRY),build-)
 $(error Failed to get unique ID for host+dir. Check that '$(SHA256CMD)' functions or override SHA256CMD)
 endif
+
+ # registry to which release and master images are pushed to
+TAG_REGISTRY ?= docker.io
 
 SED_IN_PLACE = $(ROOT_DIR)/build/sed-in-place
 export SED_IN_PLACE

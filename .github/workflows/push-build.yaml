@@ -19,8 +19,8 @@ permissions:
 jobs:
   push-image-to-container-registry:
     runs-on: ubuntu-18.04
-    if: g|
-      ithub.repository == 'koor-tech/koor' &&
+    if: |
+      github.repository == 'koor-tech/koor' &&
       (github.event_name == 'push' || github.event.workflow_run.conclusion == 'success')
     steps:
       - name: checkout
