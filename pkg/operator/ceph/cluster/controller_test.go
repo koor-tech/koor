@@ -21,9 +21,9 @@ import (
 	"testing"
 	"time"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/client/clientset/versioned/scheme"
-	"github.com/rook/rook/pkg/clusterd"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/client/clientset/versioned/scheme"
+	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"

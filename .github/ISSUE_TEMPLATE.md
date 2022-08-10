@@ -1,6 +1,6 @@
 <!-- **Are you in the right place?**
 1. For issues or feature requests, please create an issue in this repository.
-2. For general technical and non-technical questions, we are happy to help you on our [Rook.io Slack](https://slack.rook.io/).
+2. For general technical and non-technical questions, we are happy to help you in [the GitHub Discussions](https://github.com/koor-tech/koor/discussions).
 3. Did you already search the existing open issues for anything similar? -->
 
 **Is this a bug report or feature request?**
@@ -41,8 +41,8 @@ Read [GitHub documentation if you need help](https://help.github.com/en/articles
 * OS (e.g. from /etc/os-release):
 * Kernel (e.g. `uname -a`):
 * Cloud provider or hardware configuration:
-* Rook version (use `rook version` inside of a Rook Pod):
+* Koor Storage Distribution version (use `rook version` inside of a Rook Pod):
 * Storage backend version (e.g. for ceph do `ceph -v`):
 * Kubernetes version (use `kubectl version`):
 * Kubernetes cluster type (e.g. Tectonic, GKE, OpenShift):
-* Storage backend status (e.g. for Ceph use `ceph health` in the [Rook Ceph toolbox](https://rook.io/docs/rook/latest/Troubleshooting/ceph-toolbox/#interactive-toolbox)):
+* Storage backend status (e.g. for Ceph use `ceph health` in the [Koor toolbox](https://docs.koor.tech/docs/latest/Troubleshooting/ceph-toolbox/#interactive-toolbox)):

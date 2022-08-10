@@ -21,6 +21,8 @@ spec:
                 - privileged
           serviceAccountName: rook-ceph-system
   maintainers:
+    - name: The Koor Storage Distribution Authors
+      email: koor@koor.tech
     - name: The Rook Authors
       email: cncf-rook-info@lists.cncf.io
   provider:

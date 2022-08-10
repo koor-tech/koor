@@ -22,10 +22,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"sigs.k8s.io/yaml"
 	"strings"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
+	"sigs.k8s.io/yaml"
+
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"

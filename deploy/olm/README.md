@@ -3,7 +3,7 @@
 Just run `make CSV_VERSION=1.0.0 csv-ceph` like this:
 
 ```console
-make csv-ceph CSV_VERSION=1.0.1 CSV_PLATFORM=k8s ROOK_OP_VERSION=rook/ceph:v1.0.1
+make csv-ceph CSV_VERSION=1.0.1 CSV_PLATFORM=k8s ROOK_OP_VERSION=koorinc/ceph:v1.0.1
 ```
 
 > ```

@@ -19,7 +19,7 @@ package controller
 import (
 	"fmt"
 
-	"github.com/rook/rook/pkg/operator/ceph/version"
+	"github.com/koor-tech/koor/pkg/operator/ceph/version"
 	apps "k8s.io/api/apps/v1"
 	batch "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

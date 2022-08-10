@@ -19,13 +19,13 @@ package rbd
 import (
 	"testing"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/client/clientset/versioned/scheme"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/ceph/config"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/client/clientset/versioned/scheme"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/ceph/config"
 
-	"github.com/rook/rook/pkg/operator/ceph/test"
-	cephver "github.com/rook/rook/pkg/operator/ceph/version"
+	"github.com/koor-tech/koor/pkg/operator/ceph/test"
+	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"

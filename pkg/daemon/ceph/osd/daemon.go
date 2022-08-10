@@ -26,11 +26,11 @@ import (
 	"syscall"
 
 	"github.com/coreos/pkg/capnslog"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	oposd "github.com/koor-tech/koor/pkg/operator/ceph/cluster/osd"
+	"github.com/koor-tech/koor/pkg/util/sys"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	oposd "github.com/rook/rook/pkg/operator/ceph/cluster/osd"
-	"github.com/rook/rook/pkg/util/sys"
 )
 
 const (
@@ -41,7 +41,7 @@ const (
 )
 
 var (
-	logger = capnslog.NewPackageLogger("github.com/rook/rook", "cephosd")
+	logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "cephosd")
 )
 
 // StartOSD starts an OSD on a device that was provisioned by ceph-volume

@@ -27,19 +27,19 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/rook/rook/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/coreos/pkg/capnslog"
 	"github.com/go-ini/ini"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	cephutil "github.com/koor-tech/koor/pkg/daemon/ceph/util"
+	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/clusterd"
-	cephutil "github.com/rook/rook/pkg/daemon/ceph/util"
-	cephver "github.com/rook/rook/pkg/operator/ceph/version"
 )
 
-var logger = capnslog.NewPackageLogger("github.com/rook/rook", "cephclient")
+var logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "cephclient")
 
 const (
 	// DefaultKeyringFile is the default name of the file where Ceph stores its keyring info

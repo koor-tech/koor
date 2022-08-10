@@ -21,8 +21,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/clusterd"
 )
 
 type OSDUsage struct {

@@ -20,8 +20,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	osddaemon "github.com/rook/rook/pkg/daemon/ceph/osd"
-	osdcfg "github.com/rook/rook/pkg/operator/ceph/cluster/osd/config"
+	osddaemon "github.com/koor-tech/koor/pkg/daemon/ceph/osd"
+	osdcfg "github.com/koor-tech/koor/pkg/operator/ceph/cluster/osd/config"
 	"github.com/stretchr/testify/assert"
 )
 

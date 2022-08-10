@@ -25,11 +25,11 @@ import (
 	"testing"
 
 	"github.com/ceph/go-ceph/rgw/admin"
-	rookclient "github.com/rook/rook/pkg/client/clientset/versioned/fake"
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	cephobject "github.com/rook/rook/pkg/operator/ceph/object"
-	"github.com/rook/rook/pkg/operator/test"
+	rookclient "github.com/koor-tech/koor/pkg/client/clientset/versioned/fake"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	cephobject "github.com/koor-tech/koor/pkg/operator/ceph/object"
+	"github.com/koor-tech/koor/pkg/operator/test"
 	"github.com/stretchr/testify/assert"
 )
 

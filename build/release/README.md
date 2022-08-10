@@ -70,4 +70,4 @@ Ensure that you only click `Save draft` until the release is complete, after whi
 
 ## Release Artifacts
 
-Images are pushed to docker hub under the [rook/ceph](https://hub.docker.com/r/rook/ceph/tags/) repo.
+Images are pushed to docker hub under the [koorinc/ceph](https://hub.docker.com/r/koorinc/ceph/tags/) repo.

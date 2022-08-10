@@ -3,10 +3,10 @@ description: File, Block, and Object Storage Services for your Cloud-Native Envi
 name: rook-ceph
 version: 0.0.1
 appVersion: 0.0.1
-icon: https://rook.io/images/rook-logo.svg
+icon: https://koor.tech/images/logo.svg
 sources:
-  - https://github.com/rook/rook
+  - https://github.com/koor-tech/koor
 dependencies:
-- name: library
-  version: "0.0.1"
-  repository: "file://../library"
+  - name: library
+    version: "0.0.1"
+    repository: "file://../library"

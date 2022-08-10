@@ -1,10 +1,10 @@
 ---
-title: Rook
+title: Koor Storage Distribution
 ---
 
-# Rook
+# Koor Storage Distribution
 
-Rook is an open source **cloud-native storage orchestrator**, providing the platform, framework, and support for a diverse set of storage solutions to natively integrate with cloud-native environments.
+Koor Storage Distribution is an open source **cloud-native storage orchestrator**, providing the platform, framework, and support for a diverse set of storage solutions to natively integrate with cloud-native environments.
 
 Rook turns storage software into self-managing, self-scaling, and self-healing storage services. It does this by automating deployment, bootstrapping, configuration, provisioning, scaling, upgrading, migration, disaster recovery, monitoring, and resource management. Rook uses the facilities provided by the underlying cloud-native container management, scheduling and orchestration platform to perform its duties.
 
@@ -21,7 +21,7 @@ See our [Quickstart](quickstart.md) guide to get started with the Ceph operator!
 
 [Ceph](https://docs.ceph.com/en/latest/) is a highly scalable distributed storage solution for block storage, object storage, and shared filesystems with years of production deployments. See the [Ceph overview](storage-architecture.md).
 
-For detailed design documentation, see also the [design docs](https://github.com/rook/rook/tree/master/design).
+For detailed design documentation, see also the [design docs](https://github.com/koor-tech/koor/tree/master/design).
 
 ## Need help? Be sure to join the Rook Slack
 

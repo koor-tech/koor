@@ -1,8 +1,8 @@
 package test
 
 import (
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	apps "k8s.io/api/apps/v1"
 )
 

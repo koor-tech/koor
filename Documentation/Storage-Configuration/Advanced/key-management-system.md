@@ -4,7 +4,7 @@ title: Key Management System
 
 Rook has the ability to encrypt OSDs of clusters running on PVC via the flag (`encrypted: true`) in your `storageClassDeviceSets` [template](#pvc-based-cluster).
 By default, the Key Encryption Keys (also known as Data Encryption Keys) are stored in a Kubernetes Secret.
-However, if a Key Management System exists Rook is capable of using it.
+However, if a Key Management System exists Koor Storage Distribution is capable of using it.
 
 The `security` section contains settings related to encryption of the cluster.
 

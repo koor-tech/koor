@@ -20,8 +20,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rook/rook/tests/framework/installer"
-	"github.com/rook/rook/tests/framework/utils"
+	"github.com/koor-tech/koor/tests/framework/installer"
+	"github.com/koor-tech/koor/tests/framework/utils"
 )
 
 // TopicOperation is a wrapper for rook notification operations

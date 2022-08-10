@@ -30,13 +30,13 @@ import (
 	"time"
 
 	"github.com/coreos/pkg/capnslog"
+	rookclient "github.com/koor-tech/koor/pkg/client/clientset/versioned"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/crash"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/pkg/util/exec"
 	bktclient "github.com/kube-object-storage/lib-bucket-provisioner/pkg/client/clientset/versioned"
 	"github.com/pkg/errors"
-	rookclient "github.com/rook/rook/pkg/client/clientset/versioned"
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/operator/ceph/cluster/crash"
-	"github.com/rook/rook/pkg/operator/k8sutil"
-	"github.com/rook/rook/pkg/util/exec"
 	"github.com/stretchr/testify/require"
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
@@ -112,7 +112,7 @@ func CreateK8sHelper(t func() *testing.T) (*K8sHelper, error) {
 }
 
 var (
-	k8slogger = capnslog.NewPackageLogger("github.com/rook/rook", "utils")
+	k8slogger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "utils")
 	cmd       = getCmd()
 	// RetryLoop params for tests.
 	RetryLoop = TestRetryNumber()
@@ -147,9 +147,9 @@ func (k8sh *K8sHelper) GetDockerImage(image string) error {
 	return k8sh.executor.ExecuteCommand(dockercmd, "pull", image)
 }
 
-// SetDeploymentVersion sets the container version on the deployment. It is assumed to be the rook/ceph image.
+// SetDeploymentVersion sets the container version on the deployment. It is assumed to be the koorinc/ceph image.
 func (k8sh *K8sHelper) SetDeploymentVersion(namespace, deploymentName, containerName, version string) error {
-	_, err := k8sh.Kubectl("-n", namespace, "set", "image", "deploy/"+deploymentName, containerName+"=rook/ceph:"+version)
+	_, err := k8sh.Kubectl("-n", namespace, "set", "image", "deploy/"+deploymentName, containerName+"=koorinc/ceph:"+version)
 	return err
 }
 

@@ -21,7 +21,7 @@ import (
 	"path"
 	"testing"
 
-	"github.com/rook/rook/pkg/util"
+	"github.com/koor-tech/koor/pkg/util"
 	"github.com/stretchr/testify/assert"
 )
 

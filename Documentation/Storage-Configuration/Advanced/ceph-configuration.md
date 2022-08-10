@@ -144,7 +144,7 @@ Node: node2.zbrbdl
 !!! attention
     It is **deprecated to manually need to set this**, the `deviceClass` property can be used on Pool structures in `CephBlockPool`, `CephFilesystem` and `CephObjectStore` CRD objects.
 
-By default Rook/Ceph puts all storage under one replication rule in the CRUSH
+By default Kook Storage Distribution/Ceph puts all storage under one replication rule in the CRUSH
 Map which provides the maximum amount of storage capacity for a cluster.  If you
 would like to use different storage endpoints for different purposes, you'll
 have to create separate storage groups.
@@ -295,7 +295,7 @@ After the CSI pods are restarted, the new settings should be in effect.
 
 ### Example CSI `ceph.conf` Settings
 
-In this [Example](https://github.com/rook/rook/tree/master/deploy/csi-ceph-conf-override.yaml) we
+In this [Example](https://github.com/koor-tech/koor/tree/master/deploy/csi-ceph-conf-override.yaml) we
 will set the `rbd_validate_pool` to `false` to skip rbd pool validation.
 
 !!! warning

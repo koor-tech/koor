@@ -23,12 +23,12 @@ import (
 	"testing"
 	"time"
 
-	v1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/k8sutil"
-	"github.com/rook/rook/tests/framework/clients"
-	"github.com/rook/rook/tests/framework/installer"
-	"github.com/rook/rook/tests/framework/utils"
+	v1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/tests/framework/clients"
+	"github.com/koor-tech/koor/tests/framework/installer"
+	"github.com/koor-tech/koor/tests/framework/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -123,7 +123,7 @@ func (s *UpgradeSuite) testUpgrade(useHelm bool, initialCephVersion v1.CephVersi
 		objectStoreCleanUp(&s.Suite, s.helper, s.k8sh, s.settings.Namespace, installer.ObjectStoreName)
 	}()
 
-	// Delete Object-SC before upgrade test (https://github.com/rook/rook/issues/10153)
+	// Delete Object-SC before upgrade test (https://github.com/koor-tech/koor/issues/10153)
 	_ = s.helper.BucketClient.DeleteBucketStorageClass(s.namespace, installer.ObjectStoreName, installer.ObjectStoreSCName, "Delete")
 
 	//
@@ -332,7 +332,7 @@ func (s *UpgradeSuite) verifyOperatorImage(expectedImage string) {
 	// verify that the operator spec is updated
 	version, err := k8sutil.GetDeploymentImage(context.TODO(), s.k8sh.Clientset, systemNamespace, operatorContainer, operatorContainer)
 	assert.NoError(s.T(), err)
-	assert.Equal(s.T(), "rook/ceph:"+expectedImage, version)
+	assert.Equal(s.T(), "koorinc/ceph:"+expectedImage, version)
 }
 
 func (s *UpgradeSuite) verifyRookUpgrade(numOSDs int) {

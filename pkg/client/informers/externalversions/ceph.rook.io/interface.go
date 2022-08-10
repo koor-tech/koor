@@ -19,8 +19,8 @@ limitations under the License.
 package ceph
 
 import (
-	v1 "github.com/rook/rook/pkg/client/informers/externalversions/ceph.rook.io/v1"
-	internalinterfaces "github.com/rook/rook/pkg/client/informers/externalversions/internalinterfaces"
+	v1 "github.com/koor-tech/koor/pkg/client/informers/externalversions/ceph.rook.io/v1"
+	internalinterfaces "github.com/koor-tech/koor/pkg/client/informers/externalversions/internalinterfaces"
 )
 
 // Interface provides access to each of this group's versions.

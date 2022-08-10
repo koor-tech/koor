@@ -20,9 +20,9 @@ package mgr
 import (
 	"time"
 
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/util/exec"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/util/exec"
 )
 
 const (

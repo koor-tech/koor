@@ -19,12 +19,12 @@ package ceph
 import (
 	"os"
 
-	"github.com/rook/rook/cmd/rook/rook"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	cleanup "github.com/rook/rook/pkg/daemon/ceph/cleanup"
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/k8sutil"
-	"github.com/rook/rook/pkg/util/flags"
+	"github.com/koor-tech/koor/cmd/rook/rook"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	cleanup "github.com/koor-tech/koor/pkg/daemon/ceph/cleanup"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/pkg/util/flags"
 	"github.com/spf13/cobra"
 )
 

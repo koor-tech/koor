@@ -57,4 +57,4 @@ spec:
               - c
 ```
 
-For more details, see the [Stretch Cluster design doc](https://github.com/rook/rook/blob/master/design/ceph/ceph-stretch-cluster.md).
+For more details, see the [Stretch Cluster design doc](https://github.com/koor-tech/koor/blob/master/design/ceph/ceph-stretch-cluster.md).

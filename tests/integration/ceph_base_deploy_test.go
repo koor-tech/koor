@@ -23,9 +23,9 @@ import (
 	"testing"
 
 	"github.com/coreos/pkg/capnslog"
-	"github.com/rook/rook/tests/framework/clients"
-	"github.com/rook/rook/tests/framework/installer"
-	"github.com/rook/rook/tests/framework/utils"
+	"github.com/koor-tech/koor/tests/framework/clients"
+	"github.com/koor-tech/koor/tests/framework/installer"
+	"github.com/koor-tech/koor/tests/framework/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -36,7 +36,7 @@ const (
 )
 
 var (
-	logger = capnslog.NewPackageLogger("github.com/rook/rook", "integrationTest")
+	logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "integrationTest")
 )
 
 // Test to make sure all rook components are installed and Running

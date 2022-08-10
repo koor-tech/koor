@@ -18,10 +18,10 @@ package main
 import (
 	"fmt"
 
-	"github.com/rook/rook/cmd/rook/ceph"
-	rook "github.com/rook/rook/cmd/rook/rook"
-	"github.com/rook/rook/cmd/rook/util"
-	"github.com/rook/rook/cmd/rook/version"
+	"github.com/koor-tech/koor/cmd/rook/ceph"
+	"github.com/koor-tech/koor/cmd/rook/rook"
+	"github.com/koor-tech/koor/cmd/rook/util"
+	"github.com/koor-tech/koor/cmd/rook/version"
 )
 
 func main() {

@@ -20,9 +20,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/rook/rook/pkg/clusterd"
-	opcontroller "github.com/rook/rook/pkg/operator/ceph/controller"
-	"github.com/rook/rook/pkg/operator/test"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
+	"github.com/koor-tech/koor/pkg/operator/test"
 	"github.com/stretchr/testify/assert"
 )
 

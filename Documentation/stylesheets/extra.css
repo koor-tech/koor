@@ -1,3 +1,8 @@
-[data-md-color-primary="rook-blue"] {
-    --md-primary-fg-color: #2ac6ea;
+:root {
+  --md-primary-fg-color: #19dda5;
+  --md-accent-fg-color: #cb2864;
+}
+
+.md-header {
+  background-color: #1d2628;
 }

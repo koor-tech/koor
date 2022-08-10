@@ -21,7 +21,7 @@ package externalversions
 import (
 	"fmt"
 
-	v1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
+	v1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
 )

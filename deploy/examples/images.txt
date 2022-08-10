@@ -1,3 +1,4 @@
+ koorinc/ceph:master
  quay.io/ceph/ceph:v17.2.3
  quay.io/cephcsi/cephcsi:v3.6.2
  quay.io/csiaddons/k8s-sidecar:v0.4.0
@@ -8,4 +9,3 @@
  registry.k8s.io/sig-storage/csi-resizer:v1.4.0
  registry.k8s.io/sig-storage/csi-snapshotter:v6.0.1
  registry.k8s.io/sig-storage/nfsplugin:v4.0.0
- rook/ceph:master

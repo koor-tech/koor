@@ -28,13 +28,13 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	oposd "github.com/koor-tech/koor/pkg/operator/ceph/cluster/osd"
+	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
+	"github.com/koor-tech/koor/pkg/util/display"
+	"github.com/koor-tech/koor/pkg/util/sys"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	oposd "github.com/rook/rook/pkg/operator/ceph/cluster/osd"
-	cephver "github.com/rook/rook/pkg/operator/ceph/version"
-	"github.com/rook/rook/pkg/util/display"
-	"github.com/rook/rook/pkg/util/sys"
 )
 
 const (
@@ -107,7 +107,7 @@ func (a *OsdAgent) configureCVDevices(context *clusterd.Context, devices *Device
 
 		if a.pvcBacked {
 			// So many things changed and it's good to remember this commit and its logic
-			// See: https://github.com/rook/rook/commit/8ea693a74011c587970dfc28a3d9efe2ef329159
+			// See: https://github.com/koor-tech/koor/commit/8ea693a74011c587970dfc28a3d9efe2ef329159
 			skipLVRelease := true
 
 			// For LV mode
@@ -499,7 +499,7 @@ func (a *OsdAgent) initializeDevices(context *clusterd.Context, devices *DeviceO
 		// skip creating OSDs on "phantom" partitions due to a bug in `ceph-volume raw inventory`
 		// which reports only the phantom partitions (and malformed OSD info) when they exist and
 		// ignores the original (correct) OSDs created on the raw disk.
-		// See: https://github.com/rook/rook/issues/7940
+		// See: https://github.com/koor-tech/koor/issues/7940
 		if allowRawMode && isSafeToUseRawMode(device, a.clusterInfo.CephVersion) {
 			rawDevices.Entries[name] = device
 			continue

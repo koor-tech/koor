@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"strings"
 
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
 )
 
 // FlattenMonEndpoints returns a comma-delimited string of all mons and endpoints in the form

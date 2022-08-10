@@ -21,11 +21,11 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/operator/k8sutil"
 
-	opcontroller "github.com/rook/rook/pkg/operator/ceph/controller"
+	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"

@@ -90,7 +90,7 @@ func (e *MockExecutor) ExecuteCommandWithCombinedOutput(command string, arg ...s
 // In order for this to work in a `*_test.go` file, you MUST import TestMockExecHelperProcess
 // exactly as shown below:
 //
-//	import exectest "github.com/rook/rook/pkg/util/exec/test"
+//	import exectest "github.com/koor-tech/koor/pkg/util/exec/test"
 //	// import TestMockExecHelperProcess
 //	func TestMockExecHelperProcess(t *testing.T) {
 //		exectest.TestMockExecHelperProcess(t)
