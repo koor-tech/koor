@@ -27,7 +27,7 @@ import (
 )
 
 var (
-	logger = capnslog.NewPackageLogger("github.com/rook/rook", "op-flags")
+	logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "op-flags")
 )
 
 func VerifyRequiredFlags(cmd *cobra.Command, requiredFlags []string) error {

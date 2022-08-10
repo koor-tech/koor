@@ -114,7 +114,7 @@ $ ceph osd down osd.<ID>
 
 ### Purge the OSD from the Ceph cluster
 
-OSD removal can be automated with the example found in the [rook-ceph-purge-osd job](https://github.com/rook/rook/blob/master/deploy/examples/osd-purge.yaml).
+OSD removal can be automated with the example found in the [rook-ceph-purge-osd job](https://github.com/koor-tech/koor/blob/master/deploy/examples/osd-purge.yaml).
 In the osd-purge.yaml, change the `<OSD-IDs>` to the ID(s) of the OSDs you want to remove.
 
 1. Run the job: `kubectl create -f osd-purge.yaml`

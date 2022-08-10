@@ -19,14 +19,14 @@ package file
 import (
 	"fmt"
 
-	"github.com/rook/rook/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/ceph/file/mds"
+	cephpool "github.com/koor-tech/koor/pkg/operator/ceph/pool"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/ceph/file/mds"
-	cephpool "github.com/rook/rook/pkg/operator/ceph/pool"
 )
 
 const (

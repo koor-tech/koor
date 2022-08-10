@@ -2,7 +2,7 @@
 title: Prometheus Monitoring
 ---
 
-Each Rook Ceph cluster has some built in metrics collectors/exporters for monitoring with [Prometheus](https://prometheus.io/).
+Each Koor cluster has some built in metrics collectors/exporters for monitoring with [Prometheus](https://prometheus.io/).
 
 If you do not have Prometheus running, follow the steps below to enable monitoring of Rook. If your cluster already
 contains a Prometheus instance, it will automatically discover Rook's scrape endpoint using the standard
@@ -38,8 +38,8 @@ With the Prometheus operator running, we can create a service monitor that will 
 From the root of your locally cloned Rook repo, go the monitoring directory:
 
 ```console
-$ git clone --single-branch --branch master https://github.com/rook/rook.git
-cd rook/deploy/examples/monitoring
+$ git clone --single-branch --branch master https://github.com/koor-tech/koor.git
+cd koor/deploy/examples/monitoring
 ```
 
 Create the service monitor as well as the Prometheus server pod and service:
@@ -144,7 +144,7 @@ The Prometheus alerts can be customized with a post-processor using tools such a
 For example, first extract the helm chart:
 
 ```console
-helm template -f values.yaml rook-release/rook-ceph-cluster > cluster-chart.yaml
+helm template -f values.yaml koor-release/rook-ceph-cluster > cluster-chart.yaml
 ```
 
 Now create the desired customization configuration files. This simple example will show how to

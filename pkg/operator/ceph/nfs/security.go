@@ -19,8 +19,8 @@ package nfs
 import (
 	"fmt"
 
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 )

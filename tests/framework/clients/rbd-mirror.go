@@ -19,8 +19,8 @@ package clients
 import (
 	"context"
 
-	"github.com/rook/rook/tests/framework/installer"
-	"github.com/rook/rook/tests/framework/utils"
+	"github.com/koor-tech/koor/tests/framework/installer"
+	"github.com/koor-tech/koor/tests/framework/utils"
 	"github.com/stretchr/testify/assert"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

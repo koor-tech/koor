@@ -24,10 +24,10 @@ import (
 	"time"
 
 	"github.com/coreos/pkg/capnslog"
+	"github.com/koor-tech/koor/pkg/daemon/util"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/daemon/util"
 
-	"github.com/rook/rook/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	batch "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -51,7 +51,7 @@ const (
 )
 
 var (
-	logger = capnslog.NewPackageLogger("github.com/rook/rook", "CmdReporter")
+	logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "CmdReporter")
 )
 
 // CmdReporter is a wrapper for Rook's cmd-reporter commandline utility allowing operators to use

@@ -20,10 +20,10 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/koor-tech/koor/cmd/rook/rook"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/util"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/cmd/rook/rook"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/util"
 	"github.com/spf13/cobra"
 )
 

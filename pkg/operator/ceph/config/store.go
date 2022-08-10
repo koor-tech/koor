@@ -21,10 +21,10 @@ package config
 import (
 	"strings"
 
+	"github.com/koor-tech/koor/pkg/clusterd"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/clusterd"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/k8sutil"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

@@ -19,8 +19,8 @@ package zonegroup
 import (
 	"encoding/json"
 
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 )
 
 type masterZoneGroupType struct {

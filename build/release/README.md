@@ -31,21 +31,21 @@ When ready for a release, pushing the release tag will trigger all the necessary
 
 The tags allow for a progression of pre-releases such as:
 
-* `v1.8.0-alpha.0`: Alpha release
-* `v1.8.0-beta.0`: Beta release
-* `v1.8.0-rc.0`: Release candidate
-* `v1.8.0`: Official release build
+* `v1.0.0-alpha.0`: Alpha release
+* `v1.0.0-beta.0`: Beta release
+* `v1.0.0-rc.0`: Release candidate
+* `v1.0.0`: Official release build
 
 The release tags should be agreed on by the release team.
 
 ### Creating the Release Branch
 
 The first time a minor release tag is pushed, the release branch will be created from master.
-Push an alpha version tag the first time the branch is created (e.g. `v1.8.0-alpha.0`).
+Push an alpha version tag the first time the branch is created (e.g. `v1.0.0-alpha.0`).
 
 Tagging will cause the release branch to be created. Next, merge a PR to the new release branch
-that updates the documentation and example manifests with a beta tag (e.g. `v1.8.0-beta.0`).
-Now you can tag the release with the beta tag (`v1.8.0-beta.0`) and the release will be built and released.
+that updates the documentation and example manifests with a beta tag (e.g. `v1.0.0-beta.0`).
+Now you can tag the release with the beta tag (`v1.0.0-beta.0`) and the release will be built and released.
 For all other minor or patch releases on this branch, simply follow the tagging instructions
 in the next section with the updated version.
 
@@ -70,4 +70,4 @@ Ensure that you only click `Save draft` until the release is complete, after whi
 
 ## Release Artifacts
 
-Images are pushed to docker hub under the [rook/ceph](https://hub.docker.com/r/rook/ceph/tags/) repo.
+Images are pushed to docker hub under the [koorinc/ceph](https://hub.docker.com/r/koorinc/ceph/tags/) repo.

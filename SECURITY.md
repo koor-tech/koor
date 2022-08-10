@@ -1,6 +1,6 @@
 # Security Release Process
 
-Rook is a large growing community of storage providers, contributors, and users. The Rook community
+Koor Storage Distribution is a growing community of contributors, and users. The Koor Storage Distribution community
 has adopted this security disclosure and response policy to ensure we responsibly handle critical
 issues.
 
@@ -9,12 +9,12 @@ This policy is adapted from the policies of the following CNCF projects:
 * [Envoy](https://github.com/envoyproxy/envoy)
 * [CoreDNS](https://github.com/coredns/coredns)
 
-The Rook community credits and appreciates the example and security best practices that they have
+The Koor Storage Distribution community credits and appreciates the example and security best practices that they have
 published openly.
 
 ## Security Audit
 
-A third party security audit was performed in December 2019 by [Trail of
+A third party security audit was performed on the Koor Storage Distribution project in December 2019 by [Trail of
 Bits](https://www.trailofbits.com/). The full security report has been published and is [available for
 download](https://drive.google.com/file/d/1rOwrwYmBUpLUm6W5J5rhXvdVit818hWJ/view?usp=sharing).
 
@@ -27,15 +27,12 @@ The Product Security Team (PST) is responsible for organizing the entire respons
 communication and external disclosure.
 
 The initial Product Security Team will consist of the set of maintainers that volunteered. Every
-beta or stable storage provider **MUST** have a representative on the PST.
+storage provider **MUST** have a representative on the PST.
 
 ### Mailing lists
 
-* [cncf-rook-security@lists.cncf.io](mailto:cncf-rook-security@lists.cncf.io): for any security concerns. Received by Product
+* [security@koor.tech](mailto:security@koor.tech): for any security concerns. Received by Product
   Security Team members, and used by this Team to discuss security issues and fixes.
-* [cncf-rook-distributors-announce@lists.cncf.io](mailto:cncf-rook-distributors-announce@lists.cncf.io): for
-  early private information on Security patch releases. See below how Rook distributors can apply
-  for this list.
 
 ## Disclosures
 
@@ -43,7 +40,7 @@ beta or stable storage provider **MUST** have a representative on the PST.
 
 If you find a security vulnerability or any security related issues, please **DO NOT** file a public
 issue. **Do not** create a GitHub issue. Instead, send your report privately to
-[cncf-rook-security@lists.cncf.io](mailto:cncf-rook-security@lists.cncf.io). Security reports are greatly appreciated and we will
+[security@koor.tech](mailto:security@koor.tech). Security reports are greatly appreciated and we will
 publicly thank you for it.
 
 Please provide as much information as possible, so we can react quickly. For instance, that could
@@ -58,7 +55,7 @@ include:
 ### Public Disclosure Processes
 
 If you know of a publicly disclosed security vulnerability please **IMMEDIATELY** email
-[cncf-rook-security@lists.cncf.io](mailto:cncf-rook-security@lists.cncf.io) to inform the Product Security Team (PST) about the
+[security@koor.tech](mailto:security@koor.tech) to inform the Product Security Team (PST) about the
 vulnerability so we start the patch, release, and communication process.
 
 If possible the PST will ask the person making the public report if the issue can be handled via a
@@ -75,7 +72,7 @@ referred to as the "Fix Lead."
 
 The role of Fix Lead should rotate round-robin across the PST.
 
-Note that given the current size of the Rook community it is likely that the PST is the same as the
+Note that given the current size of the Koor Storage Distribution community it is likely that the PST is the same as the
 "Fix team." The PST may decide to bring in additional contributors for added expertise depending on
 the area of the code that contains the vulnerability.
 
@@ -107,17 +104,17 @@ These steps should be completed within the 1-7 days of Disclosure.
 If the CVSS score is under 4.0 ([a low severity
 score](https://www.first.org/cvss/specification-document#i5)) the Fix Team can decide to slow the
 release process down in the face of holidays, developer bandwidth, etc. These decisions must be
-discussed on the [cncf-rook-security@lists.cncf.io](mailto:cncf-rook-security@lists.cncf.io) mailing list.
+discussed on the [security@koor.tech](mailto:security@koor.tech) mailing list.
 
 ### Fix Disclosure Process
 
-With the Fix Development underway the Rook Security Team needs to come up with an overall
+With the Fix Development underway the Koor Storage Distribution Security Team needs to come up with an overall
 communication plan for the wider community. This Disclosure process should begin after the Team has
 developed a fix or mitigation so that a realistic timeline can be communicated to users.
 
 **Disclosure of Forthcoming Fix to Users** (Completed within 1-7 days of Disclosure)
 
-* The Fix Lead will create a GitHub issue in Rook project to inform users that a security
+* The Fix Lead will create a GitHub issue in Koor Storage Distribution project to inform users that a security
   vulnerability has been disclosed and that a fix will be made available, with an estimation of the
   Release Date. It will include any mitigating steps users can take until a fix is available.
 
@@ -130,7 +127,7 @@ patches, understand exact mitigation steps, etc.
   enough to require early disclosure to distributors. Generally this Private Distributor Disclosure
   process should be reserved for remotely exploitable or privilege escalation issues. Otherwise,
   this process can be skipped.
-* The Fix Lead will email the patches to cncf-rook-distributors-announce@lists.cncf.io so distributors
+* The Fix Lead will email the patches to the Koor Newletter so distributors
   can prepare their own release to be available to users on the day of the issue's announcement.
   Distributors should read about the [Private Distributor List](#private-distributor-list) to find
   out the requirements for being added to this list.
@@ -168,7 +165,7 @@ Before any information from the list is shared with respective members of your t
 said issue, they must agree to the same terms and only find out information on a need-to-know basis.
 
 In the unfortunate event you share the information beyond what is allowed by this policy, you _must_
-urgently inform the [cncf-rook-security@lists.cncf.io](mailto:cncf-rook-security@lists.cncf.io) mailing list of exactly what
+urgently inform the [security@koor.tech](mailto:security@koor.tech) mailing list of exactly what
 information leaked and to whom.
 
 If you continue to leak information and break the policy outlined here, you will be removed from the
@@ -195,7 +192,7 @@ of the following:
 To be eligible for the cncf-rook-distributors-announce@lists.cncf.io mailing list, your distribution
 should:
 
-1. Be an active distributor of Rook.
+1. Be an active distributor of Koor Storage Distribution.
 2. Have a user base not limited to your own organization.
 3. Have a publicly verifiable track record up to present day of fixing security issues.
 4. Not be a downstream or rebuild of another distributor.
@@ -206,7 +203,7 @@ should:
 
 ### Requesting to Join
 
-New membership requests are sent to [cncf-rook-security@lists.cncf.io](mailto:cncf-rook-security@lists.cncf.io).
+New membership requests are sent to [security@koor.tech](mailto:security@koor.tech).
 
 In the body of your request please specify how you qualify and fulfill each criterion listed in
 [Membership Criteria](#membership-criteria).

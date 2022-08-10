@@ -23,11 +23,11 @@ import (
 	"strings"
 
 	"github.com/hashicorp/vault/api"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/libopenstorage/secrets"
 	"github.com/libopenstorage/secrets/vault"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

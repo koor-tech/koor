@@ -46,7 +46,7 @@ if [[ -z "$1" ]]; then
     echo ""
     echo "ARGUMENT'S ORDER MATTERS"
     echo ""
-    echo "make csv-ceph CSV_VERSION=1.0.1 CSV_PLATFORM=k8s ROOK_OP_VERSION=rook/ceph:v1.0.1"
+    echo "make csv-ceph CSV_VERSION=1.0.1 CSV_PLATFORM=k8s ROOK_OP_VERSION=koorinc/ceph:v1.0.1"
     exit 1
 fi
 VERSION=$1
@@ -56,7 +56,7 @@ if [[ -z $2 ]]; then
     echo ""
     echo "ARGUMENT'S ORDER MATTERS"
     echo ""
-    echo "make csv-ceph CSV_VERSION=1.0.1 CSV_PLATFORM=k8s ROOK_OP_VERSION=rook/ceph:v1.0.1"
+    echo "make csv-ceph CSV_VERSION=1.0.1 CSV_PLATFORM=k8s ROOK_OP_VERSION=koorinc/ceph:v1.0.1"
     exit 1
 fi
 
@@ -74,7 +74,7 @@ if [[ -z $3 ]]; then
     echo ""
     echo "ARGUMENT'S ORDER MATTERS"
     echo ""
-    echo "make csv-ceph CSV_VERSION=1.0.1 CSV_PLATFORM=k8s ROOK_OP_VERSION=rook/ceph:v1.0.1"
+    echo "make csv-ceph CSV_VERSION=1.0.1 CSV_PLATFORM=k8s ROOK_OP_VERSION=koorinc/ceph:v1.0.1"
     exit 1
 fi
 ROOK_OP_VERSION=$3

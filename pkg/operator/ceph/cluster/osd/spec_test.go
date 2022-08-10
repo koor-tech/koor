@@ -20,15 +20,15 @@ package osd
 import (
 	"testing"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/ceph/cluster/osd/config"
-	opconfig "github.com/rook/rook/pkg/operator/ceph/config"
-	operatortest "github.com/rook/rook/pkg/operator/ceph/test"
-	cephver "github.com/rook/rook/pkg/operator/ceph/version"
-	"github.com/rook/rook/pkg/operator/k8sutil"
-	exectest "github.com/rook/rook/pkg/util/exec/test"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/osd/config"
+	opconfig "github.com/koor-tech/koor/pkg/operator/ceph/config"
+	operatortest "github.com/koor-tech/koor/pkg/operator/ceph/test"
+	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
 	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -105,7 +105,7 @@ func testPodDevices(t *testing.T, dataDir, deviceName string, allDevices bool) {
 			},
 		},
 	}
-	c := New(context, clusterInfo, spec, "rook/rook:myversion")
+	c := New(context, clusterInfo, spec, "koorinc/ceph:myversion")
 
 	devMountNeeded := deviceName != "" || allDevices
 
@@ -434,7 +434,7 @@ func testPodDevices(t *testing.T, dataDir, deviceName string, allDevices bool) {
 		}
 		clusterInfo.SetName("test")
 		clusterInfo.OwnerInfo = cephclient.NewMinimumOwnerInfo(t)
-		c := New(context, clusterInfo, spec, "rook/rook:myversion")
+		c := New(context, clusterInfo, spec, "koorinc/ceph:myversion")
 		deployment, err = c.makeDeployment(osdProp, osd, dataPathMap)
 		assert.NoError(t, err)
 		assert.False(t, deployment.Spec.Template.Spec.HostPID, deployment.Spec.Template.Spec.HostPID)
@@ -514,7 +514,7 @@ func TestStorageSpecConfig(t *testing.T) {
 		},
 	}
 
-	c := New(context, clusterInfo, spec, "rook/rook:myversion")
+	c := New(context, clusterInfo, spec, "koorinc/ceph:myversion")
 	n := c.spec.Storage.ResolveNode(spec.Storage.Nodes[0].Name)
 	storeConfig := config.ToStoreConfig(spec.Storage.Nodes[0].Config)
 	metadataDevice := config.MetadataDevice(spec.Storage.Nodes[0].Config)
@@ -572,7 +572,7 @@ func TestHostNetwork(t *testing.T) {
 		Storage: storageSpec,
 		Network: cephv1.NetworkSpec{HostNetwork: true},
 	}
-	c := New(context, clusterInfo, spec, "rook/rook:myversion")
+	c := New(context, clusterInfo, spec, "koorinc/ceph:myversion")
 
 	n := c.spec.Storage.ResolveNode(storageSpec.Nodes[0].Name)
 	osd := OSDInfo{
@@ -619,7 +619,7 @@ func TestOsdPrepareResources(t *testing.T) {
 		},
 		},
 	}
-	c := New(context, clusterInfo, spec, "rook/rook:myversion")
+	c := New(context, clusterInfo, spec, "koorinc/ceph:myversion")
 
 	r := cephv1.GetPrepareOSDResources(c.spec.Resources)
 	assert.Equal(t, "2000", r.Limits.Cpu().String())
@@ -629,7 +629,7 @@ func TestOsdPrepareResources(t *testing.T) {
 }
 
 func TestClusterGetPVCEncryptionOpenInitContainerActivate(t *testing.T) {
-	c := New(&clusterd.Context{}, &cephclient.ClusterInfo{OwnerInfo: &k8sutil.OwnerInfo{}}, cephv1.ClusterSpec{}, "rook/rook:myversion")
+	c := New(&clusterd.Context{}, &cephclient.ClusterInfo{OwnerInfo: &k8sutil.OwnerInfo{}}, cephv1.ClusterSpec{}, "koorinc/ceph:myversion")
 	osdProperties := osdProperties{
 		pvc: corev1.PersistentVolumeClaimVolumeSource{
 			ClaimName: "pvc1",
@@ -653,7 +653,7 @@ func TestClusterGetPVCEncryptionOpenInitContainerActivate(t *testing.T) {
 }
 
 func TestClusterGetPVCEncryptionInitContainerActivate(t *testing.T) {
-	c := New(&clusterd.Context{}, &cephclient.ClusterInfo{OwnerInfo: &k8sutil.OwnerInfo{}}, cephv1.ClusterSpec{}, "rook/rook:myversion")
+	c := New(&clusterd.Context{}, &cephclient.ClusterInfo{OwnerInfo: &k8sutil.OwnerInfo{}}, cephv1.ClusterSpec{}, "koorinc/ceph:myversion")
 	osdProperties := osdProperties{
 		pvc: corev1.PersistentVolumeClaimVolumeSource{
 			ClaimName: "pvc1",
@@ -819,7 +819,7 @@ func TestOSDPlacement(t *testing.T) {
 	},
 	}
 
-	c := New(context, clusterInfo, spec, "rook/rook:myversion")
+	c := New(context, clusterInfo, spec, "koorinc/ceph:myversion")
 	osd := OSDInfo{
 		ID:     0,
 		CVMode: "raw",
@@ -842,7 +842,7 @@ func TestOSDPlacement(t *testing.T) {
 
 	// When OnlyApplyOSDPlacement true, in case of PVC
 	spec.Storage.OnlyApplyOSDPlacement = true
-	c = New(context, clusterInfo, spec, "rook/rook:myversion")
+	c = New(context, clusterInfo, spec, "koorinc/ceph:myversion")
 	r, err = c.makeDeployment(osdProps, osd, dataPathMap)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(r.Spec.Template.Spec.Affinity.NodeAffinity.RequiredDuringSchedulingIgnoredDuringExecution.NodeSelectorTerms[0].MatchExpressions))
@@ -855,7 +855,7 @@ func TestOSDPlacement(t *testing.T) {
 	// When OnlyApplyOSDPlacement false, in case of non-PVC
 	spec.Storage.OnlyApplyOSDPlacement = false
 	osdProps = osdProperties{}
-	c = New(context, clusterInfo, spec, "rook/rook:myversion")
+	c = New(context, clusterInfo, spec, "koorinc/ceph:myversion")
 	r, err = c.makeDeployment(osdProps, osd, dataPathMap)
 	assert.NoError(t, err)
 	assert.Equal(t, 2, len(r.Spec.Template.Spec.Affinity.NodeAffinity.RequiredDuringSchedulingIgnoredDuringExecution.NodeSelectorTerms[0].MatchExpressions))
@@ -867,7 +867,7 @@ func TestOSDPlacement(t *testing.T) {
 
 	// When OnlyApplyOSDPlacement true, in case of non-PVC
 	spec.Storage.OnlyApplyOSDPlacement = true
-	c = New(context, clusterInfo, spec, "rook/rook:myversion")
+	c = New(context, clusterInfo, spec, "koorinc/ceph:myversion")
 	r, err = c.makeDeployment(osdProps, osd, dataPathMap)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(r.Spec.Template.Spec.Affinity.NodeAffinity.RequiredDuringSchedulingIgnoredDuringExecution.NodeSelectorTerms[0].MatchExpressions))

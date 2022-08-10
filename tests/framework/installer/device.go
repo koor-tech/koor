@@ -19,8 +19,8 @@ package installer
 import (
 	"strings"
 
-	"github.com/rook/rook/pkg/util/exec"
-	"github.com/rook/rook/pkg/util/sys"
+	"github.com/koor-tech/koor/pkg/util/exec"
+	"github.com/koor-tech/koor/pkg/util/sys"
 )
 
 // IsAdditionalDeviceAvailableOnCluster checks whether a given device is available to become an OSD

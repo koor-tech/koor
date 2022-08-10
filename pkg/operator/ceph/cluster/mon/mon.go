@@ -31,17 +31,17 @@ import (
 
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/coreos/pkg/capnslog"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	cephutil "github.com/koor-tech/koor/pkg/daemon/ceph/util"
+	"github.com/koor-tech/koor/pkg/operator/ceph/config"
+	"github.com/koor-tech/koor/pkg/operator/ceph/config/keyring"
+	"github.com/koor-tech/koor/pkg/operator/ceph/controller"
+	"github.com/koor-tech/koor/pkg/operator/ceph/csi"
+	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	cephutil "github.com/rook/rook/pkg/daemon/ceph/util"
-	"github.com/rook/rook/pkg/operator/ceph/config"
-	"github.com/rook/rook/pkg/operator/ceph/config/keyring"
-	"github.com/rook/rook/pkg/operator/ceph/controller"
-	"github.com/rook/rook/pkg/operator/ceph/csi"
-	cephver "github.com/rook/rook/pkg/operator/ceph/version"
-	"github.com/rook/rook/pkg/operator/k8sutil"
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -90,7 +90,7 @@ const (
 )
 
 var (
-	logger = capnslog.NewPackageLogger("github.com/rook/rook", "op-mon")
+	logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "op-mon")
 
 	// hook for tests to override
 	waitForMonitorScheduling = realWaitForMonitorScheduling

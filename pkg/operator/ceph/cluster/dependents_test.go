@@ -19,8 +19,8 @@ package cluster
 import (
 	"testing"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

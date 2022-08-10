@@ -22,8 +22,8 @@ import (
 	"reflect"
 	"testing"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	optest "github.com/rook/rook/pkg/operator/test"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	optest "github.com/koor-tech/koor/pkg/operator/test"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -438,12 +438,12 @@ func TestGenerateNodeAffinity(t *testing.T) {
 			name: "GenerateNodeAffinityWithYAMLInputUsingDoesNotExistOperator",
 			args: args{
 				nodeAffinity: `
---- 
-requiredDuringSchedulingIgnoredDuringExecution: 
-  nodeSelectorTerms: 
-    - 
-      matchExpressions: 
-        - 
+---
+requiredDuringSchedulingIgnoredDuringExecution:
+  nodeSelectorTerms:
+    -
+      matchExpressions:
+        -
           key: myKey
           operator: DoesNotExist`,
 			},
@@ -467,15 +467,15 @@ requiredDuringSchedulingIgnoredDuringExecution:
 			name: "GenerateNodeAffinityWithYAMLInputUsingNotInOperator",
 			args: args{
 				nodeAffinity: `
---- 
-requiredDuringSchedulingIgnoredDuringExecution: 
-  nodeSelectorTerms: 
-    - 
-      matchExpressions: 
-        - 
+---
+requiredDuringSchedulingIgnoredDuringExecution:
+  nodeSelectorTerms:
+    -
+      matchExpressions:
+        -
           key: myKey
           operator: NotIn
-          values: 
+          values:
             - myValue`,
 			},
 			want: &v1.NodeAffinity{

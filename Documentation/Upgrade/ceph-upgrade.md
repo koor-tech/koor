@@ -7,8 +7,8 @@ Rook and Ceph upgrades are designed to ensure data remains available even while
 the upgrade is proceeding. Rook will perform the upgrades in a rolling fashion
 such that application pods are not disrupted.
 
-Rook is cautious when performing upgrades. When an upgrade is requested (the Ceph image has been
-updated in the CR), Rook will go through all the daemons one by one and will individually perform
+Koor Storage Distribution is cautious when performing upgrades. When an upgrade is requested (the Ceph image has been
+updated in the CR), Koor Storage Distribution will go through all the daemons one by one and will individually perform
 checks on them. It will make sure a particular daemon can be stopped before performing the upgrade.
 Once the deployment has been updated, it checks if this is ok to continue. After each daemon is
 updated we wait for things to settle (monitors to be in a quorum, PGs to be clean for OSDs, up for
@@ -37,7 +37,7 @@ before upgrading to Rook v1.10.
     **if it is in `HEALTH_ERR` the operator will refuse to proceed with the upgrade.**
 
 We recommend updating to v16.2.7 or newer. If you require updating **to v16.2.0-v16.2.6**,
-please see the [v1.8 upgrade guide for a special upgrade consideration](https://rook.github.io/docs/rook/v1.8/ceph-upgrade.html#disable-bluestore_fsck_quick_fix_on_mount).
+please see the [v1.0 upgrade guide for a special upgrade consideration](https://docs.koor.tech/docs/v1.0/ceph-upgrade.html#disable-bluestore_fsck_quick_fix_on_mount).
 
 ### Quincy Consideration
 
@@ -49,7 +49,7 @@ If you do use CephBlockPool to customize the configuration of the `device_health
 will need two extra steps after the Ceph upgrade is complete. Once upgrade is complete:
 
 1. Create a new CephBlockPool to configure the `.mgr` built-in pool. You can reference the example
-[builtin mgr pool](https://github.com/rook/rook/blob/master/deploy/examples/pool-builtin-mgr.yaml).
+[builtin mgr pool](https://github.com/koor-tech/koor/blob/master/deploy/examples/pool-builtin-mgr.yaml).
 2. Delete the old CephBlockPool that represents the `device_health_metrics` pool.
 
 ### CephNFS User Consideration

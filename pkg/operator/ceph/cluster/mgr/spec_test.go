@@ -19,13 +19,13 @@ package mgr
 import (
 	"testing"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/ceph/config"
-	"github.com/rook/rook/pkg/operator/ceph/controller"
-	"github.com/rook/rook/pkg/operator/ceph/test"
-	optest "github.com/rook/rook/pkg/operator/test"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/ceph/config"
+	"github.com/koor-tech/koor/pkg/operator/ceph/controller"
+	"github.com/koor-tech/koor/pkg/operator/ceph/test"
+	optest "github.com/koor-tech/koor/pkg/operator/test"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -53,7 +53,7 @@ func TestPodSpec(t *testing.T) {
 		},
 		},
 	}
-	c := New(&clusterd.Context{Clientset: clientset}, clusterInfo, clusterSpec, "rook/rook:myversion")
+	c := New(&clusterd.Context{Clientset: clientset}, clusterInfo, clusterSpec, "koorinc/ceph:myversion")
 
 	mgrTestConfig := mgrConfig{
 		DaemonID:     "a",

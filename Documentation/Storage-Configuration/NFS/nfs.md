@@ -18,7 +18,7 @@ via direct client connection from within or outside of the Kubernetes cluster.
     Due to a number of Ceph issues and changes, Rook officially only supports Ceph
     v16.2.7 or higher for CephNFS. If you are using an earlier version, upgrade your Ceph version
     following the advice given in Rook's
-    [v1.9 NFS docs](https://rook.github.io/docs/rook/latest/CRDs/ceph-nfs-crd/).
+    [v1.0 NFS docs](https://docs.koor.tech/docs/rook/latest-release/CRDs/ceph-nfs-crd/).
 
 !!! note
     CephNFSes support NFSv4.1+ access only. Serving earlier protocols inhibits responsiveness after
@@ -33,8 +33,8 @@ This guide assumes you have created a Rook cluster as explained in the main
 storage for NFS.
 
 Many samples reference the CephNFS and CephFilesystem example manifests
-[here](https://github.com/rook/rook/blob/master/deploy/examples/nfs.yaml) and
-[here](https://github.com/rook/rook/blob/master/deploy/examples/filesystem.yaml).
+[here](https://github.com/koor-tech/koor/blob/master/deploy/examples/nfs.yaml) and
+[here](https://github.com/koor-tech/koor/blob/master/deploy/examples/filesystem.yaml).
 
 
 ## Creating an NFS cluster
@@ -157,7 +157,7 @@ mount -t nfs4 -o proto=tcp <nfs-service-address>:/<export-path> <mount-location>
 Use a LoadBalancer Service to expose an NFS server (and its exports) outside of the Kubernetes
 cluster. The Service's endpoint can be used as the NFS service address when
 [mounting the export manually](#mounting-exports). We provide an example Service here:
-[`deploy/examples/nfs-load-balancer.yaml`](https://github.com/rook/rook/tree/master/deploy/examples).
+[`deploy/examples/nfs-load-balancer.yaml`](https://github.com/koor-tech/koor/tree/master/deploy/examples).
 
 
 ## NFS Security

@@ -15,7 +15,7 @@ don't hesitate to reach out to us on our [Slack](https://Rook-io.slack.com) dev 
 
 ### Create a Fork
 
-From your browser navigate to [http://github.com/rook/rook](http://github.com/rook/rook) and click the "Fork" button.
+From your browser navigate to [http://github.com/koor-tech/koor](http://github.com/koor-tech/koor) and click the "Fork" button.
 
 ### Clone Your Fork
 
@@ -60,7 +60,7 @@ the following settings in your IDE:
     VS Code should prompt you automatically with some recommended extensions to install.
     E.g., Markdown All in One, Go and YAML validator.
 
-A set of recommended settings when working on Rook, can be found [here](https://github.com/rook/rook/blob/master/.vscode/settings.json).
+A set of recommended settings when working on Rook, can be found [here](https://github.com/koor-tech/koor/blob/master/.vscode/settings.json).
 
 !!! tip
     VS Code should automatically use these settings through the `.vscode/settings.json` file.
@@ -71,7 +71,7 @@ First you will need to add the upstream remote to your local git:
 
 ```console
 # Add 'upstream' to the list of remotes
-git remote add upstream https://github.com/rook/rook.git
+git remote add upstream https://github.com/koor-tech/koor.git
 
 # Verify the remote was added
 git remote -v
@@ -152,14 +152,14 @@ Authoring a design document for big features has many advantages:
 
 Note that writing code to prototype the feature while working on the design may be very useful to help flesh out the approach.
 
-A design document should be written as a markdown file in the [design folder](https://github.com/rook/rook/tree/master/design).
-You can follow the process outlined in the [design template](https://github.com/rook/rook/tree/master/design/design_template.md).
+A design document should be written as a markdown file in the [design folder](https://github.com/koor-tech/koor/tree/master/design).
+You can follow the process outlined in the [design template](https://github.com/koor-tech/koor/tree/master/design/design_template.md).
 You will see many examples of previous design documents in that folder.
 Submit a pull request for the design to be discussed and approved by the community before being merged into master, just like any other change to the repository.
 
 An issue should be opened to track the work of authoring and completing the design document.
 This issue is in addition to the issue that is tracking the implementation of the feature.
-The [design label](https://github.com/rook/rook/labels/design) should be assigned to the issue to denote it as such.
+The [design label](https://github.com/koor-tech/koor/labels/design) should be assigned to the issue to denote it as such.
 
 ### Create a Branch
 
@@ -198,7 +198,7 @@ Rebasing is a very powerful feature of Git. You need to understand how it works 
 ## Submitting a Pull Request
 
 Once you have implemented the feature or bug fix in your branch, you will open a Pull Request (PR)
-to the [upstream Rook repository](https://github.com/rook/rook). Before opening the PR ensure you
+to the [upstream Rook repository](https://github.com/koor-tech/koor). Before opening the PR ensure you
 have added unit tests and all unit tests are passing. Please clean your commit history and rebase on
 the latest upstream changes.
 
@@ -259,7 +259,7 @@ Rook's upstream continuous integration (CI) tests will run integration tests aga
 automatically.
 
 You do not need to run these tests locally, but you may if you like. For instructions on how to do
-so, follow the [test instructions](https://github.com/rook/rook/blob/master/tests/README.md).
+so, follow the [test instructions](https://github.com/koor-tech/koor/blob/master/tests/README.md).
 
 ### Commit structure
 
@@ -281,11 +281,11 @@ component: commit title
 This is the commit message, here I'm explaining, what the bug was along with its root cause.
 Then I'm explaining how I fixed it.
 
-Closes: https://github.com/rook/rook/issues/<NUMBER>
+Closes: https://github.com/koor-tech/koor/issues/<NUMBER>
 Signed-off-by: First Name Last Name <email address>
 ```
 
-The `component` **MUST** be in the [list checked by the CI](https://github.com/rook/rook/blob/master/.commitlintrc.json).
+The `component` **MUST** be in the [list checked by the CI](https://github.com/koor-tech/koor/blob/master/.commitlintrc.json).
 
 Note: sometimes you will feel like there is not so much to say, for instance if you are fixing a typo in a text.
 In that case, it is acceptable to shorten the commit message.
@@ -312,11 +312,11 @@ Once your commit history is clean, ensure you have based on the [latest upstream
 
 ### Submitting
 
-Go to the [Rook github](https://www.github.com/rook/rook) to open the PR. If you have pushed recently, you should see an obvious link to open the PR. If you have not pushed recently, go to the Pull Request tab and select your fork and branch for the PR.
+Go to the [Rook github](https://www.github.com/koor-tech/koor) to open the PR. If you have pushed recently, you should see an obvious link to open the PR. If you have not pushed recently, go to the Pull Request tab and select your fork and branch for the PR.
 
 After the PR is open, you can make changes simply by pushing new commits. Your PR will track the changes in your fork and update automatically.
 
-**Never** open a pull request against a released branch (e.g. release-1.2) unless the content you are editing is gone from master and only exists in the released branch.
+**Never** open a pull request against a released branch (e.g. `release-1.0`) unless the content you are editing is gone from master and only exists in the released branch.
 By default, you should always open a pull request against master.
 
 ### Backport a Fix to a Release Branch
@@ -324,7 +324,7 @@ By default, you should always open a pull request against master.
 The flow for getting a fix into a release branch is:
 
 1. Open a PR to merge the changes to master following the process outlined above.
-2. Add the backport label to that PR such as backport-release-1.7
+2. Add the backport label to that PR such as `backport-release-1.0`
 3. After your PR is merged to master, the mergify bot will automatically open a PR with your commits backported to the release branch
 4. If there are any conflicts you will need to resolve them by pulling the branch, resolving the conflicts and force push back the branch
 5. After the CI is green, the bot will automatically merge the backport PR.

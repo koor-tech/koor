@@ -23,12 +23,12 @@ import (
 	"testing"
 	"time"
 
-	v1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/k8sutil"
-	"github.com/rook/rook/tests/framework/clients"
-	"github.com/rook/rook/tests/framework/installer"
-	"github.com/rook/rook/tests/framework/utils"
+	v1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/tests/framework/clients"
+	"github.com/koor-tech/koor/tests/framework/installer"
+	"github.com/koor-tech/koor/tests/framework/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -88,7 +88,7 @@ func (s *UpgradeSuite) baseSetup(useHelm bool, initialCephVersion v1.CephVersion
 		Mons:                        1,
 		EnableDiscovery:             true,
 		SkipClusterCleanup:          true,
-		RookVersion:                 installer.Version1_8,
+		RookVersion:                 installer.Version1_0,
 		CephVersion:                 initialCephVersion,
 	}
 
@@ -123,13 +123,13 @@ func (s *UpgradeSuite) testUpgrade(useHelm bool, initialCephVersion v1.CephVersi
 		objectStoreCleanUp(&s.Suite, s.helper, s.k8sh, s.settings.Namespace, installer.ObjectStoreName)
 	}()
 
-	// Delete Object-SC before upgrade test (https://github.com/rook/rook/issues/10153)
+	// Delete Object-SC before upgrade test (https://github.com/koor-tech/koor/issues/10153)
 	_ = s.helper.BucketClient.DeleteBucketStorageClass(s.namespace, installer.ObjectStoreName, installer.ObjectStoreSCName, "Delete")
 
 	//
-	// Upgrade Rook from v1.8 to master
+	// Upgrade Rook from v1.0 to master
 	//
-	logger.Infof("*** UPGRADING ROOK FROM %s to master ***", installer.Version1_8)
+	logger.Infof("*** UPGRADING ROOK FROM %s to master ***", installer.Version1_0)
 	s.gatherLogs(s.settings.OperatorNamespace, "_before_master_upgrade")
 	s.upgradeToMaster()
 
@@ -138,7 +138,7 @@ func (s *UpgradeSuite) testUpgrade(useHelm bool, initialCephVersion v1.CephVersi
 	err := s.installer.WaitForToolbox(s.namespace)
 	assert.NoError(s.T(), err)
 
-	logger.Infof("Done with automatic upgrade from %s to master", installer.Version1_8)
+	logger.Infof("Done with automatic upgrade from %s to master", installer.Version1_0)
 	newFile := "post-upgrade-1_8-to-master-file"
 	s.verifyFilesAfterUpgrade(newFile, rbdFilesToRead, cephfsFilesToRead)
 	rbdFilesToRead = append(rbdFilesToRead, newFile)
@@ -150,7 +150,7 @@ func (s *UpgradeSuite) testUpgrade(useHelm bool, initialCephVersion v1.CephVersi
 	// do not need retry b/c the OBC controller runs parallel to Rook-Ceph orchestration
 	assert.True(s.T(), s.helper.BucketClient.CheckOBC(obcName, "bound"))
 
-	logger.Infof("Verified upgrade from %s to master", installer.Version1_8)
+	logger.Infof("Verified upgrade from %s to master", installer.Version1_0)
 
 	// SKIP the Ceph version upgrades for the helm test
 	if s.settings.UseHelm {
@@ -286,7 +286,7 @@ func (s *UpgradeSuite) deployClusterforUpgrade(objectUserID, preFilename string)
 	require.True(s.T(), created)
 
 	// verify that we're actually running the right pre-upgrade image
-	s.verifyOperatorImage(installer.Version1_8)
+	s.verifyOperatorImage(installer.Version1_0)
 
 	assert.NoError(s.T(), s.k8sh.WriteToPod("", rbdPodName, preFilename, simpleTestMessage))
 	assert.NoError(s.T(), s.k8sh.ReadFromPod("", rbdPodName, preFilename, simpleTestMessage))
@@ -332,7 +332,7 @@ func (s *UpgradeSuite) verifyOperatorImage(expectedImage string) {
 	// verify that the operator spec is updated
 	version, err := k8sutil.GetDeploymentImage(context.TODO(), s.k8sh.Clientset, systemNamespace, operatorContainer, operatorContainer)
 	assert.NoError(s.T(), err)
-	assert.Equal(s.T(), "rook/ceph:"+expectedImage, version)
+	assert.Equal(s.T(), "koorinc/ceph:"+expectedImage, version)
 }
 
 func (s *UpgradeSuite) verifyRookUpgrade(numOSDs int) {

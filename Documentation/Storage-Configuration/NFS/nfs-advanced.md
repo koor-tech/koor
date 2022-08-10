@@ -12,7 +12,7 @@ By default, Rook creates the `.nfs` pool with Ceph's default configuration. If y
 the configuration of this pool (for example to change its failure domain or replication factor), you
 can create a CephBlockPool with the `spec.name` field set to `.nfs`. This pool **must** be
 replicated and **cannot** be erasure coded.
-[`deploy/examples/nfs.yaml`](https://github.com/rook/rook/blob/master/deploy/examples/nfs.yaml)
+[`deploy/examples/nfs.yaml`](https://github.com/koor-tech/koor/blob/master/deploy/examples/nfs.yaml)
 contains a sample for reference.
 
 ## Adding custom NFS-Ganesha config file changes

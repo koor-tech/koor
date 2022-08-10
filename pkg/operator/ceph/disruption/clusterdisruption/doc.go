@@ -17,6 +17,6 @@ limitations under the License.
 /*
 Package clusterdisruption implements the controller for ensuring that drains occurs in a safe manner.
 The design and purpose for clusterdisruption management is found at:
-https://github.com/rook/rook/blob/master/design/ceph/ceph-managed-disruptionbudgets.md
+https://github.com/koor-tech/koor/blob/master/design/ceph/ceph-managed-disruptionbudgets.md
 */
 package clusterdisruption

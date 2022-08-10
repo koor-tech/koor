@@ -19,7 +19,7 @@ package osd
 import (
 	"encoding/json"
 
-	"github.com/rook/rook/pkg/util/sys"
+	"github.com/koor-tech/koor/pkg/util/sys"
 )
 
 const (

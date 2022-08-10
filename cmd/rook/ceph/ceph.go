@@ -22,11 +22,11 @@ import (
 	"github.com/coreos/pkg/capnslog"
 	"github.com/spf13/cobra"
 
-	"github.com/rook/rook/cmd/rook/rook"
-	"github.com/rook/rook/pkg/clusterd"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	osdconfig "github.com/rook/rook/pkg/operator/ceph/cluster/osd/config"
-	"github.com/rook/rook/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/cmd/rook/rook"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	osdconfig "github.com/koor-tech/koor/pkg/operator/ceph/cluster/osd/config"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 )
 
 // Cmd is the main command for operator and daemons.
@@ -38,7 +38,7 @@ var Cmd = &cobra.Command{
 var (
 	cfg         = &config{}
 	clusterInfo cephclient.ClusterInfo
-	logger      = capnslog.NewPackageLogger("github.com/rook/rook", "cephcmd")
+	logger      = capnslog.NewPackageLogger("github.com/koor-tech/koor", "cephcmd")
 )
 
 type config struct {

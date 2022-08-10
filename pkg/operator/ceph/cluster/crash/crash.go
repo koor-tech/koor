@@ -22,14 +22,14 @@ import (
 
 	"k8s.io/api/batch/v1beta1"
 
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/operator/ceph/config"
+	"github.com/koor-tech/koor/pkg/operator/ceph/config/keyring"
+	"github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/operator/ceph/config"
-	"github.com/rook/rook/pkg/operator/ceph/config/keyring"
-	"github.com/rook/rook/pkg/operator/ceph/controller"
 
-	cephver "github.com/rook/rook/pkg/operator/ceph/version"
-	"github.com/rook/rook/pkg/operator/k8sutil"
+	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"

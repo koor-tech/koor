@@ -18,8 +18,8 @@ package client
 import (
 	"encoding/json"
 
+	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/clusterd"
 )
 
 // AuthGetOrCreate will either get or create a user with the given capabilities.  The keyring for the

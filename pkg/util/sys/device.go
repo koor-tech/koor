@@ -26,7 +26,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/google/uuid"
-	"github.com/rook/rook/pkg/util/exec"
+	"github.com/koor-tech/koor/pkg/util/exec"
 )
 
 const (

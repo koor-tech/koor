@@ -1,5 +1,5 @@
 ---
-title: Rook Upgrades
+title: Upgrades
 ---
 
 This guide will walk you through the steps to upgrade the software in a Rook cluster from one
@@ -14,7 +14,7 @@ We welcome feedback and opening issues!
 
 ## Supported Versions
 
-This guide is for upgrading from **Rook v1.8.x to Rook v1.9.x**.
+This guide is for upgrading from **Rook v1.0.x to Rook v1.0.x**.
 
 Please refer to the upgrade guides from previous releases for supported upgrade paths.
 Rook upgrades are only supported between official releases.
@@ -22,82 +22,52 @@ Rook upgrades are only supported between official releases.
 For a guide to upgrade previous versions of Rook, please refer to the version of documentation for
 those releases.
 
-* [Upgrade 1.7 to 1.8](https://rook.io/docs/rook/v1.8/ceph-upgrade.html)
-* [Upgrade 1.6 to 1.7](https://rook.io/docs/rook/v1.7/ceph-upgrade.html)
-* [Upgrade 1.5 to 1.6](https://rook.io/docs/rook/v1.6/ceph-upgrade.html)
-* [Upgrade 1.4 to 1.5](https://rook.io/docs/rook/v1.5/ceph-upgrade.html)
-* [Upgrade 1.3 to 1.4](https://rook.io/docs/rook/v1.4/ceph-upgrade.html)
-* [Upgrade 1.2 to 1.3](https://rook.io/docs/rook/v1.3/ceph-upgrade.html)
-* [Upgrade 1.1 to 1.2](https://rook.io/docs/rook/v1.2/ceph-upgrade.html)
-* [Upgrade 1.0 to 1.1](https://rook.io/docs/rook/v1.1/ceph-upgrade.html)
-* [Upgrade 0.9 to 1.0](https://rook.io/docs/rook/v1.0/ceph-upgrade.html)
-* [Upgrade 0.8 to 0.9](https://rook.io/docs/rook/v0.9/ceph-upgrade.html)
-* [Upgrade 0.7 to 0.8](https://rook.io/docs/rook/v0.8/upgrade.html)
-* [Upgrade 0.6 to 0.7](https://rook.io/docs/rook/v0.7/upgrade.html)
-* [Upgrade 0.5 to 0.6](https://rook.io/docs/rook/v0.6/upgrade.html)
+* [Upgrade 1.0 to 1.1](https://docs.koor.tech/docs/v1.1/ceph-upgrade.html)
 
 !!! important
     **Rook releases from master are expressly unsupported.** It is strongly recommended that you use
-    [official releases](https://github.com/rook/rook/releases) of Rook. Unreleased versions from the
+    [official releases](https://github.com/koor-tech/koor/releases) of Rook. Unreleased versions from the
     master branch are subject to changes and incompatibilities that will not be supported in the
     official releases. Builds from the master branch can have functionality changed or removed at any
     time without compatibility support and without prior notice.
 
-## Breaking changes in v1.9
+## Breaking changes in v1.0
 
-* Helm charts now define default resource requests and limits for Rook Pods. If you use Helm,
-  ensure you have defined an override for these in your `values.yaml` if you don't wish to use the
-  recommended defaults. Setting resource requests and limits could mean that Kubernetes will not
-  allow Pods to be scheduled in some cases. If sufficient resources are not available, you can
-  reduce or remove the requests and limits.
-
-* MDS liveness and startup probes are now configured by the CephFilesystem resource instead of
-  CephCluster. Upgrade instructions are [below](#mds-liveness-and-startup-probes).
-
-* Rook no longer deploys Prometheus rules from the operator. If you have been relying on Rook to
-  deploy prometheus rules in the past, please follow the upgrade instructions [below](#prometheus).
-
-* Due to a number of Ceph issues and changes, Rook officially only supports Ceph
-  v16.2.7 or higher for CephNFS. If you are using an earlier version, upgrade your Ceph version
-  following the advice given in Rook's
-  [v1.8 NFS docs](https://rook.github.io/docs/rook/v1.8/ceph-nfs-crd.html).
-
-* If you use Helm and your operator is in a different namespace from the cluster and object storage class is enabled
-  you have to delete the object storage class before upgrading. [#10153](https://github.com/rook/rook/issues/10153)
+* None
 
 ## Considerations
 
 With this upgrade guide, there are a few notes to consider:
 
-* **WARNING**: Upgrading a Rook cluster is not without risk. There may be unexpected issues or
+* **WARNING**: Upgrading a Koor Storage Distribution cluster is not without risk. There may be unexpected issues or
   obstacles that damage the integrity and health of your storage cluster, including data loss.
-* The Rook cluster's storage may be unavailable for short periods during the upgrade process for
-  both Rook operator updates and for Ceph version updates.
+* The Koor Storage Distribution cluster's storage may be unavailable for short periods during the upgrade process for
+  both Koor Storage Distribution operator updates and for Ceph version updates.
 * We recommend that you read this document in full before you undertake a Rook cluster upgrade.
 
 ## Patch Release Upgrades
 
 Unless otherwise noted due to extenuating requirements, upgrades from one patch release of Rook to
 another are as simple as updating the common resources and the image of the Rook operator. For
-example, when Rook v1.9.3 is released, the process of updating from v1.9.0 is as simple as running
+example, when Koor Storage Distribution v1.0.0 is released, the process of updating from v1.0.0 is as simple as running
 the following:
 
-First get the latest common resources manifests that contain the latest changes for Rook v1.9.
+First get the latest common resources manifests that contain the latest changes for Rook v1.0.
 
 ```console
-git clone --single-branch --depth=1 --branch v1.9.3 https://github.com/rook/rook.git
-cd rook/deploy/examples
+git clone --single-branch --depth=1 --branch v1.0.0 https://github.com/koor-tech/koor.git
+cd koor/deploy/examples
 ```
 
 If you have deployed the Rook Operator or the Ceph cluster into a different namespace than
 `rook-ceph`, see the [Update common resources and CRDs](#1-update-common-resources-and-crds)
 section for instructions on how to change the default namespaces in `common.yaml`.
 
-Then apply the latest changes from v1.9 and update the Rook Operator image.
+Then apply the latest changes from v1.0 and update the Rook Operator image.
 
 ```console
 kubectl apply -f common.yaml -f crds.yaml
-kubectl -n rook-ceph set image deploy/rook-ceph-operator rook-ceph-operator=rook/ceph:v1.9.3
+kubectl -n rook-ceph set image deploy/rook-ceph-operator rook-ceph-operator=koorinc/ceph:v1.0.0
 ```
 
 As exemplified above, it is a good practice to update Rook common resources from the example
@@ -127,11 +97,11 @@ In order to successfully upgrade a Rook cluster, the following prerequisites mus
 * All pods consuming Rook storage should be created, running, and in a steady state.
 
 
-## Rook Operator Upgrade
+## Koor Storage Distribution Operator Upgrade
 
-In the examples given in this guide, we will be upgrading a live Rook cluster running `v1.8.9` to
-the version `v1.9.3`. This upgrade should work from any official patch release of Rook v1.8 to any
-official patch release of v1.9.
+In the examples given in this guide, we will be upgrading a live Rook cluster running `v1.0.0` to
+the version `v1.1.0`. This upgrade should work from any official patch release of Rook v1.0 to any
+official patch release of v1.0.
 
 Let's get started!
 
@@ -158,8 +128,8 @@ by the Operator. Also update the Custom Resource Definitions (CRDs).
 Get the latest common resources manifests that contain the latest changes.
 
 ```console
-git clone --single-branch --depth=1 --branch v1.9.3 https://github.com/rook/rook.git
-cd rook/deploy/examples
+git clone --single-branch --depth=1 --branch v1.0.0 https://github.com/koor-tech/koor.git
+cd koor/deploy/examples
 ```
 
 If you have deployed the Rook Operator or the Ceph cluster into a different namespace than
@@ -208,11 +178,11 @@ point. Do not remove them from the CephCluster until after the Rook upgrade is f
 !!! hint
     If you are upgrading via the Helm chart, the operator is automatically updated.
 
-The largest portion of the upgrade is triggered when the operator's image is updated to `v1.9.x`.
+The largest portion of the upgrade is triggered when the operator's image is updated to `v1.0.x`.
 When the operator is updated, it will proceed to update all of the Ceph daemons.
 
 ```console
-kubectl -n $ROOK_OPERATOR_NAMESPACE set image deploy/rook-ceph-operator rook-ceph-operator=rook/ceph:v1.9.3
+kubectl -n $ROOK_OPERATOR_NAMESPACE set image deploy/rook-ceph-operator rook-ceph-operator=koorinc/ceph:v1.0.0
 ```
 
 ### **3. Update Ceph CSI**
@@ -239,18 +209,18 @@ watch --exec kubectl -n $ROOK_CLUSTER_NAMESPACE get deployments -l rook_cluster=
 ```
 
 As an example, this cluster is midway through updating the OSDs. When all deployments report `1/1/1`
-availability and `rook-version=v1.9.3`, the Ceph cluster's core components are fully updated.
+availability and `rook-version=v1.0.0`, the Ceph cluster's core components are fully updated.
 
 ```console
 Every 2.0s: kubectl -n rook-ceph get deployment -o j...
 
-rook-ceph-mgr-a         req/upd/avl: 1/1/1      rook-version=v1.9.3
-rook-ceph-mon-a         req/upd/avl: 1/1/1      rook-version=v1.9.3
-rook-ceph-mon-b         req/upd/avl: 1/1/1      rook-version=v1.9.3
-rook-ceph-mon-c         req/upd/avl: 1/1/1      rook-version=v1.9.3
-rook-ceph-osd-0         req/upd/avl: 1//        rook-version=v1.9.3
-rook-ceph-osd-1         req/upd/avl: 1/1/1      rook-version=v1.8.9
-rook-ceph-osd-2         req/upd/avl: 1/1/1      rook-version=v1.8.9
+rook-ceph-mgr-a         req/upd/avl: 1/1/1      rook-version=v1.0.0
+rook-ceph-mon-a         req/upd/avl: 1/1/1      rook-version=v1.0.0
+rook-ceph-mon-b         req/upd/avl: 1/1/1      rook-version=v1.0.0
+rook-ceph-mon-c         req/upd/avl: 1/1/1      rook-version=v1.0.0
+rook-ceph-osd-0         req/upd/avl: 1//        rook-version=v1.0.0
+rook-ceph-osd-1         req/upd/avl: 1/1/1      rook-version=v1.1.0
+rook-ceph-osd-2         req/upd/avl: 1/1/1      rook-version=v1.1.0
 ```
 
 An easy check to see if the upgrade is totally finished is to check that there is only one
@@ -259,14 +229,14 @@ An easy check to see if the upgrade is totally finished is to check that there i
 ```console
 # kubectl -n $ROOK_CLUSTER_NAMESPACE get deployment -l rook_cluster=$ROOK_CLUSTER_NAMESPACE -o jsonpath='{range .items[*]}{"rook-version="}{.metadata.labels.rook-version}{"\n"}{end}' | sort | uniq
 This cluster is not yet finished:
-  rook-version=v1.8.9
-  rook-version=v1.9.3
+  rook-version=v1.0.0
+  rook-version=v1.1.0
 This cluster is finished:
-  rook-version=v1.9.3
+  rook-version=v1.0.0
 ```
 
 ### **5. Verify the updated cluster**
 
-At this point, your Rook operator should be running version `rook/ceph:v1.9.3`.
+At this point, your Rook operator should be running version `koorinc/ceph:v1.0.0`.
 
 Verify the Ceph cluster's health using the [health verification doc](health-verification.md).

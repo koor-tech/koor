@@ -27,12 +27,12 @@ import (
 	"time"
 
 	"github.com/coreos/pkg/capnslog"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	discoverDaemon "github.com/rook/rook/pkg/daemon/discover"
-	"github.com/rook/rook/pkg/operator/ceph/controller"
-	k8sutil "github.com/rook/rook/pkg/operator/k8sutil"
-	"github.com/rook/rook/pkg/util/sys"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	discoverDaemon "github.com/koor-tech/koor/pkg/daemon/discover"
+	"github.com/koor-tech/koor/pkg/operator/ceph/controller"
+	k8sutil "github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/pkg/util/sys"
 
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
@@ -56,7 +56,7 @@ const (
 	defaultDiscoverInterval               = "60m"
 )
 
-var logger = capnslog.NewPackageLogger("github.com/rook/rook", "op-discover")
+var logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "op-discover")
 
 // Discover reference to be deployed
 type Discover struct {

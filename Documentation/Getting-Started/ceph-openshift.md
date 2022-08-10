@@ -6,10 +6,10 @@ title: OpenShift
 
 [OpenShift](https://www.openshift.com/) adds a number of security and other enhancements to Kubernetes. In particular, [security context constraints](https://blog.openshift.com/understanding-service-accounts-sccs/) allow the cluster admin to define exactly which permissions are allowed to pods running in the cluster. You will need to define those permissions that allow the Rook pods to run.
 
-The settings for Rook in OpenShift are described below, and are also included in the [example yaml files](https://github.com/rook/rook/blob/master/deploy/examples):
+The settings for Rook in OpenShift are described below, and are also included in the [example yaml files](https://github.com/koor-tech/koor/blob/master/deploy/examples):
 
-* [`operator-openshift.yaml`](https://github.com/rook/rook/blob/master/deploy/examples/operator-openshift.yaml): Creates the security context constraints and starts the operator deployment
-* [`object-openshift.yaml`](https://github.com/rook/rook/blob/master/deploy/examples/object-openshift.yaml): Creates an object store with rgw listening on a valid port number for OpenShift
+* [`operator-openshift.yaml`](https://github.com/koor-tech/koor/blob/master/deploy/examples/operator-openshift.yaml): Creates the security context constraints and starts the operator deployment
+* [`object-openshift.yaml`](https://github.com/koor-tech/koor/blob/master/deploy/examples/object-openshift.yaml): Creates an object store with rgw listening on a valid port number for OpenShift
 
 ## TL;DR
 

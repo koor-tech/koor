@@ -21,7 +21,7 @@ import (
 	"sort"
 	"strings"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	corev1 "k8s.io/api/core/v1"
 )
 

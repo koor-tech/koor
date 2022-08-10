@@ -21,10 +21,10 @@ import (
 	"time"
 
 	"github.com/ceph/go-ceph/rgw/admin"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/operator/k8sutil"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )

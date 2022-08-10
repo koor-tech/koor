@@ -8,6 +8,8 @@ metadata:
     capabilities: Full Lifecycle
 spec:
   maintainers:
+    - name: The Koor Storage Distribution Authors
+      email: koor@koor.tech
     - name: The Rook Authors
       email: cncf-rook-info@lists.cncf.io
   provider:

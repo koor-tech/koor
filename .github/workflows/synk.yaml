@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   security:
-    if: github.repository == 'rook/rook'
+    if: github.repository == 'koor-tech/koor'
     runs-on: ubuntu-latest
     steps:
       - name: checkout

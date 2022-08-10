@@ -19,12 +19,12 @@ package installer
 import (
 	"strings"
 
-	"github.com/rook/rook/tests/framework/utils"
+	"github.com/koor-tech/koor/tests/framework/utils"
 )
 
 const (
 	// The version from which the upgrade test will start
-	Version1_8 = "v1.8.6"
+	Version1_0 = "v1.0.0"
 )
 
 // CephManifestsPreviousVersion wraps rook yaml definitions
@@ -118,7 +118,7 @@ func (m *CephManifestsPreviousVersion) GetFilesystem(name string, activeCount in
 	return m.latest.GetFilesystem(name, activeCount)
 }
 
-// GetNFS returns the manifest to create a Rook Ceph NFS resource with the given config.
+// GetNFS returns the manifest to create a Koor NFS resource with the given config.
 func (m *CephManifestsPreviousVersion) GetNFS(name string, count int) string {
 	return m.latest.GetNFS(name, count)
 }
@@ -135,27 +135,27 @@ func (m *CephManifestsPreviousVersion) GetObjectStoreUser(name, displayName, sto
 	return m.latest.GetObjectStoreUser(name, displayName, store, usercaps, maxsize, maxbuckets, maxobjects)
 }
 
-//GetBucketStorageClass returns the manifest to create object bucket
+// GetBucketStorageClass returns the manifest to create object bucket
 func (m *CephManifestsPreviousVersion) GetBucketStorageClass(storeName, storageClassName, reclaimPolicy string) string {
 	return m.latest.GetBucketStorageClass(storeName, storageClassName, reclaimPolicy)
 }
 
-//GetOBC returns the manifest to create object bucket claim
+// GetOBC returns the manifest to create object bucket claim
 func (m *CephManifestsPreviousVersion) GetOBC(claimName, storageClassName, objectBucketName, maxObject string, varBucketName bool) string {
 	return m.latest.GetOBC(claimName, storageClassName, objectBucketName, maxObject, varBucketName)
 }
 
-//GetOBCNotification returns the manifest to create object bucket claim
+// GetOBCNotification returns the manifest to create object bucket claim
 func (m *CephManifestsPreviousVersion) GetOBCNotification(claimName, storageClassName, objectBucketName, notificationName string, varBucketName bool) string {
 	return m.latest.GetOBCNotification(claimName, storageClassName, objectBucketName, notificationName, varBucketName)
 }
 
-//GetBucketNotification returns the manifest to create ceph bucket notification
+// GetBucketNotification returns the manifest to create ceph bucket notification
 func (m *CephManifestsPreviousVersion) GetBucketNotification(notificationName, topicName string) string {
 	return m.latest.GetBucketNotification(notificationName, topicName)
 }
 
-//GetBucketTopic returns the manifest to create ceph bucket topic
+// GetBucketTopic returns the manifest to create ceph bucket topic
 func (m *CephManifestsPreviousVersion) GetBucketTopic(topicName, storeName, httpEndpointService string) string {
 	return m.latest.GetBucketTopic(topicName, storeName, httpEndpointService)
 }
@@ -168,7 +168,7 @@ func (m *CephManifestsPreviousVersion) GetExternalCephCluster() string {
 	return m.latest.GetExternalCephCluster()
 }
 
-// GetRBDMirror returns the manifest to create a Rook Ceph RBD Mirror resource with the given config.
+// GetRBDMirror returns the manifest to create a Koor RBD Mirror resource with the given config.
 func (m *CephManifestsPreviousVersion) GetRBDMirror(name string, count int) string {
 	return m.latest.GetRBDMirror(name, count)
 }

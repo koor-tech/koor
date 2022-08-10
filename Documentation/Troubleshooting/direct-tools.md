@@ -2,7 +2,7 @@
 title: Direct Tools
 ---
 
-Rook is designed with Kubernetes design principles from the ground up. This topic is going to escape the bounds of Kubernetes storage and show you how to
+Koor Storage Distribution is designed with Kubernetes design principles from the ground up. This topic is going to escape the bounds of Kubernetes storage and show you how to
 use block and file storage directly from a pod without any of the Kubernetes magic. The purpose of this topic is to help you quickly test a new configuration,
 although it is not meant to be used in production. All of the benefits of Kubernetes storage including failover, detach, and attach will not be available.
 If your pod dies, your mount will die with it.
@@ -43,7 +43,7 @@ Map the block volume and format it and mount it:
 
 ```console
 # Map the rbd device. If the Direct Mount Pod was started with "hostNetwork: false" this hangs and you have to stop it with Ctrl-C,
-# however the command still succeeds; see https://github.com/rook/rook/issues/2021
+# however the command still succeeds; see https://github.com/koor-tech/koor/issues/2021
 rbd map replicapool/test
 
 # Find the device name, such as rbd0
@@ -60,7 +60,7 @@ mount /dev/rbd0 /tmp/rook-volume
 Write and read a file:
 
 ```console
-echo "Hello Rook" > /tmp/rook-volume/hello
+echo "Hello Koor" > /tmp/rook-volume/hello
 cat /tmp/rook-volume/hello
 ```
 
@@ -105,7 +105,7 @@ ls /tmp/registry
 Try writing and reading a file to the shared filesystem.
 
 ```console
-echo "Hello Rook" > /tmp/registry/hello
+echo "Hello Koor" > /tmp/registry/hello
 cat /tmp/registry/hello
 
 # delete the file when you're done

@@ -27,9 +27,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/rook/rook/pkg/operator/k8sutil"
-	"github.com/rook/rook/tests/framework/installer"
-	"github.com/rook/rook/tests/framework/utils"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/tests/framework/installer"
+	"github.com/koor-tech/koor/tests/framework/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )

@@ -3,8 +3,8 @@
 # different hosts are required in this example.
 #  kubectl create -f nfs.yaml
 #
-# This example is for Ceph v16 and above only. If you are using Ceph v15, see Rook v1.8 examples
-# from the 'release-1.8' branch
+# This example is for Ceph v16 and above only. If you are using Ceph v15, see Rook v1.0 examples
+# from the 'release-1.0' branch
 #################################################################################################################
 
 apiVersion: ceph.rook.io/v1
@@ -60,7 +60,7 @@ spec:
     logLevel: NIV_INFO
 
   # Configure security options for the NFS cluster. See docs for more information:
-  # https://rook.github.io/docs/rook/latest/Storage-Configuration/NFS/nfs-security/
+  # https://docs.koor.tech/docs/latest/Storage-Configuration/NFS/nfs-security/
   security:
   #   sssd:
   #     sidecar:

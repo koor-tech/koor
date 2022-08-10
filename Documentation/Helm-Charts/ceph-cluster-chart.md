@@ -29,7 +29,7 @@ Rook currently publishes builds of this chart to the `release` and `master` chan
 
 * If the operator was installed in a namespace other than `rook-ceph`, the namespace
   must be set in the `operatorNamespace` variable.
-* Set the desired settings in the `cephClusterSpec`. The [defaults](https://github.com/rook/rook/tree/master/deploy/charts/rook-ceph-cluster/values.yaml)
+* Set the desired settings in the `cephClusterSpec`. The [defaults](https://github.com/koor-tech/koor/tree/master/deploy/charts/rook-ceph-cluster/values.yaml)
   are only an example and not likely to apply to your cluster.
 * The `monitoring` section should be removed from the `cephClusterSpec`, as it is specified separately in the helm settings.
 * The default values for `cephBlockPools`, `cephFileSystems`, and `CephObjectStores` will create one of each, and their corresponding storage classes.
@@ -43,33 +43,33 @@ The example install assumes you have first installed the [Rook Operator Helm Cha
 and created your customized values-override.yaml.
 
 ```console
-helm repo add rook-release https://charts.rook.io/release
+helm repo add koor-release https://charts.koor.tech/release
 helm install --create-namespace --namespace rook-ceph rook-ceph-cluster \
-   --set operatorNamespace=rook-ceph rook-release/rook-ceph-cluster -f values-override.yaml
+   --set operatorNamespace=rook-ceph koor-release/rook-ceph-cluster -f values-override.yaml
 ```
 
 ## Configuration
 
 The following tables lists the configurable parameters of the rook-operator chart and their default values.
 
-| Parameter                               | Description                                                                                | Default         |
-| --------------------------------------- | ------------------------------------------------------------------------------------------ | --------------- |
-| `operatorNamespace`                     | Namespace of the Rook Operator                                                             | `rook-ceph`     |
-| `kubeVersion`                           | Optional override of the target kubernetes version                                         | ``              |
-| `configOverride`                        | Cluster ceph.conf override                                                                 | `<none>`        |
-| `toolbox.enabled`                       | Enable Ceph debugging pod deployment. See [toolbox](../Troubleshooting/ceph-toolbox.md)    | `false`         |
-| `toolbox.tolerations`                   | Toolbox tolerations                                                                        | `[]`            |
-| `toolbox.affinity`                      | Toolbox affinity                                                                           | `{}`            |
-| `toolbox.resources`                     | Toolbox resources                                                                          | see values.yaml |
-| `monitoring.enabled`                    | Enable Prometheus integration, will also create necessary RBAC rules                       | `false`         |
-| `monitoring.createPrometheusRules`      | Whether to create the Prometheus rules for Ceph alerts                                     | `false`         |
-| `monitoring.prometheusRule.labels`      | Labels applied to PrometheusRule                                                           | `false`         |
-| `monitoring.prometheusRule.annotations` | Annotations applied to PrometheusRule                                                      | `false`         |
-| `cephClusterSpec.*`                     | Cluster configuration, see below                                                           | See below       |
-| `ingress.dashboard`                     | Enable an ingress for the ceph-dashboard                                                   | `{}`            |
-| `cephBlockPools.[*]`                    | A list of CephBlockPool configurations to deploy                                           | See below       |
-| `cephFileSystems.[*]`                   | A list of CephFileSystem configurations to deploy                                          | See below       |
-| `cephObjectStores.[*]`                  | A list of CephObjectStore configurations to deploy                                         | See below       |
+| Parameter                               | Description                                                                             | Default         |
+| --------------------------------------- | --------------------------------------------------------------------------------------- | --------------- |
+| `operatorNamespace`                     | Namespace of the Rook Operator                                                          | `rook-ceph`     |
+| `kubeVersion`                           | Optional override of the target kubernetes version                                      | ``              |
+| `configOverride`                        | Cluster ceph.conf override                                                              | `<none>`        |
+| `toolbox.enabled`                       | Enable Ceph debugging pod deployment. See [toolbox](../Troubleshooting/ceph-toolbox.md) | `false`         |
+| `toolbox.tolerations`                   | Toolbox tolerations                                                                     | `[]`            |
+| `toolbox.affinity`                      | Toolbox affinity                                                                        | `{}`            |
+| `toolbox.resources`                     | Toolbox resources                                                                       | see values.yaml |
+| `monitoring.enabled`                    | Enable Prometheus integration, will also create necessary RBAC rules                    | `false`         |
+| `monitoring.createPrometheusRules`      | Whether to create the Prometheus rules for Ceph alerts                                  | `false`         |
+| `monitoring.prometheusRule.labels`      | Labels applied to PrometheusRule                                                        | `false`         |
+| `monitoring.prometheusRule.annotations` | Annotations applied to PrometheusRule                                                   | `false`         |
+| `cephClusterSpec.*`                     | Cluster configuration, see below                                                        | See below       |
+| `ingress.dashboard`                     | Enable an ingress for the ceph-dashboard                                                | `{}`            |
+| `cephBlockPools.[*]`                    | A list of CephBlockPool configurations to deploy                                        | See below       |
+| `cephFileSystems.[*]`                   | A list of CephFileSystem configurations to deploy                                       | See below       |
+| `cephObjectStores.[*]`                  | A list of CephObjectStore configurations to deploy                                      | See below       |
 
 ### **Ceph Cluster Spec**
 
@@ -83,11 +83,11 @@ The `cephBlockPools` array in the values file will define a list of CephBlockPoo
 | Parameter                           | Description                                                                                                                                                                                                          | Default          |
 | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
 | `name`                              | The name of the CephBlockPool                                                                                                                                                                                        | `ceph-blockpool` |
-| `spec`                              | The CephBlockPool spec, see the [CephBlockPool](../CRDs/Block-Storage/ceph-block-pool-crd.md#spec) documentation.                                                                                                                  | `{}`             |
+| `spec`                              | The CephBlockPool spec, see the [CephBlockPool](../CRDs/Block-Storage/ceph-block-pool-crd.md#spec) documentation.                                                                                                    | `{}`             |
 | `storageClass.enabled`              | Whether a storage class is deployed alongside the CephBlockPool                                                                                                                                                      | `true`           |
 | `storageClass.isDefault`            | Whether the storage class will be the default storage class for PVCs. See [PersistentVolumeClaim documentation](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) for details. | `true`           |
 | `storageClass.name`                 | The name of the storage class                                                                                                                                                                                        | `ceph-block`     |
-| `storageClass.parameters`           | See [Block Storage](../Storage-Configuration/Block-Storage-RBD/block-storage.md) documentation or the helm values.yaml for suitable values                                                                              | see values.yaml  |
+| `storageClass.parameters`           | See [Block Storage](../Storage-Configuration/Block-Storage-RBD/block-storage.md) documentation or the helm values.yaml for suitable values                                                                           | see values.yaml  |
 | `storageClass.reclaimPolicy`        | The default [Reclaim Policy](https://kubernetes.io/docs/concepts/storage/storage-classes/#reclaim-policy) to apply to PVCs created with this storage class.                                                          | `Delete`         |
 | `storageClass.allowVolumeExpansion` | Whether [volume expansion](https://kubernetes.io/docs/concepts/storage/storage-classes/#allow-volume-expansion) is allowed by default.                                                                               | `true`           |
 | `storageClass.mountOptions`         | Specifies the mount options for storageClass                                                                                                                                                                         | `[]`             |
@@ -99,11 +99,11 @@ The `cephFileSystems` array in the values file will define a list of CephFileSys
 | Parameter                    | Description                                                                                                                                                 | Default           |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
 | `name`                       | The name of the CephFileSystem                                                                                                                              | `ceph-filesystem` |
-| `spec`                       | The CephFileSystem spec, see the [CephFilesystem CRD](../CRDs/Shared-Filesystem/ceph-filesystem-crd.md) documentation.                                                        | see values.yaml   |
+| `spec`                       | The CephFileSystem spec, see the [CephFilesystem CRD](../CRDs/Shared-Filesystem/ceph-filesystem-crd.md) documentation.                                      | see values.yaml   |
 | `storageClass.enabled`       | Whether a storage class is deployed alongside the CephFileSystem                                                                                            | `true`            |
 | `storageClass.name`          | The name of the storage class                                                                                                                               | `ceph-filesystem` |
-| `storageClass.pool`          | The name of [Data Pool](../CRDs/Shared-Filesystem/ceph-filesystem-crd.md#pools), without the filesystem name prefix                                                           | `data0`           |
-| `storageClass.parameters`    | See [Shared Filesystem](../Storage-Configuration/Shared-Filesystem-CephFS/filesystem-storage.md) documentation or the helm values.yaml for suitable values    | see values.yaml   |
+| `storageClass.pool`          | The name of [Data Pool](../CRDs/Shared-Filesystem/ceph-filesystem-crd.md#pools), without the filesystem name prefix                                         | `data0`           |
+| `storageClass.parameters`    | See [Shared Filesystem](../Storage-Configuration/Shared-Filesystem-CephFS/filesystem-storage.md) documentation or the helm values.yaml for suitable values  | see values.yaml   |
 | `storageClass.reclaimPolicy` | The default [Reclaim Policy](https://kubernetes.io/docs/concepts/storage/storage-classes/#reclaim-policy) to apply to PVCs created with this storage class. | `Delete`          |
 | `storageClass.mountOptions`  | Specifies the mount options for storageClass                                                                                                                | `[]`              |
 
@@ -111,14 +111,14 @@ The `cephFileSystems` array in the values file will define a list of CephFileSys
 
 The `cephObjectStores` array in the values file will define a list of CephObjectStore as described in the table below.
 
-| Parameter                    | Description                                                                                                                                                  | Default            |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------ |
-| `name`                       | The name of the CephObjectStore                                                                                                                              | `ceph-objectstore` |
-| `spec`                       | The CephObjectStore spec, see the [CephObjectStore CRD](../CRDs/Object-Storage/ceph-object-store-crd.md) documentation.                                                     | see values.yaml    |
-| `storageClass.enabled`       | Whether a storage class is deployed alongside the CephObjectStore                                                                                            | `true`             |
-| `storageClass.name`          | The name of the storage class                                                                                                                                | `ceph-bucket`      |
+| Parameter                    | Description                                                                                                                                                         | Default            |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| `name`                       | The name of the CephObjectStore                                                                                                                                     | `ceph-objectstore` |
+| `spec`                       | The CephObjectStore spec, see the [CephObjectStore CRD](../CRDs/Object-Storage/ceph-object-store-crd.md) documentation.                                             | see values.yaml    |
+| `storageClass.enabled`       | Whether a storage class is deployed alongside the CephObjectStore                                                                                                   | `true`             |
+| `storageClass.name`          | The name of the storage class                                                                                                                                       | `ceph-bucket`      |
 | `storageClass.parameters`    | See [Object Store storage class](../Storage-Configuration/Object-Storage-RGW/ceph-object-bucket-claim.md) documentation or the helm values.yaml for suitable values | see values.yaml    |
-| `storageClass.reclaimPolicy` | The default [Reclaim Policy](https://kubernetes.io/docs/concepts/storage/storage-classes/#reclaim-policy) to apply to PVCs created with this storage class.  | `Delete`           |
+| `storageClass.reclaimPolicy` | The default [Reclaim Policy](https://kubernetes.io/docs/concepts/storage/storage-classes/#reclaim-policy) to apply to PVCs created with this storage class.         | `Delete`           |
 
 ### **Existing Clusters**
 

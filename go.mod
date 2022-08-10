@@ -1,4 +1,4 @@
-module github.com/rook/rook
+module github.com/koor-tech/koor
 
 go 1.18
 

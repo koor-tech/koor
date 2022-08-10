@@ -20,14 +20,14 @@ import (
 	"context"
 	"testing"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/ceph/config"
-	"github.com/rook/rook/pkg/operator/ceph/controller"
-	"github.com/rook/rook/pkg/operator/ceph/test"
-	"github.com/rook/rook/pkg/operator/k8sutil"
-	testop "github.com/rook/rook/pkg/operator/test"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/ceph/config"
+	"github.com/koor-tech/koor/pkg/operator/ceph/controller"
+	"github.com/koor-tech/koor/pkg/operator/ceph/test"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	testop "github.com/koor-tech/koor/pkg/operator/test"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -50,7 +50,7 @@ func testPodSpec(t *testing.T, monID string, pvc bool) {
 		cephv1.ClusterSpec{},
 		ownerInfo,
 	)
-	setCommonMonProperties(c, 0, cephv1.MonSpec{Count: 3, AllowMultiplePerNode: true}, "rook/rook:myversion")
+	setCommonMonProperties(c, 0, cephv1.MonSpec{Count: 3, AllowMultiplePerNode: true}, "koorinc/ceph:myversion")
 	c.spec.CephVersion = cephv1.CephVersionSpec{Image: "quay.io/ceph/ceph:myceph"}
 	c.spec.Resources = map[string]v1.ResourceRequirements{}
 	c.spec.Resources["mon"] = v1.ResourceRequirements{
@@ -112,7 +112,7 @@ func TestDeploymentPVCSpec(t *testing.T) {
 		cephv1.ClusterSpec{},
 		ownerInfo,
 	)
-	setCommonMonProperties(c, 0, cephv1.MonSpec{Count: 3, AllowMultiplePerNode: true}, "rook/rook:myversion")
+	setCommonMonProperties(c, 0, cephv1.MonSpec{Count: 3, AllowMultiplePerNode: true}, "koorinc/ceph:myversion")
 	c.spec.CephVersion = cephv1.CephVersionSpec{Image: "quay.io/ceph/ceph:myceph"}
 	c.spec.Resources = map[string]v1.ResourceRequirements{}
 	c.spec.Resources["mon"] = v1.ResourceRequirements{

@@ -22,14 +22,14 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/rook/rook/pkg/operator/k8sutil"
-	"github.com/rook/rook/pkg/operator/test"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/pkg/operator/test"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/go-ini/ini"
-	"github.com/rook/rook/pkg/clusterd"
-	cephver "github.com/rook/rook/pkg/operator/ceph/version"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/stretchr/testify/assert"
 )
 

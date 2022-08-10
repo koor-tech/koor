@@ -1,5 +1,5 @@
-# This example is for Ceph v16 and above only. If you are using Ceph v15, see Rook v1.8 examples
-# from the 'release-1.8' branch
+# This example is for Ceph v16 and above only. If you are using Ceph v15, see Rook v1.0 examples
+# from the 'release-1.0' branch
 
 apiVersion: ceph.rook.io/v1
 kind: CephNFS

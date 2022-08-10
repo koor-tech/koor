@@ -20,13 +20,13 @@ import (
 	"fmt"
 
 	"github.com/coreos/pkg/capnslog"
-	"github.com/rook/rook/tests/framework/installer"
-	"github.com/rook/rook/tests/framework/utils"
+	"github.com/koor-tech/koor/tests/framework/installer"
+	"github.com/koor-tech/koor/tests/framework/utils"
 )
 
 const rgwPort = 80
 
-var logger = capnslog.NewPackageLogger("github.com/rook/rook/tests", "clients")
+var logger = capnslog.NewPackageLogger("github.com/koor-tech/koor/tests", "clients")
 
 // ObjectOperation is wrapper for k8s rook object operations
 type ObjectOperation struct {

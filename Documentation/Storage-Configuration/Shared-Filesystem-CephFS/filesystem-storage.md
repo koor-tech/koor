@@ -4,7 +4,7 @@ title: Filesystem Storage Overview
 
 A filesystem storage (also named shared filesystem) can be mounted with read/write permission from multiple pods. This may be useful for applications which can be clustered using a shared filesystem.
 
-This example runs a shared filesystem for the [kube-registry](https://github.com/kubernetes/kubernetes/tree/release-1.9/cluster/addons/registry).
+This example runs a shared filesystem for the [kube-registry](https://github.com/kubernetes/kubernetes/tree/release-1.0/cluster/addons/registry).
 
 ## Prerequisites
 
@@ -125,7 +125,7 @@ If you require quotas to be enforced and the kernel driver does not support it, 
 and use the FUSE client. This can be done by setting `CSI_FORCE_CEPHFS_KERNEL_CLIENT: false`
 in the operator deployment (`operator.yaml`). However, it is important to know that when
 the FUSE client is enabled, there is an issue that during upgrade the application pods will be
-disconnected from the mount and will need to be restarted. See the [upgrade guide](../../Upgrade/rook-upgrade.md)
+disconnected from the mount and will need to be restarted. See the [upgrade guide](../../Upgrade/upgrade.md)
 for more details.
 
 ## Consume the Shared Filesystem: K8s Registry Sample
@@ -218,7 +218,7 @@ If the Rook cluster has more than one filesystem and the application pod is sche
 
 ## Consume the Shared Filesystem: Toolbox
 
-Once you have pushed an image to the registry (see the [instructions](https://github.com/kubernetes/kubernetes/tree/release-1.9/cluster/addons/registry) to expose and use the kube-registry), verify that kube-registry is using the filesystem that was configured above by mounting the shared filesystem in the toolbox pod. See the [Direct Filesystem](../../Troubleshooting/direct-tools.md#shared-filesystem-tools) topic for more details.
+Once you have pushed an image to the registry (see the [instructions](https://github.com/kubernetes/kubernetes/tree/release-1.0/cluster/addons/registry) to expose and use the kube-registry), verify that kube-registry is using the filesystem that was configured above by mounting the shared filesystem in the toolbox pod. See the [Direct Filesystem](../../Troubleshooting/direct-tools.md#shared-filesystem-tools) topic for more details.
 
 ## Teardown
 

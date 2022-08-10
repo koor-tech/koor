@@ -21,9 +21,9 @@ import (
 	"fmt"
 	"testing"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/client/clientset/versioned/scheme"
-	"github.com/rook/rook/pkg/operator/ceph/config"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/client/clientset/versioned/scheme"
+	"github.com/koor-tech/koor/pkg/operator/ceph/config"
 	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"

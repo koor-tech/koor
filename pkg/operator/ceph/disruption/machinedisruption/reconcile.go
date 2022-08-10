@@ -26,12 +26,12 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	cephClient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	cephClient "github.com/rook/rook/pkg/daemon/ceph/client"
 
-	"github.com/rook/rook/pkg/operator/ceph/disruption/controllerconfig"
-	"github.com/rook/rook/pkg/operator/ceph/disruption/machinelabel"
+	"github.com/koor-tech/koor/pkg/operator/ceph/disruption/controllerconfig"
+	"github.com/koor-tech/koor/pkg/operator/ceph/disruption/machinelabel"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -45,7 +45,7 @@ const (
 	MDBCephClusterNameLabelKey      = "rook.io/cephClusterName"
 )
 
-var logger = capnslog.NewPackageLogger("github.com/rook/rook", controllerName)
+var logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", controllerName)
 
 // MachineDisruptionReconciler reconciles MachineDisruption
 type MachineDisruptionReconciler struct {

@@ -17,12 +17,12 @@ limitations under the License.
 package nfs
 
 import (
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/ceph/config/keyring"
+	"github.com/koor-tech/koor/pkg/operator/ceph/controller"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/ceph/config/keyring"
-	"github.com/rook/rook/pkg/operator/ceph/controller"
-	"github.com/rook/rook/pkg/operator/k8sutil"
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"

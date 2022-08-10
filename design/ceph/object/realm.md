@@ -1,8 +1,8 @@
-# Rook Ceph Object Realm
+# Koor Object Realm
 
 ## Prerequisites
 
-A Rook Ceph cluster.
+A Koor cluster.
 
 ## Ceph Object Realm Walkthrough
 
@@ -39,13 +39,13 @@ kubectl create -f ceph-object-realm.yaml
 
 The order in which these resources are created is not important.
 
-3. Once all of the resources from step #2 are started up, the operator will create a realm on the Rook Ceph cluster and the ceph-realm resource will be running.
+3. Once all of the resources from step #2 are started up, the operator will create a realm on the Koor cluster and the ceph-realm resource will be running.
 
 ### Pulling the Realm from another Ceph Cluster
 
 #### Config
 
-When the storage admin is ready to sync data from a Ceph cluster with multisite set up (primary cluster) to another Rook Ceph cluster (pulling cluster), the pulling cluster needs to have information about the primary cluster's realm and zone group.
+When the storage admin is ready to sync data from a Ceph cluster with multisite set up (primary cluster) to another Koor cluster (pulling cluster), the pulling cluster needs to have information about the primary cluster's realm and zone group.
 
 To do this, the storage admin needs to create a ceph-object-realm resource on the pulling cluster with the same name as the realm from the primary cluster.
 

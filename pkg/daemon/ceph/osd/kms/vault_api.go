@@ -20,10 +20,10 @@ import (
 	"context"
 	"strings"
 
+	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/libopenstorage/secrets/vault"
 	"github.com/libopenstorage/secrets/vault/utils"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/clusterd"
 
 	"github.com/hashicorp/vault/api"
 )
