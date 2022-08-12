@@ -1376,7 +1376,13 @@ func (k8sh *K8sHelper) getPodsLogs(pods *v1.PodList, namespace, testName, platfo
 
 func (k8sh *K8sHelper) createTestLogFile(platformName, name, namespace, testName, suffix string) (*os.File, error) {
 	dir, _ := os.Getwd()
-	logDir := path.Join(dir, "_output/tests/")
+	baseLogDir := path.Join(dir, "_output/tests/")
+
+	// testName can contain a slach (e.g., `CephUpgradeSuite/TestUpgradeHelm`)
+	fileName := fmt.Sprintf("%s_%s_%s_%s%s_%d.log", testName, platformName, namespace, name, suffix, time.Now().Unix())
+	filePath := path.Join(baseLogDir, fileName)
+
+	logDir := path.Dir(filePath)
 	if _, err := os.Stat(logDir); os.IsNotExist(err) {
 		err := os.MkdirAll(logDir, 0777)
 		if err != nil {
@@ -1384,8 +1390,6 @@ func (k8sh *K8sHelper) createTestLogFile(platformName, name, namespace, testName
 			return nil, err
 		}
 	}
-	fileName := fmt.Sprintf("%s_%s_%s_%s%s_%d.log", testName, platformName, namespace, name, suffix, time.Now().Unix())
-	filePath := path.Join(logDir, fileName)
 	file, err := os.Create(filePath)
 	if err != nil {
 		logger.Errorf("Cannot create file %s. %v", filePath, err)
