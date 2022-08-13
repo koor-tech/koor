@@ -6,7 +6,7 @@ A one-OSD-per-Pod placement should be implemented to improve reliability and res
 
 ## Background
 
-Currently in Rook 0.7, Rook Operator starts a ReplicaSet to run [`rook osd`](https://github.com/rook/rook/blob/master/cmd/rook/osd.go) command (hereafter referred to as `OSD Provisioner`)  on each storage node. The ReplicaSet has just one replica. `OSD Provisioner` scans and prepares devices, creates OSD IDs and data directories or devices, generates Ceph configuration. At last, `OSD Provisioner` starts all Ceph OSD, i.e. `ceph-osd`, daemons in foreground and tracks `ceph-osd` processes.
+Currently in Rook 0.7, Rook Operator starts a ReplicaSet to run [`rook osd`](https://github.com/koor-tech/koor/blob/master/cmd/rook/osd.go) command (hereafter referred to as `OSD Provisioner`)  on each storage node. The ReplicaSet has just one replica. `OSD Provisioner` scans and prepares devices, creates OSD IDs and data directories or devices, generates Ceph configuration. At last, `OSD Provisioner` starts all Ceph OSD, i.e. `ceph-osd`, daemons in foreground and tracks `ceph-osd` processes.
 
 As observed, all Ceph OSDs are running in the same Pod.
 
@@ -20,7 +20,7 @@ The limitations of current design are:
 - Process management issue. Rook's process management is very simple. Using Kubernetes pod management is much more reliable.
 
 
-A more comprehensive discussions can be found at [this issue](https://github.com/rook/rook/issues/1341).
+A more comprehensive discussions can be found at [this issue](https://github.com/koor-tech/koor/issues/1341).
 
 ## Terms
 
@@ -34,14 +34,14 @@ We propose the following change to address the limitations.
 
 
 ### Create new OSDs
-| Sequence |Rook Operator | Device Discovery  | Device Provisioner   | Ceph OSD Deployment |
-|---|---|---|---|---|
-| 0  |  | Start on labeled storage nodes, discover unformatted devices and store device information in per node Raw Device Configmap  |   |
-| 1  | Read devices and node filters from cluster CRD |   |   |
-| 2  | parse Raw Device Configmap, extract nodes and device paths and filters them based on cluster CRD, and create an Device Provisioner deployment for each device  || | |
-| 3  | Watch device provisioning Configmap | | Prepare OSDs, Persist OSD ID, datapath, and node info in a per node device provisioning Configmap | |
-| 4  | Detect device provisioning Configmap change, parse Configmap, extract OSD info, construct OSD Pod command and arg | | | |
-| 5  | Create one deployment per OSD | | |Start `ceph-osd` Daemon one Pod per device |
+| Sequence | Rook Operator                                                                                                                                                 | Device Discovery                                                                                                           | Device Provisioner                                                                                | Ceph OSD Deployment                        |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| 0        |                                                                                                                                                               | Start on labeled storage nodes, discover unformatted devices and store device information in per node Raw Device Configmap |                                                                                                   |
+| 1        | Read devices and node filters from cluster CRD                                                                                                                |                                                                                                                            |                                                                                                   |
+| 2        | parse Raw Device Configmap, extract nodes and device paths and filters them based on cluster CRD, and create an Device Provisioner deployment for each device |                                                                                                                            |                                                                                                   |                                            |
+| 3        | Watch device provisioning Configmap                                                                                                                           |                                                                                                                            | Prepare OSDs, Persist OSD ID, datapath, and node info in a per node device provisioning Configmap |                                            |
+| 4        | Detect device provisioning Configmap change, parse Configmap, extract OSD info, construct OSD Pod command and arg                                             |                                                                                                                            |                                                                                                   |                                            |
+| 5        | Create one deployment per OSD                                                                                                                                 |                                                                                                                            |                                                                                                   | Start `ceph-osd` Daemon one Pod per device |
 
 
 This change addresses the above limitations in the follow ways:

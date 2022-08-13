@@ -260,7 +260,7 @@ data:
 Annotations:
 * `[1]` The name is constructed by joining the following elements with dashes
   (compare [the corresponding name of the secret for the object store users](
-  https://github.com/rook/rook/blob/376ca62f8ad07540d9ddffe9dc0ee53f4ac35e29/pkg/operator/ceph/object/user/controller.go#L416)):
+  https://github.com/koor-tech/koor/blob/376ca62f8ad07540d9ddffe9dc0ee53f4ac35e29/pkg/operator/ceph/object/user/controller.go#L416)):
       - the literal `rook-ceph-object-subuser`
       - the name of the object store resource
       - the name of the user
@@ -306,7 +306,7 @@ overall risk is minimal.
 
 ## Drawbacks
 
-* As shown in [#4754](https://github.com/rook/rook/issues/4754)
+* As shown in [#4754](https://github.com/koor-tech/koor/issues/4754)
   keystone can be integrated via config override so
   it is not strictly necessary to support configuring it via the
   Object Store CRD. Adding it to the CRD complicates things with
@@ -318,6 +318,6 @@ overall risk is minimal.
   support.
 
 * Keystone support could be configured via Rook config override as shown
-  in [#4754](https://github.com/rook/rook/issues/4754).
+  in [#4754](https://github.com/koor-tech/koor/issues/4754).
 
 ## Open Questions

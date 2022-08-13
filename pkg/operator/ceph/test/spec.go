@@ -22,9 +22,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/koor-tech/koor/pkg/operator/ceph/controller"
+	optest "github.com/koor-tech/koor/pkg/operator/test"
 	e "github.com/pkg/errors"
-	"github.com/rook/rook/pkg/operator/ceph/controller"
-	optest "github.com/rook/rook/pkg/operator/test"
 	"github.com/stretchr/testify/assert"
 )
 

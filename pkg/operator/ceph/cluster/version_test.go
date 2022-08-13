@@ -22,11 +22,11 @@ import (
 	"encoding/json"
 	"testing"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	cephver "github.com/rook/rook/pkg/operator/ceph/version"
-	testop "github.com/rook/rook/pkg/operator/test"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
+	testop "github.com/koor-tech/koor/pkg/operator/test"
 	"github.com/stretchr/testify/assert"
 )
 

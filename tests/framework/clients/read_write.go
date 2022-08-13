@@ -19,7 +19,7 @@ package clients
 import (
 	"fmt"
 
-	"github.com/rook/rook/tests/framework/utils"
+	"github.com/koor-tech/koor/tests/framework/utils"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -5,7 +5,7 @@ pull_request_rules:
       - conflict
     actions:
       comment:
-        message: This pull request has merge conflicts that must be resolved before it can be merged. @{{author}} please rebase it. https://rook.io/docs/rook/latest/Contributing/development-flow/#updating-your-fork
+        message: This pull request has merge conflicts that must be resolved before it can be merged. @{{author}} please rebase it. https://docs.koor.tech/docs/latest/Contributing/development-flow/#updating-your-fork
 
   - name: ping author on direct push to release branch
     conditions:

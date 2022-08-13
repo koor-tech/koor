@@ -23,8 +23,8 @@ import (
 	"os"
 	"path"
 
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/daemon/ceph/client"
 )
 
 func CreateConfigDir(configDir string) error {

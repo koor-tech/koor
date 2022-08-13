@@ -79,7 +79,7 @@ Nothing to do in particular since they don't use any service IPs.
 ### CSI pods
 
 Steps must be taken to fix a CSI-with-multus issue documented
-[here](https://github.com/rook/rook/issues/8085). To summarize the issue:
+[here](https://github.com/koor-tech/koor/issues/8085). To summarize the issue:
 when a CephFS/RBD volume is mounted in a pod using Ceph CSI and then the CSI CephFS/RBD plugin is
 restarted or terminated (e.g. by restarting or deleting its DaemonSet), all operations on the volume
 become blocked, even after restarting the CSI pods. The only workaround is to restart the node where

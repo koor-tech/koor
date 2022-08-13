@@ -37,7 +37,7 @@ before upgrading to Rook v1.10.
     **if it is in `HEALTH_ERR` the operator will refuse to proceed with the upgrade.**
 
 We recommend updating to v16.2.7 or newer. If you require updating **to v16.2.0-v16.2.6**,
-please see the [v1.8 upgrade guide for a special upgrade consideration](https://rook.github.io/docs/rook/v1.8/ceph-upgrade.html#disable-bluestore_fsck_quick_fix_on_mount).
+please see the [v1.8 upgrade guide for a special upgrade consideration](https://docs.koor.tech/docs/v1.8/ceph-upgrade.html#disable-bluestore_fsck_quick_fix_on_mount).
 
 ### Quincy Consideration
 
@@ -49,7 +49,7 @@ If you do use CephBlockPool to customize the configuration of the `device_health
 will need two extra steps after the Ceph upgrade is complete. Once upgrade is complete:
 
 1. Create a new CephBlockPool to configure the `.mgr` built-in pool. You can reference the example
-[builtin mgr pool](https://github.com/rook/rook/blob/master/deploy/examples/pool-builtin-mgr.yaml).
+[builtin mgr pool](https://github.com/koor-tech/koor/blob/master/deploy/examples/pool-builtin-mgr.yaml).
 2. Delete the old CephBlockPool that represents the `device_health_metrics` pool.
 
 ### CephNFS User Consideration

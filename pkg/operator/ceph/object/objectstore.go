@@ -25,14 +25,14 @@ import (
 	"strings"
 	"syscall"
 
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/ceph/config"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/pkg/util"
+	"github.com/koor-tech/koor/pkg/util/exec"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/ceph/config"
-	"github.com/rook/rook/pkg/operator/k8sutil"
-	"github.com/rook/rook/pkg/util"
-	"github.com/rook/rook/pkg/util/exec"
 	"golang.org/x/sync/errgroup"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -196,7 +196,7 @@ func getMultisiteForObjectStore(ctx context.Context, clusterdContext *clusterd.C
 
 	if spec.IsExternal() {
 		// Currently external cluster with zones/zonegroup/realm are not supported, will be
-		// fixed by https://github.com/rook/rook/issues/6342. So if user does not create
+		// fixed by https://github.com/koor-tech/koor/issues/6342. So if user does not create
 		// zone/zonegroup, RGW internally creates zone/zonegroup named as `default`, hence
 		// Rook can set this value in the object context fields.
 		return "", "default", "default", nil

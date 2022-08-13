@@ -1,8 +1,8 @@
-# Rook Ceph Object Zone Group
+# Koor Object Zone Group
 
 ## Prerequisites
 
-A Rook Ceph cluster. Ideally a ceph-object-realm resource would have been started up already.
+A Koor cluster. Ideally a ceph-object-realm resource would have been started up already.
 
 ## Ceph Object Zone Group Walkthrough
 
@@ -44,9 +44,9 @@ kubectl create -f ceph-object-zone-group.yaml
     - A [ceph-object-store](/design/ceph/object/ceph-object-store.md) referring to the newly started up ceph-object-zone resource.
     - A [ceph-object-realm](/design/ceph/object/ceph-object-realm.md), with the same name as the `realm` field, if it has not already been started up already.
 
-The order in which these resources are created is not important. 
+The order in which these resources are created is not important.
 
-3. Once all of the resources in #2 are started up, the operator will create a zone group on the Rook Ceph cluster and the ceph-object-zone-group resource will be running.
+3. Once all of the resources in #2 are started up, the operator will create a zone group on the Koor cluster and the ceph-object-zone-group resource will be running.
 
 #### Notes
 
@@ -55,7 +55,7 @@ The order in which these resources are created is not important.
 
 ## Deleting and Reconfiguring the Ceph Object Zone Group
 
-At the moment creating an ceph-object-zone-group realm resource only handles Day 1 initial configuration for the realm. 
+At the moment creating an ceph-object-zone-group realm resource only handles Day 1 initial configuration for the realm.
 
 Changes made to the resource's configuration or deletion of the resource are not reflected on the Ceph cluster.
 
@@ -63,7 +63,7 @@ To be clear, when the ceph-object-zone group resource is deleted or modified, th
 
 ### Deleting a Zone Group through Toolboxes
 
-The Rook toolbox can modify the Ceph Multisite state via the radosgw-admin command. 
+The Rook toolbox can modify the Ceph Multisite state via the radosgw-admin command.
 
 The following command, run via the toolbox, deletes the zone group.
 

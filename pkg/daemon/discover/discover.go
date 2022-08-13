@@ -32,9 +32,9 @@ import (
 	"time"
 
 	"github.com/coreos/pkg/capnslog"
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/operator/k8sutil"
-	"github.com/rook/rook/pkg/util/sys"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/pkg/util/sys"
 
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -46,7 +46,7 @@ const (
 )
 
 var (
-	logger = capnslog.NewPackageLogger("github.com/rook/rook", "rook-discover")
+	logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "rook-discover")
 	// AppName is the name of the pod
 	AppName = "rook-discover"
 	// NodeAttr is the attribute of that node

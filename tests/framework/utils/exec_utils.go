@@ -24,10 +24,10 @@ import (
 	"strings"
 
 	"github.com/coreos/pkg/capnslog"
-	utilexec "github.com/rook/rook/pkg/util/exec"
+	utilexec "github.com/koor-tech/koor/pkg/util/exec"
 )
 
-var logger = capnslog.NewPackageLogger("github.com/rook/rook", "testutil")
+var logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "testutil")
 
 // CommandArgs is a wrapper for cmd args
 type CommandArgs struct {

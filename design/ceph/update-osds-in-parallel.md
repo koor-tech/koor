@@ -35,9 +35,9 @@ resources out of the opportunity to get configuration updates.
 
 ### Changes to Ceph
 The Ceph manager (mgr) will add functionality to allow querying the maximum number of OSDs that are
-okay to stop safely. The command will take an initial OSD ID to include in the results. It should 
+okay to stop safely. The command will take an initial OSD ID to include in the results. It should
 return error if the initial OSD cannot be stopped safely. Otherwise it returns a list of 1 or more
-OSDs that can be stopped safely in parallel. It should take a `--max=<int>` parameter that limits 
+OSDs that can be stopped safely in parallel. It should take a `--max=<int>` parameter that limits
 the number of OSDs returned.
 
 It will look similar to this on the command line `ceph osd ok-to-stop $id --max $int`.
@@ -51,10 +51,10 @@ The command will have an internal algorithm that follows the flow below:
     1. The number of OSDs in the batch query is greater than or equal to the `max` parameter, OR
     2. It is no longer `ok-to-stop` all OSDs in the CRUSH bucket.
 4. Update OSD Deployments in parallel for the last CRUSH bucket where it was `ok-to-stop` the OSDs.
-    - If there are more OSDs in the CRUSH bucket than allowed by the user that are okay to stop, 
+    - If there are more OSDs in the CRUSH bucket than allowed by the user that are okay to stop,
       return only the `max` number of OSD IDs from the CRUSH bucket.
 
-The pull request for this feature in the Ceph project can be found at 
+The pull request for this feature in the Ceph project can be found at
 https://github.com/ceph/ceph/pull/39455.
 
 ### Rook Operator Workflow
@@ -70,7 +70,7 @@ https://github.com/ceph/ceph/pull/39455.
       1. Mark the prepare Job as completed.
       1. Restart Provision Loop.
    1. Update OSDs: if the update queue is not empty, update a batch of OSD Deployments.
-      1. Query `ceph osd ok-to-stop <osd-id> --max=<int>` for each OSD in the update queue until 
+      1. Query `ceph osd ok-to-stop <osd-id> --max=<int>` for each OSD in the update queue until
          a list of OSD IDs is returned.
          - If no OSDs in the update queue are okay to stop, Restart Provision Loop.
       1. Update all of the OSD Deployments in parallel.
@@ -86,10 +86,10 @@ opportunity to reconcile other components of a Ceph cluster's `CephCluster` reso
 ensure that the OSD update reconciliation does not create a scenario where the `CephCluster` cannot
 be modified in other ways.
 
-https://github.com/rook/rook/pull/6693 introduced a means of interrupting the current OSD
+https://github.com/koor-tech/koor/pull/6693 introduced a means of interrupting the current OSD
 orchestration to handle newer `CephCluster` resource changes. This functionality should remain so
 that user changes to the `CephCluster` can begin reconciliation quickly. The Rook Operator should
-stop OSD orchestration on any updates to the `CephCluster` spec and be able to resume OSD 
+stop OSD orchestration on any updates to the `CephCluster` spec and be able to resume OSD
 orchestration with the next reconcile.
 
 ### How to build the existence list
@@ -148,9 +148,9 @@ spec:
       # removeIfOutAndSafeToDestroy is merely relocated from spec (removeOSDsIfOutAndSafeToRemove)
       removeIfOutAndSafeToDestroy: <bool, default=false>
 
-      # Max number of OSDs in the cluster to update at once. Rook will try to update this many OSDs 
-      # at once if it is safe to do so. It will update fewer OSDs at once if it would be unsafe to 
-      # update maxInParallelPerCluster at once. This can be a discrete number or a percentage of 
+      # Max number of OSDs in the cluster to update at once. Rook will try to update this many OSDs
+      # at once if it is safe to do so. It will update fewer OSDs at once if it would be unsafe to
+      # update maxInParallelPerCluster at once. This can be a discrete number or a percentage of
       # total OSDs in the Ceph cluster.
       # Rook defaults to updating 15% of OSDs in the cluster simultaneously if this value is unset.
       # Inspired by Kubernetes apps/v1 RollingUpdateDeployment.MaxUnavailable.
@@ -167,6 +167,6 @@ once, which rounds down to 16%. 15% is a more round number, so that is chosen in
 
 ## Future considerations
 Some users may wish to update OSDs in a particular failure domain or zone completely before moving
-onto updates in another zone to minimize risk from updates to a single failure domain. This is out 
+onto updates in another zone to minimize risk from updates to a single failure domain. This is out
 of scope for this initial design, but we should consider how to allow space to more easily implement
 this change when it is needed.

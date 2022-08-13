@@ -83,7 +83,7 @@ cephClusterSpec:
   # Whether or not upgrade should continue even if a check fails
   # This means Ceph's status could be degraded and we don't recommend upgrading but you might decide otherwise
   # Use at your OWN risk
-  # To understand Rook's upgrade process of Ceph, read https://rook.io/docs/rook/latest/ceph-upgrade.html#ceph-version-upgrades
+  # To understand Rook's upgrade process of Ceph, read https://docs.koor.tech/docs/latest/ceph-upgrade.html#ceph-version-upgrades
   skipUpgradeChecks: false
 
   # Whether or not continue if PGs are not clean during an upgrade
@@ -127,7 +127,7 @@ cephClusterSpec:
     # the corresponding "backend protocol" annotation(s) for your ingress controller of choice)
     ssl: true
 
-  # Network configuration, see: https://github.com/rook/rook/blob/master/Documentation/CRDs/ceph-cluster-crd.md#network-configuration-settings
+  # Network configuration, see: https://github.com/koor-tech/koor/blob/master/Documentation/CRDs/ceph-cluster-crd.md#network-configuration-settings
   # network:
   #   # enable host networking
   #   provider: host
@@ -160,7 +160,7 @@ cephClusterSpec:
   #   enabled: true
   #   periodicity: daily # one of: hourly, daily, weekly, monthly
 
-  # automate [data cleanup process](https://github.com/rook/rook/blob/master/Documentation/ceph-teardown.md#delete-the-data-on-hosts) in cluster destruction.
+  # automate [data cleanup process](https://github.com/koor-tech/koor/blob/master/Documentation/ceph-teardown.md#delete-the-data-on-hosts) in cluster destruction.
   cleanupPolicy:
     # Since cluster cleanup is destructive to data, confirmation is required.
     # To destroy all Rook data on hosts during uninstall, confirmation must be set to "yes-really-destroy-data".
@@ -329,7 +329,7 @@ cephClusterSpec:
   # The section for configuring management of daemon disruptions during upgrade or fencing.
   disruptionManagement:
     # If true, the operator will create and manage PodDisruptionBudgets for OSD, Mon, RGW, and MDS daemons. OSD PDBs are managed dynamically
-    # via the strategy outlined in the [design](https://github.com/rook/rook/blob/master/design/ceph/ceph-managed-disruptionbudgets.md). The operator will
+    # via the strategy outlined in the [design](https://github.com/koor-tech/koor/blob/master/design/ceph/ceph-managed-disruptionbudgets.md). The operator will
     # block eviction of OSDs by default and unblock them safely when drains are detected.
     managePodBudgets: true
     # A duration in minutes that determines how long an entire failureDomain like `region/zone/host` will be held in `noout` (in addition to the
@@ -368,7 +368,8 @@ cephClusterSpec:
         disabled: false
 
 ingress:
-  dashboard: {}
+  dashboard:
+    {}
     # annotations:
     #   external-dns.alpha.kubernetes.io/hostname: dashboard.example.com
     #   nginx.ingress.kubernetes.io/rewrite-target: /ceph-dashboard/$2
@@ -390,7 +391,7 @@ ingress:
 
 cephBlockPools:
   - name: ceph-blockpool
-    # see https://github.com/rook/rook/blob/master/Documentation/CRDs/Block-Storage/ceph-block-pool-crd.md#spec for available configuration
+    # see https://github.com/koor-tech/koor/blob/master/Documentation/CRDs/Block-Storage/ceph-block-pool-crd.md#spec for available configuration
     spec:
       failureDomain: host
       replicated:
@@ -402,7 +403,7 @@ cephBlockPools:
       reclaimPolicy: Delete
       allowVolumeExpansion: true
       mountOptions: []
-      # see https://github.com/rook/rook/blob/master/Documentation/ceph-block.md#provision-storage for available configuration
+      # see https://github.com/koor-tech/koor/blob/master/Documentation/ceph-block.md#provision-storage for available configuration
       parameters:
         # (optional) mapOptions is a comma-separated list of map options.
         # For krbd options refer
@@ -436,7 +437,7 @@ cephBlockPools:
 
 cephFileSystems:
   - name: ceph-filesystem
-    # see https://github.com/rook/rook/blob/master/Documentation/CRDs/Shared-Filesystem/ceph-filesystem-crd.md#filesystem-settings for available configuration
+    # see https://github.com/koor-tech/koor/blob/master/Documentation/CRDs/Shared-Filesystem/ceph-filesystem-crd.md#filesystem-settings for available configuration
     spec:
       metadataPool:
         replicated:
@@ -445,7 +446,7 @@ cephFileSystems:
         - failureDomain: host
           replicated:
             size: 3
-          # Optional and highly recommended, 'data0' by default, see https://github.com/rook/rook/blob/master/Documentation/CRDs/Shared-Filesystem/ceph-filesystem-crd.md#pools
+          # Optional and highly recommended, 'data0' by default, see https://github.com/koor-tech/koor/blob/master/Documentation/CRDs/Shared-Filesystem/ceph-filesystem-crd.md#pools
           name: data0
       metadataServer:
         activeCount: 1
@@ -467,7 +468,7 @@ cephFileSystems:
       reclaimPolicy: Delete
       allowVolumeExpansion: true
       mountOptions: []
-      # see https://github.com/rook/rook/blob/master/Documentation/ceph-filesystem.md#provision-storage for available configuration
+      # see https://github.com/koor-tech/koor/blob/master/Documentation/ceph-filesystem.md#provision-storage for available configuration
       parameters:
         # The secrets contain Ceph admin credentials.
         csi.storage.k8s.io/provisioner-secret-name: rook-csi-cephfs-provisioner
@@ -488,7 +489,7 @@ cephFileSystemVolumeSnapshotClass:
   deletionPolicy: Delete
   annotations: {}
   labels: {}
-  # see https://rook.io/docs/rook/latest/ceph-csi-snapshot.html#cephfs-snapshots for available configuration
+  # see https://docs.koor.tech/docs/latest/ceph-csi-snapshot.html#cephfs-snapshots for available configuration
   parameters: {}
 
 cephBlockPoolsVolumeSnapshotClass:
@@ -498,12 +499,12 @@ cephBlockPoolsVolumeSnapshotClass:
   deletionPolicy: Delete
   annotations: {}
   labels: {}
-  # see https://rook.io/docs/rook/latest/ceph-csi-snapshot.html#rbd-snapshots for available configuration
+  # see https://docs.koor.tech/docs/latest/ceph-csi-snapshot.html#rbd-snapshots for available configuration
   parameters: {}
 
 cephObjectStores:
   - name: ceph-objectstore
-    # see https://github.com/rook/rook/blob/master/Documentation/CRDs/Object-Storage/ceph-object-store-crd.md#object-store-settings for available configuration
+    # see https://github.com/koor-tech/koor/blob/master/Documentation/CRDs/Object-Storage/ceph-object-store-crd.md#object-store-settings for available configuration
     spec:
       metadataPool:
         failureDomain: host
@@ -535,7 +536,7 @@ cephObjectStores:
       enabled: true
       name: ceph-bucket
       reclaimPolicy: Delete
-      # see https://github.com/rook/rook/blob/master/Documentation/ceph-object-bucket-claim.md#storageclass for available configuration
+      # see https://github.com/koor-tech/koor/blob/master/Documentation/ceph-object-bucket-claim.md#storageclass for available configuration
       parameters:
         # note: objectStoreNamespace and objectStoreName are configured by the chart
         region: us-east-1

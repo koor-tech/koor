@@ -21,10 +21,10 @@ import (
 	"fmt"
 	"path"
 
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mgr"
+	opconfig "github.com/koor-tech/koor/pkg/operator/ceph/config"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/operator/ceph/cluster/mgr"
-	opconfig "github.com/rook/rook/pkg/operator/ceph/config"
 )
 
 const (
@@ -34,7 +34,7 @@ const (
 func osdOnSDNFlag(network cephv1.NetworkSpec) []string {
 	var args []string
 	// OSD fails to find the right IP to bind to when running on SDN
-	// for more details: https://github.com/rook/rook/issues/3140
+	// for more details: https://github.com/koor-tech/koor/issues/3140
 	if !network.IsHost() {
 		args = append(args, "--ms-learn-addr-from-peer=false")
 	}

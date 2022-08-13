@@ -19,8 +19,8 @@ package client
 import (
 	"encoding/json"
 
+	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/clusterd"
 )
 
 // GetDeviceClasses gets the available device classes.

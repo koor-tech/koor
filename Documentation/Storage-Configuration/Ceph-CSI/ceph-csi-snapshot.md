@@ -9,9 +9,9 @@ title: Snapshots
 - Install the snapshot controller and snapshot v1 CRD as required. More info can be found [here](https://github.com/kubernetes-csi/external-snapshotter/tree/v6.0.1#usage).
 
 !!! note
-    If only Alpha snapshots are available, enable snapshotter in `rook-ceph-operator-config` or helm chart `values.yaml`, change the external-snapshotter image to `registry.k8s.io/sig-storage/csi-snapshotter:v1.2.2` and refer to the [alpha snapshots documentation](https://github.com/rook/rook/blob/release-1.3/Documentation/ceph-csi-drivers.md#rbd-snapshots)
+    If only Alpha snapshots are available, enable snapshotter in `rook-ceph-operator-config` or helm chart `values.yaml`, change the external-snapshotter image to `registry.k8s.io/sig-storage/csi-snapshotter:v1.2.2` and refer to the [alpha snapshots documentation](https://github.com/koor-tech/koor/blob/release-1.3/Documentation/ceph-csi-drivers.md#rbd-snapshots)
 
-    VolumeSnapshot betav1 is deprecated in Kubernetes 1.20+ and removed in 1.24.0. If you still require betav1 snapshots, change the external-snapshotter image to `registry.k8s.io/sig-storage/csi-snapshotter:v5.0.1` and refer to the [betav1 snapshots documentation](https://rook.github.io/docs/rook/v1.8/ceph-csi-snapshot.html#rbd-snapshots)
+    VolumeSnapshot betav1 is deprecated in Kubernetes 1.20+ and removed in 1.24.0. If you still require betav1 snapshots, change the external-snapshotter image to `registry.k8s.io/sig-storage/csi-snapshotter:v5.0.1` and refer to the [betav1 snapshots documentation](https://docs.koor.tech/docs/v1.8/ceph-csi-snapshot.html#rbd-snapshots)
 
 - We also need a `VolumeSnapshotClass` for volume snapshot to work. The purpose of a `VolumeSnapshotClass` is
 defined in [the kubernetes
@@ -32,7 +32,7 @@ If your Kubernetes version is updated to a newer version of the snapshot API, fo
 
 ### VolumeSnapshotClass
 
-In [VolumeSnapshotClass](https://github.com/rook/rook/tree/master/deploy/examples/csi/rbd/snapshotclass.yaml),
+In [VolumeSnapshotClass](https://github.com/koor-tech/koor/tree/master/deploy/examples/csi/rbd/snapshotclass.yaml),
 the `csi.storage.k8s.io/snapshotter-secret-name` parameter should reference the
 name of the secret created for the rbdplugin and `pool` to reflect the Ceph pool name.
 
@@ -47,7 +47,7 @@ kubectl create -f deploy/examples/csi/rbd/snapshotclass.yaml
 
 ### Volumesnapshot
 
-In [snapshot](https://github.com/rook/rook/tree/master/deploy/examples/csi/rbd/snapshot.yaml),
+In [snapshot](https://github.com/koor-tech/koor/tree/master/deploy/examples/csi/rbd/snapshot.yaml),
 `volumeSnapshotClassName` should be the name of the `VolumeSnapshotClass`
 previously created. The `persistentVolumeClaimName` should be the name of the
 PVC which is already created by the RBD CSI driver.
@@ -75,7 +75,7 @@ The snapshot will be ready to restore to a new PVC when the `READYTOUSE` field o
 
 ### Restore the snapshot to a new PVC
 
-In [pvc-restore](https://github.com/rook/rook/tree/master/deploy/examples/csi/rbd/pvc-restore.yaml),
+In [pvc-restore](https://github.com/koor-tech/koor/tree/master/deploy/examples/csi/rbd/pvc-restore.yaml),
 `dataSource` should be the name of the `VolumeSnapshot` previously
 created. The `dataSource` kind should be the `VolumeSnapshot`.
 
@@ -108,7 +108,7 @@ kubectl delete -f deploy/examples/csi/rbd/snapshotclass.yaml
 
 ### VolumeSnapshotClass
 
-In [VolumeSnapshotClass](https://github.com/rook/rook/tree/master/deploy/examples/csi/cephfs/snapshotclass.yaml),
+In [VolumeSnapshotClass](https://github.com/koor-tech/koor/tree/master/deploy/examples/csi/cephfs/snapshotclass.yaml),
 the `csi.storage.k8s.io/snapshotter-secret-name` parameter should reference the
 name of the secret created for the cephfsplugin.
 
@@ -123,7 +123,7 @@ kubectl create -f deploy/examples/csi/cephfs/snapshotclass.yaml
 
 ### VolumeSnapshot
 
-In [snapshot](https://github.com/rook/rook/tree/master/deploy/examples/csi/cephfs/snapshot.yaml),
+In [snapshot](https://github.com/koor-tech/koor/tree/master/deploy/examples/csi/cephfs/snapshot.yaml),
 `volumeSnapshotClassName` should be the name of the `VolumeSnapshotClass`
 previously created. The `persistentVolumeClaimName` should be the name of the
 PVC which is already created by the CephFS CSI driver.
@@ -152,7 +152,7 @@ The snapshot will be ready to restore to a new PVC when `READYTOUSE` field of th
 ### Restore the snapshot to a new PVC
 
 In
-[pvc-restore](https://github.com/rook/rook/tree/master/deploy/examples/csi/cephfs/pvc-restore.yaml),
+[pvc-restore](https://github.com/koor-tech/koor/tree/master/deploy/examples/csi/cephfs/pvc-restore.yaml),
 `dataSource` should be the name of the `VolumeSnapshot` previously
 created. The `dataSource` kind should be the `VolumeSnapshot`.
 

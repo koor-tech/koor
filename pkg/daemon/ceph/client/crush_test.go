@@ -19,9 +19,9 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/koor-tech/koor/pkg/clusterd"
+	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/clusterd"
-	exectest "github.com/rook/rook/pkg/util/exec/test"
 	"github.com/stretchr/testify/assert"
 )
 

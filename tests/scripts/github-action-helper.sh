@@ -68,12 +68,12 @@ function use_local_disk_for_integration_test() {
   sudo lsblk --bytes
   # add a udev rule to force the disk partitions to ceph
   # we have observed that some runners keep detaching/re-attaching the additional disk overriding the permissions to the default root:disk
-  # for more details see: https://github.com/rook/rook/issues/7405
+  # for more details see: https://github.com/koor-tech/koor/issues/7405
   echo "SUBSYSTEM==\"block\", ATTR{size}==\"29356032\", ACTION==\"add\", RUN+=\"/bin/chown 167:167 $PARTITION\"" | sudo tee -a /etc/udev/rules.d/01-rook.rules
   # for below, see: https://access.redhat.com/solutions/1465913
   block_base="$(basename "${BLOCK}")"
   echo "ACTION==\"add|change\", KERNEL==\"${block_base}\", OPTIONS:=\"nowatch\"" | sudo tee -a /etc/udev/rules.d/99-z-rook-nowatch.rules
-  # The partition is still getting reloaded occasionally during operation. See https://github.com/rook/rook/issues/8975
+  # The partition is still getting reloaded occasionally during operation. See https://github.com/koor-tech/koor/issues/8975
   # Try issuing some disk-inspection commands to jog the system so it won't reload the partitions
   # during OSD provisioning.
   sudo udevadm control --reload-rules || true
@@ -109,7 +109,7 @@ function create_bluestore_partitions_and_pvcs_for_wal(){
 }
 
 function collect_udev_logs_in_background() {
-  local log_dir="${1:-"/home/runner/work/rook/rook/tests/integration/_output/tests"}"
+  local log_dir="${1:-"/home/runner/work/koor/koor/tests/integration/_output/tests"}"
   mkdir -p "${log_dir}"
   udevadm monitor --property &> "${log_dir}"/udev-monitor-property.txt &
   udevadm monitor --kernel &> "${log_dir}"/udev-monitor-kernel.txt &

@@ -19,10 +19,10 @@ package osd
 import (
 	"strconv"
 
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	kms "github.com/rook/rook/pkg/daemon/ceph/osd/kms"
-	opmon "github.com/rook/rook/pkg/operator/ceph/cluster/mon"
-	"github.com/rook/rook/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	kms "github.com/koor-tech/koor/pkg/daemon/ceph/osd/kms"
+	opmon "github.com/koor-tech/koor/pkg/operator/ceph/cluster/mon"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"gopkg.in/ini.v1"
 	v1 "k8s.io/api/core/v1"
 )

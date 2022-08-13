@@ -19,12 +19,12 @@ package file
 import (
 	"fmt"
 
+	v1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/util"
+	"github.com/koor-tech/koor/pkg/util/dependents"
 	"github.com/pkg/errors"
-	v1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/util"
-	"github.com/rook/rook/pkg/util/dependents"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

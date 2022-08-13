@@ -31,7 +31,7 @@ ifneq ($(TAG_WITH_SUFFIX),true)
 override VERSION := $(shell echo "$(VERSION)" | sed -e 's/-alpha.0//' -e 's/-beta.0//' -e 's/-rc.0//')
 endif
 
-DOCS_PREFIX := docs/rook
+DOCS_PREFIX := docs
 
 ifeq ($(shell echo $(BRANCH_NAME)),master)
 DOCS_VERSION := latest
@@ -45,14 +45,10 @@ else
 DOCS_VERSION_ALIAS :=
 endif
 
-DOCS_DIR ?= $(ROOT_DIR)/Documentation
-DOCS_WORK_DIR := $(WORK_DIR)/rook.github.io
-DOCS_VERSION_DIR := $(DOCS_WORK_DIR)/docs/rook/$(DOCS_VERSION)
-
 ifdef GIT_API_TOKEN
-DOCS_GIT_REPO := https://$(GIT_API_TOKEN)@github.com/rook/rook.github.io.git
+DOCS_GIT_REPO := https://$(GIT_API_TOKEN)@github.com/koor-tech/docs.koor.tech.git
 else
-DOCS_GIT_REPO := git@github.com:rook/rook.github.io.git
+DOCS_GIT_REPO := git@github.com:koor-tech/docs.koor.tech.git
 endif
 
 ifeq ($(origin BRANCH_NAME), undefined)
@@ -79,7 +75,7 @@ REGISTRIES ?= $(DOCKER_REGISTRY)
 IMAGE_ARCHS := $(subst linux_,,$(filter linux_%,$(PLATFORMS)))
 IMAGE_PLATFORMS := $(subst _,/,$(subst $(SPACE),$(COMMA),$(filter linux_%,$(PLATFORMS))))
 
-S3_BUCKET ?= rook.releases
+S3_BUCKET ?= koor.releases
 S3_CP := aws s3 cp --only-show-errors
 S3_SYNC := aws s3 sync --only-show-errors
 S3_SYNC_DEL := aws s3 sync --only-show-errors --delete
@@ -131,8 +127,12 @@ endif
 
 # ====================================================================================
 # docs
-build.docs:
+deps.docs:
 	pip3 install -r requirements_docs.txt
+
+build.docs: deps.docs
+	# Build the docs once before they are published to ensure they are correctly building
+	cd $(ROOT_DIR) && mkdocs build --strict
 
 publish.docs:
 	if ! git remote show docs > /dev/null 2>&1; then git remote add docs $(DOCS_GIT_REPO); fi
@@ -141,7 +141,7 @@ publish.docs:
 	git fetch -u docs gh-pages
 
 	# Switch to root of repo and then run the build and deploy of the documentation
-	cd $(ROOT_DIR) && mike deploy --remote docs --push --rebase --branch gh-pages --update-aliases --prefix $(DOCS_PREFIX) $(DOCS_VERSION) $(DOCS_VERSION_ALIAS)
+	cd $(ROOT_DIR) && mike deploy --remote docs --push --rebase --branch gh-pages --update-aliases --prefix "$(DOCS_PREFIX)" $(DOCS_VERSION) $(DOCS_VERSION_ALIAS)
 
 # ====================================================================================
 # helm

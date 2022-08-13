@@ -20,12 +20,12 @@ package telemetry
 
 import (
 	"github.com/coreos/pkg/capnslog"
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/ceph/config"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/ceph/config"
 )
 
-var logger = capnslog.NewPackageLogger("github.com/rook/rook", "telemetry")
+var logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "telemetry")
 
 const (
 	RookVersionKey             = "rook/version"

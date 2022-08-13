@@ -19,9 +19,9 @@ limitations under the License.
 package fake
 
 import (
-	clientset "github.com/rook/rook/pkg/client/clientset/versioned"
-	cephv1 "github.com/rook/rook/pkg/client/clientset/versioned/typed/ceph.rook.io/v1"
-	fakecephv1 "github.com/rook/rook/pkg/client/clientset/versioned/typed/ceph.rook.io/v1/fake"
+	clientset "github.com/koor-tech/koor/pkg/client/clientset/versioned"
+	cephv1 "github.com/koor-tech/koor/pkg/client/clientset/versioned/typed/ceph.rook.io/v1"
+	fakecephv1 "github.com/koor-tech/koor/pkg/client/clientset/versioned/typed/ceph.rook.io/v1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"

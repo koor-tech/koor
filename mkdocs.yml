@@ -1,43 +1,27 @@
-site_name: Rook Ceph Documentation
+site_name: Koor Storage Distribution Documentation
 docs_dir: Documentation/
-site_url: 'https://rook.io'
-repo_url: https://github.com/rook/rook
+site_url: "https://docs.koor.tech"
+repo_url: https://github.com/koor-tech/koor
 edit_uri: edit/master/Documentation/
 site_author: Rook Authors
-site_description: "Rook Ceph Documentation"
+site_description: "Koor Documentation"
 use_directory_urls: true
 copyright: |
-  <a class="logo" href="/">
-    <img src="https://rook.io/images/rook-logo-small.svg" alt="rook.io logo" />
-  </a>
-  <p>
-    &#169; Rook Authors 2022. Documentation distributed under
-    <a href="https://creativecommons.org/licenses/by/4.0">CC-BY-4.0</a>.
-  </p>
-  <p>
-    &#169; 2022 The Linux Foundation. All rights reserved. The Linux Foundation has
-    registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our
-    <a href="https://www.linuxfoundation.org/trademark-usage/">Trademark Usage</a> page.
-  </p>
+  Copyright &copy; 2022 Koor Technologies, Inc. All Rights Reserved.
+  <br>
+  Rook is a trademark of The Linux Foundation®.
+  <br>
+  Ceph is a trademark or registered trademark of Red Hat, Inc. or its subsidiaries in the United States and other countries.
+  <br>
+  All trademarks are property of their respective owners in the US and other countries.
 theme:
   name: material
   custom_dir: .docs/overrides/
   font: false
-  favicon: https://rook.io/images/favicon_192x192.png
-  logo: https://rook.io/images/rook-logo.svg
+  favicon: https://koor.tech/images/favicon.svg
+  logo: https://koor.tech/images/logo.svg
   palette:
-    - scheme: 'default'
-      primary: 'rook-blue'
-      accent: 'deep orange'
-      toggle:
-        icon: material/toggle-switch-off-outline
-        name: Switch to dark mode
-    - scheme: 'slate'
-      primary: 'rook-blue'
-      accent: 'red'
-      toggle:
-        icon: material/toggle-switch
-        name: Switch to light mode
+    scheme: "default"
   icon:
     repo: fontawesome/brands/github
   features:
@@ -73,11 +57,12 @@ plugins:
         README.md: Getting-Started/intro.md
   - mike:
       # these fields are all optional; the defaults are as below...
-      version_selector: true   # set to false to leave out the version selector
-      css_dir: css             # the directory to put the version selector's CSS
-      javascript_dir: js       # the directory to put the version selector's JS
-      canonical_version: null  # the version for <link rel="canonical">; `null`
-                               # uses the version specified via `mike deploy`
+      version_selector: true # set to false to leave out the version selector
+      css_dir: css # the directory to put the version selector's CSS
+      javascript_dir: js # the directory to put the version selector's JS
+      canonical_version:
+        null # the version for <link rel="canonical">; `null`
+        # uses the version specified via `mike deploy`
 markdown_extensions:
   - admonition
   - attr_list
@@ -109,11 +94,7 @@ extra:
     provider: mike
     default: latest-release
   social:
-    - icon: fontawesome/brands/slack
-      link: https://slack.rook.io/
-    - icon: fontawesome/brands/twitter 
-      link: https://twitter.com/rook_io
-    - icon: fontawesome/solid/envelopes-bulk
-      link: 'https://groups.google.com/forum/#!forum/rook-dev'
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/koor_tech
     - icon: fontawesome/brands/medium
-      link: https://blog.rook.io/
+      link: https://koor.tech/blog/

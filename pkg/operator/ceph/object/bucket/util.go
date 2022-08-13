@@ -20,18 +20,18 @@ import (
 	"crypto/rand"
 
 	"github.com/coreos/pkg/capnslog"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	cephObject "github.com/koor-tech/koor/pkg/operator/ceph/object"
 	bktv1alpha1 "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1"
 	"github.com/kube-object-storage/lib-bucket-provisioner/pkg/provisioner"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	cephObject "github.com/rook/rook/pkg/operator/ceph/object"
 	storagev1 "k8s.io/api/storage/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"
 )
 
-var logger = capnslog.NewPackageLogger("github.com/rook/rook", "op-bucket-prov")
+var logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "op-bucket-prov")
 
 const (
 	genUserLen           = 8

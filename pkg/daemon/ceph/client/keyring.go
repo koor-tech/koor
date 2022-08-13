@@ -23,8 +23,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/clusterd"
 )
 
 const (

@@ -24,12 +24,12 @@ import (
 	kp "github.com/IBM/keyprotect-go-client"
 	"github.com/coreos/pkg/capnslog"
 	"github.com/hashicorp/vault/api"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	"github.com/libopenstorage/secrets"
 	"github.com/libopenstorage/secrets/vault"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -39,7 +39,7 @@ const (
 )
 
 var (
-	logger                        = capnslog.NewPackageLogger("github.com/rook/rook", "op-kms")
+	logger                        = capnslog.NewPackageLogger("github.com/koor-tech/koor", "op-kms")
 	kmsMandatoryConnectionDetails = []string{Provider}
 )
 

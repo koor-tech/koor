@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/koor-tech/koor/tests/framework/utils"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/tests/framework/utils"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"

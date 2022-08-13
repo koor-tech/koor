@@ -17,9 +17,9 @@ limitations under the License.
 package machinedisruption
 
 import (
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/operator/ceph/disruption/controllerconfig"
 	healthchecking "github.com/openshift/machine-api-operator/pkg/apis/healthchecking/v1alpha1"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/operator/ceph/disruption/controllerconfig"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/manager"

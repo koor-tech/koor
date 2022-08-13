@@ -25,14 +25,14 @@ import (
 
 	"github.com/coreos/pkg/capnslog"
 	netclient "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/client/clientset/versioned/typed/k8s.cni.cncf.io/v1"
+	rookclient "github.com/koor-tech/koor/pkg/client/clientset/versioned"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/pkg/util"
+	"github.com/koor-tech/koor/pkg/util/exec"
+	"github.com/koor-tech/koor/pkg/util/flags"
+	"github.com/koor-tech/koor/pkg/version"
 	"github.com/pkg/errors"
-	rookclient "github.com/rook/rook/pkg/client/clientset/versioned"
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/operator/k8sutil"
-	"github.com/rook/rook/pkg/util"
-	"github.com/rook/rook/pkg/util/exec"
-	"github.com/rook/rook/pkg/util/flags"
-	"github.com/rook/rook/pkg/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	v1 "k8s.io/api/core/v1"
@@ -55,7 +55,7 @@ var (
 	logLevelRaw        string
 	operatorImage      string
 	serviceAccountName string
-	logger             = capnslog.NewPackageLogger("github.com/rook/rook", "rookcmd")
+	logger             = capnslog.NewPackageLogger("github.com/koor-tech/koor", "rookcmd")
 )
 
 // Initialize the configuration parameters. The precedence from lowest to highest is:

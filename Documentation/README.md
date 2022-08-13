@@ -21,7 +21,7 @@ See our [Quickstart](quickstart.md) guide to get started with the Ceph operator!
 
 [Ceph](https://docs.ceph.com/en/latest/) is a highly scalable distributed storage solution for block storage, object storage, and shared filesystems with years of production deployments. See the [Ceph overview](storage-architecture.md).
 
-For detailed design documentation, see also the [design docs](https://github.com/rook/rook/tree/master/design).
+For detailed design documentation, see also the [design docs](https://github.com/koor-tech/koor/tree/master/design).
 
 ## Need help? Be sure to join the Rook Slack
 

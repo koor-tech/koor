@@ -31,11 +31,8 @@ beta or stable storage provider **MUST** have a representative on the PST.
 
 ### Mailing lists
 
-* [cncf-rook-security@lists.cncf.io](mailto:cncf-rook-security@lists.cncf.io): for any security concerns. Received by Product
+* [security@koor.tech](mailto:security@koor.tech): for any security concerns. Received by Product
   Security Team members, and used by this Team to discuss security issues and fixes.
-* [cncf-rook-distributors-announce@lists.cncf.io](mailto:cncf-rook-distributors-announce@lists.cncf.io): for
-  early private information on Security patch releases. See below how Rook distributors can apply
-  for this list.
 
 ## Disclosures
 
@@ -43,7 +40,7 @@ beta or stable storage provider **MUST** have a representative on the PST.
 
 If you find a security vulnerability or any security related issues, please **DO NOT** file a public
 issue. **Do not** create a GitHub issue. Instead, send your report privately to
-[cncf-rook-security@lists.cncf.io](mailto:cncf-rook-security@lists.cncf.io). Security reports are greatly appreciated and we will
+[security@koor.tech](mailto:security@koor.tech). Security reports are greatly appreciated and we will
 publicly thank you for it.
 
 Please provide as much information as possible, so we can react quickly. For instance, that could
@@ -58,7 +55,7 @@ include:
 ### Public Disclosure Processes
 
 If you know of a publicly disclosed security vulnerability please **IMMEDIATELY** email
-[cncf-rook-security@lists.cncf.io](mailto:cncf-rook-security@lists.cncf.io) to inform the Product Security Team (PST) about the
+[security@koor.tech](mailto:security@koor.tech) to inform the Product Security Team (PST) about the
 vulnerability so we start the patch, release, and communication process.
 
 If possible the PST will ask the person making the public report if the issue can be handled via a
@@ -107,7 +104,7 @@ These steps should be completed within the 1-7 days of Disclosure.
 If the CVSS score is under 4.0 ([a low severity
 score](https://www.first.org/cvss/specification-document#i5)) the Fix Team can decide to slow the
 release process down in the face of holidays, developer bandwidth, etc. These decisions must be
-discussed on the [cncf-rook-security@lists.cncf.io](mailto:cncf-rook-security@lists.cncf.io) mailing list.
+discussed on the [security@koor.tech](mailto:security@koor.tech) mailing list.
 
 ### Fix Disclosure Process
 
@@ -130,7 +127,7 @@ patches, understand exact mitigation steps, etc.
   enough to require early disclosure to distributors. Generally this Private Distributor Disclosure
   process should be reserved for remotely exploitable or privilege escalation issues. Otherwise,
   this process can be skipped.
-* The Fix Lead will email the patches to cncf-rook-distributors-announce@lists.cncf.io so distributors
+* The Fix Lead will email the patches to the Koor Newletter so distributors
   can prepare their own release to be available to users on the day of the issue's announcement.
   Distributors should read about the [Private Distributor List](#private-distributor-list) to find
   out the requirements for being added to this list.
@@ -168,7 +165,7 @@ Before any information from the list is shared with respective members of your t
 said issue, they must agree to the same terms and only find out information on a need-to-know basis.
 
 In the unfortunate event you share the information beyond what is allowed by this policy, you _must_
-urgently inform the [cncf-rook-security@lists.cncf.io](mailto:cncf-rook-security@lists.cncf.io) mailing list of exactly what
+urgently inform the [security@koor.tech](mailto:security@koor.tech) mailing list of exactly what
 information leaked and to whom.
 
 If you continue to leak information and break the policy outlined here, you will be removed from the
@@ -206,7 +203,7 @@ should:
 
 ### Requesting to Join
 
-New membership requests are sent to [cncf-rook-security@lists.cncf.io](mailto:cncf-rook-security@lists.cncf.io).
+New membership requests are sent to [security@koor.tech](mailto:security@koor.tech).
 
 In the body of your request please specify how you qualify and fulfill each criterion listed in
 [Membership Criteria](#membership-criteria).

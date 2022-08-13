@@ -67,7 +67,7 @@ var (
 	// output = [(5c0dc966af809fd1d429ec7bac48962a746af243) 5c0dc966af809fd1d429ec7bac48962a746af243]
 	commitIDPattern = regexp.MustCompile(`\(([^)]+)\)`)
 
-	logger = capnslog.NewPackageLogger("github.com/rook/rook", "cephver")
+	logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "cephver")
 )
 
 func (v *CephVersion) String() string {

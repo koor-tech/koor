@@ -25,15 +25,15 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 
 	"github.com/coreos/pkg/capnslog"
-	cephClient "github.com/rook/rook/pkg/daemon/ceph/client"
+	cephClient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/operator/ceph/disruption/controllerconfig"
-	"github.com/rook/rook/pkg/operator/k8sutil"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/operator/ceph/disruption/controllerconfig"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 )
 
 const (
@@ -44,7 +44,7 @@ const (
 )
 
 var (
-	logger = capnslog.NewPackageLogger("github.com/rook/rook", controllerName)
+	logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", controllerName)
 
 	// Implement reconcile.Reconciler so the controller can reconcile objects
 	_ reconcile.Reconciler = &ReconcileClusterDisruption{}

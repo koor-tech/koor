@@ -11,7 +11,7 @@ defaults:
 jobs:
   canary-arm64:
     runs-on: [self-hosted, ubuntu-20.04, ARM64]
-    if: github.repository == 'rook/rook'
+    if: github.repository == 'koor-tech/koor'
     env:
       BLOCK: /dev/sdb
 
@@ -90,7 +90,7 @@ jobs:
           path: test
 
   smoke-suite-pacific-devel:
-    if: github.repository == 'rook/rook'
+    if: github.repository == 'koor-tech/koor'
     runs-on: ubuntu-18.04
     steps:
       - name: checkout
@@ -107,12 +107,12 @@ jobs:
       - name: TestCephSmokeSuite
         run: |
           export DEVICE_FILTER=$(lsblk|awk '/14G/ {print $1}'| head -1)
-          SKIP_CLEANUP_POLICY=false CEPH_SUITE_VERSION="pacific-devel" go test -v -timeout 1800s -run TestCephSmokeSuite github.com/rook/rook/tests/integration
+          SKIP_CLEANUP_POLICY=false CEPH_SUITE_VERSION="pacific-devel" go test -v -timeout 1800s -run TestCephSmokeSuite github.com/koor-tech/koor/tests/integration
 
       - name: collect common logs
         if: always()
         run: |
-          export LOG_DIR="/home/runner/work/rook/rook/tests/integration/_output/tests/"
+          export LOG_DIR="/home/runner/work/koor/koor/tests/integration/_output/tests/"
           export CLUSTER_NAMESPACE="smoke-ns"
           export OPERATOR_NAMESPACE="smoke-ns-system"
           tests/scripts/collect-logs.sh
@@ -122,10 +122,10 @@ jobs:
         if: failure()
         with:
           name: ceph-smoke-suite-pacific-artifact
-          path: /home/runner/work/rook/rook/tests/integration/_output/tests/
+          path: /home/runner/work/koor/koor/tests/integration/_output/tests/
 
   smoke-suite-quincy-devel:
-    if: github.repository == 'rook/rook'
+    if: github.repository == 'koor-tech/koor'
     runs-on: ubuntu-18.04
     steps:
       - name: checkout
@@ -142,12 +142,12 @@ jobs:
       - name: TestCephSmokeSuite
         run: |
           export DEVICE_FILTER=$(lsblk|awk '/14G/ {print $1}'| head -1)
-          SKIP_CLEANUP_POLICY=false CEPH_SUITE_VERSION="quincy-devel" go test -v -timeout 1800s -run TestCephSmokeSuite github.com/rook/rook/tests/integration
+          SKIP_CLEANUP_POLICY=false CEPH_SUITE_VERSION="quincy-devel" go test -v -timeout 1800s -run TestCephSmokeSuite github.com/koor-tech/koor/tests/integration
 
       - name: collect common logs
         if: always()
         run: |
-          export LOG_DIR="/home/runner/work/rook/rook/tests/integration/_output/tests/"
+          export LOG_DIR="/home/runner/work/koor/koor/tests/integration/_output/tests/"
           export CLUSTER_NAMESPACE="smoke-ns"
           export OPERATOR_NAMESPACE="smoke-ns-system"
           tests/scripts/collect-logs.sh
@@ -157,10 +157,10 @@ jobs:
         if: failure()
         with:
           name: ceph-smoke-suite-quincy-artifact
-          path: /home/runner/work/rook/rook/tests/integration/_output/tests/
+          path: /home/runner/work/koor/koor/tests/integration/_output/tests/
 
   smoke-suite-ceph-master:
-    if: github.repository == 'rook/rook'
+    if: github.repository == 'koor-tech/koor'
     runs-on: ubuntu-18.04
     steps:
       - name: checkout
@@ -177,12 +177,12 @@ jobs:
       - name: TestCephSmokeSuite
         run: |
           export DEVICE_FILTER=$(lsblk|awk '/14G/ {print $1}'| head -1)
-          SKIP_CLEANUP_POLICY=false CEPH_SUITE_VERSION=master go test -v -timeout 1800s -run TestCephSmokeSuite github.com/rook/rook/tests/integration
+          SKIP_CLEANUP_POLICY=false CEPH_SUITE_VERSION=master go test -v -timeout 1800s -run TestCephSmokeSuite github.com/koor-tech/koor/tests/integration
 
       - name: collect common logs
         if: always()
         run: |
-          export LOG_DIR="/home/runner/work/rook/rook/tests/integration/_output/tests/"
+          export LOG_DIR="/home/runner/work/koor/koor/tests/integration/_output/tests/"
           export CLUSTER_NAMESPACE="smoke-ns"
           export OPERATOR_NAMESPACE="smoke-ns-system"
           tests/scripts/collect-logs.sh
@@ -192,10 +192,10 @@ jobs:
         if: failure()
         with:
           name: ceph-smoke-suite-master-artifact
-          path: /home/runner/work/rook/rook/tests/integration/_output/tests/
+          path: /home/runner/work/koor/koor/tests/integration/_output/tests/
 
   object-suite-pacific-devel:
-    if: github.repository == 'rook/rook'
+    if: github.repository == 'koor-tech/koor'
     runs-on: ubuntu-18.04
     steps:
       - name: checkout
@@ -212,12 +212,12 @@ jobs:
       - name: TestCephObjectSuite
         run: |
           export DEVICE_FILTER=$(lsblk|awk '/14G/ {print $1}'| head -1)
-          SKIP_CLEANUP_POLICY=false CEPH_SUITE_VERSION="pacific-devel" go test -v -timeout 1800s -failfast -run TestCephObjectSuite github.com/rook/rook/tests/integration
+          SKIP_CLEANUP_POLICY=false CEPH_SUITE_VERSION="pacific-devel" go test -v -timeout 1800s -failfast -run TestCephObjectSuite github.com/koor-tech/koor/tests/integration
 
       - name: collect common logs
         if: always()
         run: |
-          export LOG_DIR="/home/runner/work/rook/rook/tests/integration/_output/tests/"
+          export LOG_DIR="/home/runner/work/koor/koor/tests/integration/_output/tests/"
           export CLUSTER_NAMESPACE="object-ns"
           export OPERATOR_NAMESPACE="object-ns-system"
           tests/scripts/collect-logs.sh
@@ -227,10 +227,10 @@ jobs:
         if: failure()
         with:
           name: ceph-object-suite-pacific-artifact
-          path: /home/runner/work/rook/rook/tests/integration/_output/tests/
+          path: /home/runner/work/koor/koor/tests/integration/_output/tests/
 
   object-suite-master:
-    if: github.repository == 'rook/rook'
+    if: github.repository == 'koor-tech/koor'
     runs-on: ubuntu-18.04
     steps:
       - name: checkout
@@ -247,12 +247,12 @@ jobs:
       - name: TestCephObjectSuite
         run: |
           export DEVICE_FILTER=$(lsblk|awk '/14G/ {print $1}'| head -1)
-          SKIP_CLEANUP_POLICY=false CEPH_SUITE_VERSION=master go test -v -timeout 1800s -failfast -run TestCephObjectSuite github.com/rook/rook/tests/integration
+          SKIP_CLEANUP_POLICY=false CEPH_SUITE_VERSION=master go test -v -timeout 1800s -failfast -run TestCephObjectSuite github.com/koor-tech/koor/tests/integration
 
       - name: collect common logs
         if: always()
         run: |
-          export LOG_DIR="/home/runner/work/rook/rook/tests/integration/_output/tests/"
+          export LOG_DIR="/home/runner/work/koor/koor/tests/integration/_output/tests/"
           export CLUSTER_NAMESPACE="object-ns"
           export OPERATOR_NAMESPACE="object-ns-system"
           tests/scripts/collect-logs.sh
@@ -262,10 +262,10 @@ jobs:
         if: failure()
         with:
           name: ceph-object-suite-master-artifact
-          path: /home/runner/work/rook/rook/tests/integration/_output/tests/
+          path: /home/runner/work/koor/koor/tests/integration/_output/tests/
 
   upgrade-from-pacific-stable-to-pacific-devel:
-    if: github.repository == 'rook/rook'
+    if: github.repository == 'koor-tech/koor'
     runs-on: ubuntu-18.04
     steps:
       - name: checkout
@@ -282,12 +282,12 @@ jobs:
       - name: TestCephUpgradeSuite
         run: |
           export DEVICE_FILTER=$(lsblk|awk '/14G/ {print $1}'| head -1)
-          go test -v -timeout 1800s -failfast -run TestCephUpgradeSuite/TestUpgradeCephToPacificDevel github.com/rook/rook/tests/integration
+          go test -v -timeout 1800s -failfast -run TestCephUpgradeSuite/TestUpgradeCephToPacificDevel github.com/koor-tech/koor/tests/integration
 
       - name: collect common logs
         if: always()
         run: |
-          export LOG_DIR="/home/runner/work/rook/rook/tests/integration/_output/tests/"
+          export LOG_DIR="/home/runner/work/koor/koor/tests/integration/_output/tests/"
           export CLUSTER_NAMESPACE="upgrade"
           export OPERATOR_NAMESPACE="upgrade-system"
           tests/scripts/collect-logs.sh
@@ -297,10 +297,10 @@ jobs:
         if: failure()
         with:
           name: ceph-upgrade-suite-pacific-artifact
-          path: /home/runner/work/rook/rook/tests/integration/_output/tests/
+          path: /home/runner/work/koor/koor/tests/integration/_output/tests/
 
   upgrade-from-quincy-stable-to-quincy-devel:
-    if: github.repository == 'rook/rook'
+    if: github.repository == 'koor-tech/koor'
     runs-on: ubuntu-18.04
     steps:
       - name: checkout
@@ -317,12 +317,12 @@ jobs:
       - name: TestCephUpgradeSuite
         run: |
           export DEVICE_FILTER=$(lsblk|awk '/14G/ {print $1}'| head -1)
-          go test -v -timeout 1800s -failfast -run TestCephUpgradeSuite/TestUpgradeCephToQuincyDevel github.com/rook/rook/tests/integration
+          go test -v -timeout 1800s -failfast -run TestCephUpgradeSuite/TestUpgradeCephToQuincyDevel github.com/koor-tech/koor/tests/integration
 
       - name: collect common logs
         if: always()
         run: |
-          export LOG_DIR="/home/runner/work/rook/rook/tests/integration/_output/tests/"
+          export LOG_DIR="/home/runner/work/koor/koor/tests/integration/_output/tests/"
           export CLUSTER_NAMESPACE="upgrade"
           export OPERATOR_NAMESPACE="upgrade-system"
           tests/scripts/collect-logs.sh
@@ -332,19 +332,15 @@ jobs:
         if: failure()
         with:
           name: ceph-upgrade-suite-quincy-artifact
-          path: /home/runner/work/rook/rook/tests/integration/_output/tests/
+          path: /home/runner/work/koor/koor/tests/integration/_output/tests/
 
   rgw-multisite-test-with-ceph-devel:
-    if: github.repository == 'rook/rook'
+    if: github.repository == 'koor-tech/koor'
     runs-on: ubuntu-18.04
     strategy:
       matrix:
         ceph-image-tag:
-          [
-            "latest-master-devel",
-            "latest-quincy-devel",
-            "latest-pacific-devel",
-          ]
+          ["latest-master-devel", "latest-quincy-devel", "latest-pacific-devel"]
 
     steps:
       - uses: actions/checkout@v2
@@ -365,7 +361,7 @@ jobs:
           path: test
 
   encryption-pvc-kms-ibm-kp:
-    if: github.repository == 'rook/rook'
+    if: github.repository == 'koor-tech/koor'
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2

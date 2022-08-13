@@ -20,11 +20,11 @@ package cluster
 import (
 	"context"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/ceph/cluster/mon"
-	"github.com/rook/rook/pkg/operator/ceph/cluster/osd"
-	opcontroller "github.com/rook/rook/pkg/operator/ceph/controller"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mon"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/osd"
+	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
 )
 
 var (

@@ -25,7 +25,7 @@ import (
 
 var (
 	webhookName = "rook-ceph-webhook"
-	logger      = capnslog.NewPackageLogger("github.com/rook/rook", webhookName)
+	logger      = capnslog.NewPackageLogger("github.com/koor-tech/koor", webhookName)
 )
 
 var _ webhook.Validator = &CephBlockPool{}

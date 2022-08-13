@@ -237,7 +237,7 @@ The operator will automatically add more mons to increase the quorum size again,
 When the Rook CRDs are deleted, the Rook operator will respond to the deletion event to attempt to clean up the cluster resources.
 If any data appears present in the cluster, Rook will refuse to allow the resources to be deleted since the operator will
 refuse to remove the finalizer on the CRs until the underlying data is deleted. For more details, see the
-[dependency design doc](https://github.com/rook/rook/blob/master/design/ceph/resource-dependencies.md).
+[dependency design doc](https://github.com/koor-tech/koor/blob/master/design/ceph/resource-dependencies.md).
 
 While it is good that the CRs will not be deleted and the underlying Ceph data and daemons continue to be
 available, the CRs will be stuck indefinitely in a `Deleting` state in which the operator will not
@@ -320,22 +320,22 @@ kubectl -n rook-ceph scale --replicas=1 deploy/rook-ceph-operator
 
 Watch the operator log to confirm that the reconcile completes successfully.
 
-## Adopt an existing Rook Ceph cluster into a new Kubernetes cluster
+## Adopt an existing Koor cluster into a new Kubernetes cluster
 
 Situations this section can help resolve:
 
-1. The Kubernetes environment underlying a running Rook Ceph cluster failed catastrophically, requiring a new Kubernetes environment in which the user wishes to recover the previous Rook Ceph cluster.
-2. The user wishes to migrate their existing Rook Ceph cluster to a new Kubernetes environment, and downtime can be tolerated.
+1. The Kubernetes environment underlying a running Koor cluster failed catastrophically, requiring a new Kubernetes environment in which the user wishes to recover the previous Koor cluster.
+2. The user wishes to migrate their existing Koor cluster to a new Kubernetes environment, and downtime can be tolerated.
 
 ### Prerequisites
 
-1. A working Kubernetes cluster to which we will migrate the previous Rook Ceph cluster.
+1. A working Kubernetes cluster to which we will migrate the previous Koor cluster.
 2. At least one Ceph mon db is in quorum, and sufficient number of Ceph OSD is `up` and `in` before disaster.
-3. The previous Rook Ceph cluster is not running.
+3. The previous Koor cluster is not running.
 
 ### Overview for Steps below
 
-1. Start a new and clean Rook Ceph cluster, with old `CephCluster` `CephBlockPool` `CephFilesystem` `CephNFS` `CephObjectStore`.
+1. Start a new and clean Koor cluster, with old `CephCluster` `CephBlockPool` `CephFilesystem` `CephNFS` `CephObjectStore`.
 2. Shut the new cluster down when it has been created successfully.
 3. Replace ceph-mon data with that of the old cluster.
 4. Replace `fsid` in `secrets/rook-ceph-mon` with that of the old one.
@@ -351,12 +351,12 @@ Situations this section can help resolve:
 Assuming `dataHostPathData` is `/var/lib/rook`, and the `CephCluster` trying to adopt is named `rook-ceph`.
 
 1. Make sure the old Kubernetes cluster is completely torn down and the new Kubernetes cluster is up and running without Rook Ceph.
-1. Backup `/var/lib/rook` in all the Rook Ceph nodes to a different directory. Backups will be used later.
-1. Pick a `/var/lib/rook/rook-ceph/rook-ceph.config` from any previous Rook Ceph node and save the old cluster `fsid` from its content.
-1. Remove `/var/lib/rook` from all the Rook Ceph nodes.
+1. Backup `/var/lib/rook` in all the Koor nodes to a different directory. Backups will be used later.
+1. Pick a `/var/lib/rook/rook-ceph/rook-ceph.config` from any previous Koor node and save the old cluster `fsid` from its content.
+1. Remove `/var/lib/rook` from all the Koor nodes.
 1. Add identical `CephCluster` descriptor to the new Kubernetes cluster, especially identical `spec.storage.config` and `spec.storage.nodes`, except `mon.count`, which should be set to `1`.
 1. Add identical `CephFilesystem` `CephBlockPool` `CephNFS` `CephObjectStore` descriptors (if any) to the new Kubernetes cluster.
-1. Install Rook Ceph in the new Kubernetes cluster.
+1. Install Koor in the new Kubernetes cluster.
 1. Watch the operator logs with `kubectl -n rook-ceph logs -f rook-ceph-operator-xxxxxxx`, and wait until the orchestration has settled.
 1. **STATE**: Now the cluster will have `rook-ceph-mon-a`, `rook-ceph-mgr-a`, and all the auxiliary pods up and running, and zero (hopefully) `rook-ceph-osd-ID-xxxxxx` running. `ceph -s` output should report 1 mon, 1 mgr running, and all of the OSDs down, all PGs are in `unknown` state. Rook should not start any OSD daemon since all devices belongs to the old cluster (which have a different `fsid`).
 1. Run `kubectl -n rook-ceph exec -it rook-ceph-mon-a-xxxxxxxx bash` to enter the `rook-ceph-mon-a` pod,
@@ -410,7 +410,7 @@ Assuming `dataHostPathData` is `/var/lib/rook`, and the `CephCluster` trying to 
         auth supported = none
     ```
 
-1. Bring the Rook Ceph operator back online by running `kubectl -n rook-ceph edit deploy/rook-ceph-operator` and set `replicas` to `1`.
+1. Bring the Koor operator back online by running `kubectl -n rook-ceph edit deploy/rook-ceph-operator` and set `replicas` to `1`.
 1. Watch the operator logs with `kubectl -n rook-ceph logs -f rook-ceph-operator-xxxxxxx`, and wait until the orchestration has settled.
 1. **STATE**: Now the new cluster should be up and running with authentication disabled. `ceph -s` should report 1 mon & 1 mgr & all of the OSDs up and running, and all PGs in either `active` or `degraded` state.
 1. Run `kubectl -n rook-ceph exec -it rook-ceph-tools-XXXXXXX bash` to enter tools pod:
@@ -425,7 +425,7 @@ Assuming `dataHostPathData` is `/var/lib/rook`, and the `CephCluster` trying to 
 1. Re-enable authentication by running `kubectl -n rook-ceph edit cm/rook-config-override` and removing auth configuration added in previous steps.
 1. Stop the Rook operator by running `kubectl -n rook-ceph edit deploy/rook-ceph-operator` and set `replicas` to `0`.
 1. Shut down entire new cluster by running `kubectl -n rook-ceph delete deploy/X` where X is every deployment in namespace `rook-ceph`, except `rook-ceph-operator` and `rook-ceph-tools`, again. This time OSD daemons are present and should be removed too.
-1. Bring the Rook Ceph operator back online by running `kubectl -n rook-ceph edit deploy/rook-ceph-operator` and set `replicas` to `1`.
+1. Bring the Koor operator back online by running `kubectl -n rook-ceph edit deploy/rook-ceph-operator` and set `replicas` to `1`.
 1. Watch the operator logs with `kubectl -n rook-ceph logs -f rook-ceph-operator-xxxxxxx`, and wait until the orchestration has settled.
 1. **STATE**: Now the new cluster should be up and running with authentication enabled. `ceph -s` output should not change much comparing to previous steps.
 

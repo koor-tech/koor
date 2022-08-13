@@ -22,23 +22,23 @@ Rook upgrades are only supported between official releases.
 For a guide to upgrade previous versions of Rook, please refer to the version of documentation for
 those releases.
 
-* [Upgrade 1.7 to 1.8](https://rook.io/docs/rook/v1.8/ceph-upgrade.html)
-* [Upgrade 1.6 to 1.7](https://rook.io/docs/rook/v1.7/ceph-upgrade.html)
-* [Upgrade 1.5 to 1.6](https://rook.io/docs/rook/v1.6/ceph-upgrade.html)
-* [Upgrade 1.4 to 1.5](https://rook.io/docs/rook/v1.5/ceph-upgrade.html)
-* [Upgrade 1.3 to 1.4](https://rook.io/docs/rook/v1.4/ceph-upgrade.html)
-* [Upgrade 1.2 to 1.3](https://rook.io/docs/rook/v1.3/ceph-upgrade.html)
-* [Upgrade 1.1 to 1.2](https://rook.io/docs/rook/v1.2/ceph-upgrade.html)
-* [Upgrade 1.0 to 1.1](https://rook.io/docs/rook/v1.1/ceph-upgrade.html)
-* [Upgrade 0.9 to 1.0](https://rook.io/docs/rook/v1.0/ceph-upgrade.html)
-* [Upgrade 0.8 to 0.9](https://rook.io/docs/rook/v0.9/ceph-upgrade.html)
-* [Upgrade 0.7 to 0.8](https://rook.io/docs/rook/v0.8/upgrade.html)
-* [Upgrade 0.6 to 0.7](https://rook.io/docs/rook/v0.7/upgrade.html)
-* [Upgrade 0.5 to 0.6](https://rook.io/docs/rook/v0.6/upgrade.html)
+* [Upgrade 1.7 to 1.8](https://docs.koor.tech/docs/v1.8/ceph-upgrade.html)
+* [Upgrade 1.6 to 1.7](https://docs.koor.tech/docs/v1.7/ceph-upgrade.html)
+* [Upgrade 1.5 to 1.6](https://docs.koor.tech/docs/v1.6/ceph-upgrade.html)
+* [Upgrade 1.4 to 1.5](https://docs.koor.tech/docs/v1.5/ceph-upgrade.html)
+* [Upgrade 1.3 to 1.4](https://docs.koor.tech/docs/v1.4/ceph-upgrade.html)
+* [Upgrade 1.2 to 1.3](https://docs.koor.tech/docs/v1.3/ceph-upgrade.html)
+* [Upgrade 1.1 to 1.2](https://docs.koor.tech/docs/v1.2/ceph-upgrade.html)
+* [Upgrade 1.0 to 1.1](https://docs.koor.tech/docs/v1.1/ceph-upgrade.html)
+* [Upgrade 0.9 to 1.0](https://docs.koor.tech/docs/v1.0/ceph-upgrade.html)
+* [Upgrade 0.8 to 0.9](https://docs.koor.tech/docs/v0.9/ceph-upgrade.html)
+* [Upgrade 0.7 to 0.8](https://docs.koor.tech/docs/v0.8/upgrade.html)
+* [Upgrade 0.6 to 0.7](https://docs.koor.tech/docs/v0.7/upgrade.html)
+* [Upgrade 0.5 to 0.6](https://docs.koor.tech/docs/v0.6/upgrade.html)
 
 !!! important
     **Rook releases from master are expressly unsupported.** It is strongly recommended that you use
-    [official releases](https://github.com/rook/rook/releases) of Rook. Unreleased versions from the
+    [official releases](https://github.com/koor-tech/koor/releases) of Rook. Unreleased versions from the
     master branch are subject to changes and incompatibilities that will not be supported in the
     official releases. Builds from the master branch can have functionality changed or removed at any
     time without compatibility support and without prior notice.
@@ -60,10 +60,10 @@ those releases.
 * Due to a number of Ceph issues and changes, Rook officially only supports Ceph
   v16.2.7 or higher for CephNFS. If you are using an earlier version, upgrade your Ceph version
   following the advice given in Rook's
-  [v1.8 NFS docs](https://rook.github.io/docs/rook/v1.8/ceph-nfs-crd.html).
+  [v1.8 NFS docs](https://docs.koor.tech/docs/v1.8/ceph-nfs-crd.html).
 
 * If you use Helm and your operator is in a different namespace from the cluster and object storage class is enabled
-  you have to delete the object storage class before upgrading. [#10153](https://github.com/rook/rook/issues/10153)
+  you have to delete the object storage class before upgrading. [#10153](https://github.com/koor-tech/koor/issues/10153)
 
 ## Considerations
 
@@ -85,7 +85,7 @@ the following:
 First get the latest common resources manifests that contain the latest changes for Rook v1.9.
 
 ```console
-git clone --single-branch --depth=1 --branch v1.9.3 https://github.com/rook/rook.git
+git clone --single-branch --depth=1 --branch v1.9.3 https://github.com/koor-tech/koor.git
 cd rook/deploy/examples
 ```
 
@@ -158,7 +158,7 @@ by the Operator. Also update the Custom Resource Definitions (CRDs).
 Get the latest common resources manifests that contain the latest changes.
 
 ```console
-git clone --single-branch --depth=1 --branch v1.9.3 https://github.com/rook/rook.git
+git clone --single-branch --depth=1 --branch v1.9.3 https://github.com/koor-tech/koor.git
 cd rook/deploy/examples
 ```
 

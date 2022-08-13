@@ -3,10 +3,10 @@ description: Manages a single Ceph cluster namespace for Rook
 name: rook-ceph-cluster
 version: 0.0.1
 appVersion: 0.0.1
-icon: https://rook.io/images/rook-logo.svg
+icon: https://koor.tech/images/logo.svg
 sources:
-  - https://github.com/rook/rook
+  - https://github.com/koor-tech/koor
 dependencies:
-- name: library
-  version: "0.0.1"
-  repository: "file://../library"
+  - name: library
+    version: "0.0.1"
+    repository: "file://../library"

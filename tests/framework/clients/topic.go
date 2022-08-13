@@ -17,8 +17,8 @@ limitations under the License.
 package clients
 
 import (
-	"github.com/rook/rook/tests/framework/installer"
-	"github.com/rook/rook/tests/framework/utils"
+	"github.com/koor-tech/koor/tests/framework/installer"
+	"github.com/koor-tech/koor/tests/framework/utils"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 )
 
@@ -65,7 +65,7 @@ func (t *TopicOperation) CheckTopic(topicName string) bool {
 }
 
 func (t *TopicOperation) CreateHTTPServer(serverName, namespace, port string) error {
-	// TODO: Fix https://github.com/rook/rook/issues/9741, do not use third party image
+	// TODO: Fix https://github.com/koor-tech/koor/issues/9741, do not use third party image
 	deployment := `
 ---
 apiVersion: apps/v1

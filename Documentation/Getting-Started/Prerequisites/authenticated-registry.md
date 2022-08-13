@@ -13,7 +13,7 @@ The whole process is described in the [official kubernetes documentation](https:
 
 To get you started, here's a quick rundown for the ceph example from the [quickstart guide](../quickstart.md).
 
-First, we'll create the secret for our registry as described [here](https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod) (the secret will be created in the `rook-ceph` namespace, make sure to change it if your Rook Ceph Operator/Cluster is in another namespace):
+First, we'll create the secret for our registry as described [here](https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod) (the secret will be created in the `rook-ceph` namespace, make sure to change it if your Koor Operator/Cluster is in another namespace):
 
 ```console
 kubectl -n rook-ceph create secret docker-registry my-registry-secret --docker-server=DOCKER_REGISTRY_SERVER --docker-username=DOCKER_USER --docker-password=DOCKER_PASSWORD --docker-email=DOCKER_EMAIL
@@ -34,8 +34,8 @@ The service accounts are:
 * `rook-ceph-osd` (namespace: `rook-ceph`): Will affect the OSD pods in the `rook-ceph` namespace.
 * `rook-ceph-rgw` (namespace: `rook-ceph`): Will affect the RGW pods in the `rook-ceph` namespace.
 
-You can do it either via e.g. `kubectl -n <namespace> edit serviceaccount default` or by modifying the [`operator.yaml`](https://github.com/rook/rook/blob/master/deploy/examples/operator.yaml)
-and [`cluster.yaml`](https://github.com/rook/rook/blob/master/deploy/examples/cluster.yaml) before deploying them.
+You can do it either via e.g. `kubectl -n <namespace> edit serviceaccount default` or by modifying the [`operator.yaml`](https://github.com/koor-tech/koor/blob/master/deploy/examples/operator.yaml)
+and [`cluster.yaml`](https://github.com/koor-tech/koor/blob/master/deploy/examples/cluster.yaml) before deploying them.
 
 Since it's the same procedure for all service accounts, here is just one example:
 
