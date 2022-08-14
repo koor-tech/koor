@@ -1,6 +1,6 @@
 # Security Release Process
 
-Rook is a large growing community of storage providers, contributors, and users. The Rook community
+Koor Storage Distribution is a growing community of contributors, and users. The Koor Storage Distribution community
 has adopted this security disclosure and response policy to ensure we responsibly handle critical
 issues.
 
@@ -9,12 +9,12 @@ This policy is adapted from the policies of the following CNCF projects:
 * [Envoy](https://github.com/envoyproxy/envoy)
 * [CoreDNS](https://github.com/coredns/coredns)
 
-The Rook community credits and appreciates the example and security best practices that they have
+The Koor Storage Distribution community credits and appreciates the example and security best practices that they have
 published openly.
 
 ## Security Audit
 
-A third party security audit was performed in December 2019 by [Trail of
+A third party security audit was performed on the Koor Storage Distribution project in December 2019 by [Trail of
 Bits](https://www.trailofbits.com/). The full security report has been published and is [available for
 download](https://drive.google.com/file/d/1rOwrwYmBUpLUm6W5J5rhXvdVit818hWJ/view?usp=sharing).
 
@@ -27,7 +27,7 @@ The Product Security Team (PST) is responsible for organizing the entire respons
 communication and external disclosure.
 
 The initial Product Security Team will consist of the set of maintainers that volunteered. Every
-beta or stable storage provider **MUST** have a representative on the PST.
+storage provider **MUST** have a representative on the PST.
 
 ### Mailing lists
 
@@ -72,7 +72,7 @@ referred to as the "Fix Lead."
 
 The role of Fix Lead should rotate round-robin across the PST.
 
-Note that given the current size of the Rook community it is likely that the PST is the same as the
+Note that given the current size of the Koor Storage Distribution community it is likely that the PST is the same as the
 "Fix team." The PST may decide to bring in additional contributors for added expertise depending on
 the area of the code that contains the vulnerability.
 
@@ -108,13 +108,13 @@ discussed on the [security@koor.tech](mailto:security@koor.tech) mailing list.
 
 ### Fix Disclosure Process
 
-With the Fix Development underway the Rook Security Team needs to come up with an overall
+With the Fix Development underway the Koor Storage Distribution Security Team needs to come up with an overall
 communication plan for the wider community. This Disclosure process should begin after the Team has
 developed a fix or mitigation so that a realistic timeline can be communicated to users.
 
 **Disclosure of Forthcoming Fix to Users** (Completed within 1-7 days of Disclosure)
 
-* The Fix Lead will create a GitHub issue in Rook project to inform users that a security
+* The Fix Lead will create a GitHub issue in Koor Storage Distribution project to inform users that a security
   vulnerability has been disclosed and that a fix will be made available, with an estimation of the
   Release Date. It will include any mitigating steps users can take until a fix is available.
 
@@ -192,7 +192,7 @@ of the following:
 To be eligible for the cncf-rook-distributors-announce@lists.cncf.io mailing list, your distribution
 should:
 
-1. Be an active distributor of Rook.
+1. Be an active distributor of Koor Storage Distribution.
 2. Have a user base not limited to your own organization.
 3. Have a publicly verifiable track record up to present day of fixing security issues.
 4. Not be a downstream or rebuild of another distributor.

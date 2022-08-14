@@ -2,7 +2,7 @@
 title: Helm Charts Overview
 ---
 
-Rook has published the following Helm charts for the Ceph storage provider:
+Rook has published the following Helm charts for the Koor Storage Distribution (Ceph):
 
 * [Koor Operator](operator-chart.md): Starts the Ceph Operator, which will watch for Ceph CRs (custom resources)
 * [Koor Cluster](ceph-cluster-chart.md): Creates Ceph CRs that the operator will use to configure the cluster

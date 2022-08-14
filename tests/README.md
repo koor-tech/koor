@@ -25,11 +25,11 @@ virtual machine.
 make build
 ```
 
-Now tag the newly built images to `rook/ceph:local-build` for running tests, or `rook/ceph:master` if creating sample manifests::
+Now tag the newly built images to `koorinc/ceph:local-build` for running tests, or `koorinc/ceph:master` if creating sample manifests::
 
 ```console
-docker tag $(docker images|awk '/build-/ {print $1}') rook/ceph:local-build
-docker tag rook/ceph:local-build rook/ceph:master
+docker tag $(docker images|awk '/build-/ {print $1}') koorinc/ceph:local-build
+docker tag koorinc/ceph:local-build koorinc/ceph:master
 ```
 
 ### 2. Run integration tests

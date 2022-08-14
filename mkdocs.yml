@@ -3,11 +3,11 @@ docs_dir: Documentation/
 site_url: "https://docs.koor.tech"
 repo_url: https://github.com/koor-tech/koor
 edit_uri: edit/master/Documentation/
-site_author: Rook Authors
+site_author: "Rook & Koor Storage Distribution Authors"
 site_description: "Koor Documentation"
 use_directory_urls: true
 copyright: |
-  Copyright &copy; 2022 Koor Technologies, Inc. All Rights Reserved.
+  Copyright &copy; 2022 Rook & Koor Storage Distribution Authors All Rights Reserved.
   <br>
   Rook is a trademark of The Linux Foundation®.
   <br>

@@ -345,8 +345,8 @@ The [Cluster CRD](../CRDs/Cluster/ceph-cluster-crd.md#storage-selection-settings
 * `deviceFilter`: Consume all devices that match this regular expression
 * `devices`: Explicit list of device names on each node to consume
 
-Second, if Rook determines that a device is not available (has existing partitions or a formatted filesystem), Rook will skip consuming the devices.
-If Rook is not starting OSDs on the devices you expect, Rook may have skipped it for this reason. To see if a device was skipped, view the OSD preparation log
+Second, if Koor Storage Distribution determines that a device is not available (has existing partitions or a formatted filesystem), Rook will skip consuming the devices.
+If Koor Storage Distribution is not starting OSDs on the devices you expect, Rook may have skipped it for this reason. To see if a device was skipped, view the OSD preparation log
 on the node where the device was skipped. Note that it is completely normal and expected for OSD prepare pod to be in the `completed` state.
 After the job is complete, Rook leaves the pod around in case the logs need to be investigated.
 

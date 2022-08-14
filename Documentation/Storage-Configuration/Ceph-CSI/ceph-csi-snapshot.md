@@ -36,7 +36,7 @@ In [VolumeSnapshotClass](https://github.com/koor-tech/koor/tree/master/deploy/ex
 the `csi.storage.k8s.io/snapshotter-secret-name` parameter should reference the
 name of the secret created for the rbdplugin and `pool` to reflect the Ceph pool name.
 
-Update the value of the `clusterID` field to match the namespace that Rook is
+Update the value of the `clusterID` field to match the namespace that Koor Storage Distribution is
 running in. When Ceph CSI is deployed by Rook, the operator will automatically
 maintain a configmap whose contents will match this key. By default this is
 "rook-ceph".
@@ -112,7 +112,7 @@ In [VolumeSnapshotClass](https://github.com/koor-tech/koor/tree/master/deploy/ex
 the `csi.storage.k8s.io/snapshotter-secret-name` parameter should reference the
 name of the secret created for the cephfsplugin.
 
-In the volumesnapshotclass, update the value of the `clusterID` field to match the namespace that Rook is
+In the volumesnapshotclass, update the value of the `clusterID` field to match the namespace that Koor Storage Distribution is
 running in. When Ceph CSI is deployed by Rook, the operator will automatically
 maintain a configmap whose contents will match this key. By default this is
 "rook-ceph".

@@ -1,5 +1,5 @@
 ---
-title: Rook Upgrades
+title: Upgrades
 ---
 
 This guide will walk you through the steps to upgrade the software in a Rook cluster from one
@@ -97,7 +97,7 @@ Then apply the latest changes from v1.9 and update the Rook Operator image.
 
 ```console
 kubectl apply -f common.yaml -f crds.yaml
-kubectl -n rook-ceph set image deploy/rook-ceph-operator rook-ceph-operator=rook/ceph:v1.9.3
+kubectl -n rook-ceph set image deploy/rook-ceph-operator rook-ceph-operator=koorinc/ceph:v1.9.3
 ```
 
 As exemplified above, it is a good practice to update Rook common resources from the example
@@ -212,7 +212,7 @@ The largest portion of the upgrade is triggered when the operator's image is upd
 When the operator is updated, it will proceed to update all of the Ceph daemons.
 
 ```console
-kubectl -n $ROOK_OPERATOR_NAMESPACE set image deploy/rook-ceph-operator rook-ceph-operator=rook/ceph:v1.9.3
+kubectl -n $ROOK_OPERATOR_NAMESPACE set image deploy/rook-ceph-operator rook-ceph-operator=koorinc/ceph:v1.9.3
 ```
 
 ### **3. Update Ceph CSI**
@@ -267,6 +267,6 @@ This cluster is finished:
 
 ### **5. Verify the updated cluster**
 
-At this point, your Rook operator should be running version `rook/ceph:v1.9.3`.
+At this point, your Rook operator should be running version `koorinc/ceph:v1.9.3`.
 
 Verify the Ceph cluster's health using the [health verification doc](health-verification.md).

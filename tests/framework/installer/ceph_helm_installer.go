@@ -96,7 +96,7 @@ func (h *CephInstaller) UpgradeRookCephClusterViaHelm() error {
 }
 func (h *CephInstaller) configureRookCephClusterViaHelm(upgrade bool) error {
 	values := map[string]interface{}{
-		"image": "rook/ceph:" + h.settings.RookVersion,
+		"image": "koorinc/ceph:" + h.settings.RookVersion,
 	}
 
 	// Set the host path the first time, but use the same path for an upgrade
@@ -118,7 +118,7 @@ func (h *CephInstaller) configureRookCephClusterViaHelm(upgrade bool) error {
 	values["configOverride"] = clusterCustomSettings
 	values["toolbox"] = map[string]interface{}{
 		"enabled":   true,
-		"image":     "rook/ceph:" + h.settings.RookVersion,
+		"image":     "koorinc/ceph:" + h.settings.RookVersion,
 		"resources": nil,
 	}
 	values["monitoring"] = map[string]interface{}{

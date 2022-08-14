@@ -532,7 +532,7 @@ func (h *CephInstaller) installRookOperator() (bool, error) {
 func (h *CephInstaller) InstallRook() (bool, error) {
 	if h.settings.RookVersion != LocalBuildTag {
 		// make sure we have the images from a previous release locally so the test doesn't hit a timeout
-		assert.NoError(h.T(), h.k8shelper.GetDockerImage("rook/ceph:"+h.settings.RookVersion))
+		assert.NoError(h.T(), h.k8shelper.GetDockerImage("koorinc/ceph:"+h.settings.RookVersion))
 	}
 
 	assert.NoError(h.T(), h.k8shelper.GetDockerImage(h.settings.CephVersion.Image))
@@ -960,7 +960,7 @@ spec:
           restartPolicy: Never
           containers:
               - name: rook-cleaner
-                image: rook/ceph:` + LocalBuildTag + `
+                image: koorinc/ceph:` + LocalBuildTag + `
                 securityContext:
                     privileged: true
                 volumeMounts:
@@ -990,7 +990,7 @@ spec:
           restartPolicy: Never
           containers:
               - name: rook-cleaner
-                image: rook/ceph:` + LocalBuildTag + `
+                image: koorinc/ceph:` + LocalBuildTag + `
                 securityContext:
                     privileged: true
                 volumeMounts:

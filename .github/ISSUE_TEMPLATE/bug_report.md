@@ -32,7 +32,7 @@ Read [GitHub documentation if you need help](https://help.github.com/en/articles
 * OS (e.g. from /etc/os-release):
 * Kernel (e.g. `uname -a`):
 * Cloud provider or hardware configuration:
-* Rook version (use `rook version` inside of a Rook Pod):
+* Koor Storage Distribution version (use `rook version` inside of a Rook Pod):
 * Storage backend version (e.g. for ceph do `ceph -v`):
 * Kubernetes version (use `kubectl version`):
 * Kubernetes cluster type (e.g. Tectonic, GKE, OpenShift):

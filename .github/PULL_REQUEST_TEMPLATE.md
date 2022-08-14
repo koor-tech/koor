@@ -1,6 +1,6 @@
 <!-- Please take a look at our [Contributing](https://docs.koor.tech/docs/latest/Contributing/development-flow/)
 documentation before submitting a Pull Request!
-Thank you for contributing to Rook! -->
+Thank you for contributing to Koor Storage Distribution! -->
 
 **Description of your changes:**
 

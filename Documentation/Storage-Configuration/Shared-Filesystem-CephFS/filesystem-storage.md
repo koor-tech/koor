@@ -125,7 +125,7 @@ If you require quotas to be enforced and the kernel driver does not support it, 
 and use the FUSE client. This can be done by setting `CSI_FORCE_CEPHFS_KERNEL_CLIENT: false`
 in the operator deployment (`operator.yaml`). However, it is important to know that when
 the FUSE client is enabled, there is an issue that during upgrade the application pods will be
-disconnected from the mount and will need to be restarted. See the [upgrade guide](../../Upgrade/rook-upgrade.md)
+disconnected from the mount and will need to be restarted. See the [upgrade guide](../../Upgrade/upgrade.md)
 for more details.
 
 ## Consume the Shared Filesystem: K8s Registry Sample

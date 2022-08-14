@@ -153,7 +153,7 @@ function build_rook() {
   tests/scripts/validate_modified_files.sh build
   docker images
   if [[ "$build_type" == "build" ]]; then
-    docker tag "$(docker images | awk '/build-/ {print $1}')" rook/ceph:local-build
+    docker tag "$(docker images | awk '/build-/ {print $1}')" koorinc/ceph:local-build
   fi
 }
 
@@ -190,7 +190,7 @@ function create_cluster_prerequisites() {
 
 function deploy_manifest_with_local_build() {
   if [[ "$USE_LOCAL_BUILD" != "false" ]]; then
-    sed -i "s|image: rook/ceph:.*|image: rook/ceph:local-build|g" $1
+    sed -i "s|image: koorinc/ceph:.*|image: koorinc/ceph:local-build|g" $1
   fi
   kubectl create -f $1
 }
@@ -413,7 +413,7 @@ EOF
 function create_helm_tag() {
   helm_tag="$(cat _output/version)"
   build_image="$(docker images | awk '/build-/ {print $1}')"
-  docker tag "${build_image}" "rook/ceph:${helm_tag}"
+  docker tag "${build_image}" "koorinc/ceph:${helm_tag}"
 }
 
 function deploy_multus() {

@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 image:
-  repository: rook/ceph
+  repository: koorinc/ceph
   tag: VERSION
   pullPolicy: IfNotPresent
 

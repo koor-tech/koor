@@ -147,9 +147,9 @@ func (k8sh *K8sHelper) GetDockerImage(image string) error {
 	return k8sh.executor.ExecuteCommand(dockercmd, "pull", image)
 }
 
-// SetDeploymentVersion sets the container version on the deployment. It is assumed to be the rook/ceph image.
+// SetDeploymentVersion sets the container version on the deployment. It is assumed to be the koorinc/ceph image.
 func (k8sh *K8sHelper) SetDeploymentVersion(namespace, deploymentName, containerName, version string) error {
-	_, err := k8sh.Kubectl("-n", namespace, "set", "image", "deploy/"+deploymentName, containerName+"=rook/ceph:"+version)
+	_, err := k8sh.Kubectl("-n", namespace, "set", "image", "deploy/"+deploymentName, containerName+"=koorinc/ceph:"+version)
 	return err
 }
 

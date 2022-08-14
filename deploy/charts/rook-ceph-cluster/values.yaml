@@ -21,7 +21,7 @@ operatorNamespace: rook-ceph
 # Installs a debugging toolbox deployment
 toolbox:
   enabled: false
-  image: rook/ceph:VERSION
+  image: koorinc/ceph:VERSION
   tolerations: []
   affinity: {}
   resources:

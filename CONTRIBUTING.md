@@ -1,6 +1,6 @@
 ## How to Contribute
 
-The Rook project in under [Apache 2.0 license](LICENSE) and our Koor Storage Distribution license. We accept contributions via
+The Rook project's code is under the [Apache 2.0 license](LICENSE). We accept contributions via
 GitHub pull requests. This document outlines some of the conventions related to
 development workflow, commit message formatting, contact points and other
 resources to make it easier to get your contribution accepted.
@@ -59,8 +59,8 @@ For detailed contribution instructions, refer to the [development flow](Document
 
 ## Coding Style
 
-Rook projects are written in golang and follows the style guidelines dictated by
-the go fmt as well as go vet tools.
+Koor Storage Distribution projects are written in golang and follows the style guidelines dictated by
+the `go fmt` as well as `go vet` tools.
 
 ## Comments
 
@@ -70,13 +70,13 @@ be created if they do not yet exist and updated if they do.
 
 The goal of comments is to make the code more readable and grokkable by future developers. Once you
 have made your code as understandable as possible, add comments to make sure future developers can
-understand (A) what this piece of code's responsibility is within Rook's architecture and (B) why it
+understand (A) what this piece of code's responsibility is within Koor Storage Distribution's architecture and (B) why it
 was written as it was.
 
 The below blog entry explains more the why's and how's of this guideline.
 https://blog.codinghorror.com/code-tells-you-how-comments-tell-you-why/
 
-For Go, Rook follows standard godoc guidelines.
+For Go, Koor Storage Distribution follows standard godoc guidelines.
 A concise godoc guideline can be found here: https://blog.golang.org/godoc-documenting-go-code
 
 ## Commit Messages
@@ -108,7 +108,7 @@ git tools.
 
 ## Change Approval
 
-The Rook project aims to empower contributors to approve and merge code changes autonomously.
+The Koor Storage Distribution project aims to empower contributors to approve and merge code changes autonomously.
 The maintainer team does not have sufficient resources to fully review and approve all proposed code changes, so trusted members of the community are given these abilities according to the process described in this section.
 The goal of this process is to increase the code velocity of all storage providers and streamline their day to day operations such as pull request approval and merging.
 
@@ -118,7 +118,7 @@ The model for approving changes is largely based on the [Kubernetes code review 
 where a set of roles are defined for different portions of the code base and have different responsibilities:
 
 * **Reviewers** are able to review code for quality and correctness on some part of the project, but cannot merge changes.
-* **Maintainers** are able to both review and approve code contributions. While code review is focused on code quality and correctness, approval is focused on holistic acceptance of a contribution. Maintainers can merge changes. (A Rook maintainer is similar in scope to a K8s approver in the link above.)
+* **Maintainers** are able to both review and approve code contributions. While code review is focused on code quality and correctness, approval is focused on holistic acceptance of a contribution. Maintainers can merge changes. (A Koor Storage Distribution maintainer is similar in scope to a K8s approver in the link above.)
 
 Both of these roles will require a time commitment to the project in order to keep the change approval process moving forward at a reasonable pace.
 When automation is implemented to auto assign members to review pull requests, it will be done in a round-robin fashion, so all members must be able to dedicate the time needed.
@@ -162,7 +162,7 @@ The process for adding or removing reviewers/maintainers is described in the [pr
 
 ### Permissions
 
-Role assignees will be made part of the following Rook organization teams with the given permissions:
+Role assignees will be made part of the following Koor Storage Distribution organization teams with the given permissions:
 
 * **Reviewers:** added to a new Reviewers team so they have write permissions to the repo to assign issues, add labels to issues, add issues to milestones and projects, etc. but cannot merge to protected branches such as `master` and `release-*`.
 * **Maintainers:** added to a Maintainers team that has access to merge to protected branches.

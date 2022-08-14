@@ -1,6 +1,6 @@
-# Building Rook
+# Building Koor Storage Distribution
 
-Rook is composed of a golang project and can be built directly with standard `golang` tools,
+Koor Storage Distribution is composed of a golang project and can be built directly with standard `golang` tools,
 and storage software (like Ceph) that are built inside containers. We currently support
 these platforms for building:
 
@@ -22,7 +22,7 @@ The following tools are need on the host:
 
 ## Build
 
-You can build the Rook binaries and all container images for the host platform by simply running the
+You can build the Koor Storage Distribution binaries and all container images for the host platform by simply running the
 command below. Building in parallel with the `-j` option is recommended.
 
 ```console
@@ -38,7 +38,7 @@ On every commit to PR and master the CI will build, run unit tests, and run inte
 If the build is for master or a release, the build will also be published to
 [dockerhub.com](https://cloud.docker.com/u/rook/repository/list).
 
-> Note that if the pull request title follows Rook's [contribution guidelines](https://docs.koor.tech/docs/latest/Contributing/development-flow/#commit-structure), the CI will automatically run the appropriate test scenario. For example if a pull request title is "ceph: add a feature", then the tests for the Ceph storage provider will run. Similarly, tests will only run for a single provider with the "cassandra:" and "nfs:" prefixes.
+> Note that if the pull request title follows Koor Storage Distribution's [contribution guidelines](https://docs.koor.tech/docs/latest/Contributing/development-flow/#commit-structure), the CI will automatically run the appropriate test scenario. For example if a pull request title is "ceph: add a feature", then the tests for the Ceph storage provider will run. Similarly, tests will only run for a single provider with the "cassandra:" and "nfs:" prefixes.
 
 ## Building for other platforms
 

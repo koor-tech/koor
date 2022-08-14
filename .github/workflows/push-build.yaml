@@ -65,9 +65,9 @@ jobs:
 
       - name: Configure git user
         run: |
-          # Use our Rook "service account"
-          git config user.name Rook
-          git config user.email "cncf-rook-info@lists.cncf.io"
+          # Use our Koor Storage Distribution "service account"
+          git config user.name "Koor Storage Distribution"
+          git config user.email "koor@koor.tech"
 
       - name: build and release
         env:

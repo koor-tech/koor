@@ -7,8 +7,8 @@ Rook and Ceph upgrades are designed to ensure data remains available even while
 the upgrade is proceeding. Rook will perform the upgrades in a rolling fashion
 such that application pods are not disrupted.
 
-Rook is cautious when performing upgrades. When an upgrade is requested (the Ceph image has been
-updated in the CR), Rook will go through all the daemons one by one and will individually perform
+Koor Storage Distribution is cautious when performing upgrades. When an upgrade is requested (the Ceph image has been
+updated in the CR), Koor Storage Distribution will go through all the daemons one by one and will individually perform
 checks on them. It will make sure a particular daemon can be stopped before performing the upgrade.
 Once the deployment has been updated, it checks if this is ok to continue. After each daemon is
 updated we wait for things to settle (monitors to be in a quorum, PGs to be clean for OSDs, up for

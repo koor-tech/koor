@@ -238,7 +238,7 @@ metadata:
   annotations:
     tectonic-visibility: ocs
     repository: https://github.com/koor-tech/koor
-    containerImage: rook/ceph:v1.2.2
+    containerImage: koorinc/ceph:v1.2.2
     alm-examples: |-
       [
         {

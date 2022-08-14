@@ -431,7 +431,7 @@ Assuming `dataHostPathData` is `/var/lib/rook`, and the `CephCluster` trying to 
 
 ## Backing up and restoring a cluster based on PVCs into a new Kubernetes cluster
 
-It is possible to migrate/restore an rook/ceph cluster from an existing Kubernetes cluster to a new one without resorting to SSH access or ceph tooling. This allows doing the migration using standard kubernetes resources only. This guide assumes the following:
+It is possible to migrate/restore an koorinc/ceph cluster from an existing Kubernetes cluster to a new one without resorting to SSH access or ceph tooling. This allows doing the migration using standard kubernetes resources only. This guide assumes the following:
 
 1. You have a CephCluster that uses PVCs to persist mon and osd data. Let's call it the "old cluster"
 1. You can restore the PVCs as-is in the new cluster. Usually this is done by taking regular snapshots of the PVC volumes and using a tool that can re-create PVCs from these snapshots in the underlying cloud provider. [Velero](https://github.com/vmware-tanzu/velero) is one such tool.

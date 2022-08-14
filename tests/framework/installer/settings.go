@@ -38,7 +38,7 @@ func readManifest(filename string) string {
 	if err != nil {
 		panic(errors.Wrapf(err, "failed to read manifest at %s", manifest))
 	}
-	return imageMatch.ReplaceAllString(string(contents), "image: rook/ceph:"+LocalBuildTag)
+	return imageMatch.ReplaceAllString(string(contents), "image: koorinc/ceph:"+LocalBuildTag)
 }
 
 func buildURL(rookVersion, filename string) string {
