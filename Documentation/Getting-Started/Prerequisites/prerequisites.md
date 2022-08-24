@@ -5,9 +5,17 @@ title: Prerequisites
 Koor Storage Distribution can be installed on any existing Kubernetes cluster as long as it meets the minimum version
 and Koor Storage Distribution is granted the required privileges (see below for more information).
 
-## Minimum Version
+## Minimum Kubernetes Version
 
 Kubernetes **v1.17** or higher is supported for the Ceph operator.
+
+Other Kubernetes-based distributions, such as OpenShift (OCP) and Rancher (RKE) are also supported.
+
+| Name       | Minimum Version |
+| ---------- | --------------- |
+| Kubernetes | `v1.17.0`       |
+| OpenShift  | `4.6`           |
+| Rancher    | `2.6`           |
 
 ## CPU Architecture
 
