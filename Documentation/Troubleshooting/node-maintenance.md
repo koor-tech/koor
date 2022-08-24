@@ -36,4 +36,4 @@ Here are the steps for the same:
 
 ### **NOTE**
 
-For OSD Maintenance and management, please refer to [Ceph OSD Management docs](../Storage-Configuration/Advanced/ceph-osd-mgmt.md).
+For OSD Maintenance and management, please refer to [Ceph OSD Management](https://rook.io/docs/rook/latest/Storage-Configuration/Advanced/ceph-osd-mgmt/) from [rook.io](https://rook.io/) documentation.
