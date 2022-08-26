@@ -10,7 +10,7 @@ spec:
     spec:
       initContainers:
         - name: config-init
-          image: koorinc/ceph:master
+          image: koorinc/ceph:v1.0.0
           command: ["/usr/local/bin/toolbox.sh"]
           args: ["--skip-watch"]
           imagePullPolicy: IfNotPresent
@@ -32,7 +32,7 @@ spec:
               mountPath: /etc/rook
       containers:
         - name: script
-          image: koorinc/ceph:master
+          image: koorinc/ceph:v1.0.0
           volumeMounts:
             - mountPath: /etc/ceph
               name: ceph-config

@@ -38,7 +38,7 @@ With the Prometheus operator running, we can create a service monitor that will 
 From the root of your locally cloned Rook repo, go the monitoring directory:
 
 ```console
-$ git clone --single-branch --branch master https://github.com/koor-tech/koor.git
+$ git clone --single-branch --branch v1.0.0 https://github.com/koor-tech/koor.git
 cd koor/deploy/examples/monitoring
 ```
 
