@@ -1,0 +1,34 @@
+name: Docker Image Rebuild on a CRON Schedule
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+#on:
+#  schedule:
+#    # Runs "At 12:59 on Friday" (see https://crontab.guru)
+#    - cron: '59 12 * * 5'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      run: |
+        docker login -u $DOCKER_USER  -p $DOCKER_PASSWORD
+    - name: Build the Docker image
+      run: |
+        latest_ceph_image_tag=$(curl -s -L https://quay.io/api/v1/repository/ceph/ceph/tag\?page_size\=100 | jq '."tags"[] .name' | sort -rn | head -n 1)
+        echo "$latest_ceph_image_tag"
+        sed -i "s/FROM quay\.io\/ceph\/ceph.*/FROM quay\.io\/ceph\/ceph\:$latest_ceph_image_tag/g" Dockerfile
+        # docker build . --file Dockerfile --tag koor/ceph-extra-unofficial:$latest_ceph_image_tag
+        docker build . --file Dockerfile --tag dexter816/temp-repo:v17
+    - name: Docker Push
+      run: docker push dexter816/temp-repo:v17
+
