@@ -69,6 +69,12 @@ spec:
   dashboard behind a proxy already served using SSL) by setting the `ssl` option
   to be false.
 
+### Enabling Single Sign-On (SSO)
+
+Koor Ceph container images come packaged with support for SSO, to enable SSO follow the steps mentioned in
+the [Ceph docs](https://docs.ceph.com/en/quincy/mgr/dashboard/#enabling-single-sign-on-sso)
+from the toolbox pod.
+
 ## Viewing the Dashboard External to the Cluster
 
 Commonly you will want to view the dashboard from outside the cluster. For example, on a development machine with the
