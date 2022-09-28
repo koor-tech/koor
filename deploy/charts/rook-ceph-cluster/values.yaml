@@ -55,6 +55,22 @@ monitoring:
 # If true, create & use PSP resources. Set this to the same value as the rook-ceph chart.
 pspEnable: true
 
+# If enabled, will install extended-ceph-exporter dependency and create
+# `extended-ceph-exporter` rgw admin user with following config values, please
+# either set or update these values before helm dependency update.
+# This user will then be used to provide prometheus based extended ceph metrics.
+# See more: https://github.com/koor-tech/extended-ceph-exporter/blob/main/charts/extended-ceph-exporter/README.md
+extendedCephExporter:
+  enabled: false
+  config:
+  rgw:
+    # pass during helm install or set prior to it update
+    host: "https://your-ceph-rgw-endpoint-here"
+    # rgw admin username
+    accessKey: ""
+    # rgw admin password
+    secretKey: ""
+
 # imagePullSecrets option allow to pull docker images from private docker registry. Option will be passed to all service accounts.
 # imagePullSecrets:
 # - name: my-registry-secret
