@@ -76,7 +76,7 @@ spec:
 
 ### Pools
 
-The pools allow all of the settings defined in the Pool CRD spec. For more details, see the [Pool CRD](../Block-Storage/ceph-block-pool-crd.md) settings. In the example above, there must be at least three hosts (size 3) and at least three devices (2 data + 1 coding chunks) in the cluster.
+The pools allow all of the settings defined in the Block Pool CRD spec. For more details, see the [Block Pool CRD](../Block-Storage/ceph-block-pool-crd.md) settings. In the example above, there must be at least three hosts (size 3) and at least three devices (2 data + 1 coding chunks) in the cluster.
 
 When the `zone` section is set pools with the object stores name will not be created since the object-store will the using the pools created by the ceph-object-zone.
 
@@ -260,3 +260,7 @@ Rook will warn about which buckets are blocking deletion in three ways:
 1. An event will be registered on the CephObjectStore resource
 1. A status condition will be added to the CephObjectStore resource
 1. An error will be added to the Rook Ceph Operator log
+
+If the CephObjectStore is configured in a [multisite setup](ceph-object-multisite-crd.md) the above conditions are applicable only to stores that belong to a single master zone.
+Otherwise the conditions are ignored. Even if the store is removed the user can access the
+data from a peer object store.

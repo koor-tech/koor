@@ -65,7 +65,7 @@ func NewCephManifests(settings *TestCephSettings) CephManifests {
 	switch settings.RookVersion {
 	case LocalBuildTag:
 		return &CephManifestsMaster{settings}
-	case Version1_0:
+	case Version1_9:
 		return &CephManifestsPreviousVersion{settings, &CephManifestsMaster{settings}}
 	}
 	panic(fmt.Errorf("unrecognized ceph manifest version: %s", settings.RookVersion))
@@ -229,23 +229,12 @@ spec:
       journalSizeMB: "1024"
 `
 	}
-	return clusterSpec + m.getClusterPriorityClasses()
-}
-
-func (m *CephManifestsMaster) getClusterPriorityClasses() string {
-	priorityClasses := `
+	return clusterSpec + `
   priorityClassNames:
-`
-	// Priority classes are only supported on pods outside the kube-system namespace
-	// in versions of at least v1.17
-	if utils.VersionAtLeast(m.Settings().KubernetesVersion, "v1.17.0") {
-		priorityClasses += `
     mon: system-node-critical
     osd: system-node-critical
     mgr: system-cluster-critical
 `
-	}
-	return priorityClasses
 }
 
 func (m *CephManifestsMaster) GetBlockSnapshotClass(snapshotClassName, reclaimPolicy string) string {
@@ -462,7 +451,6 @@ spec:
       requireSafeReplicaSize: false
   gateway:
     resources: null
-    type: s3
     securePort: ` + strconv.Itoa(port) + `
     instances: ` + strconv.Itoa(replicaCount) + `
     sslCertificateRef: ` + name + `
@@ -515,7 +503,7 @@ spec:
     user: ` + usercaps
 }
 
-// GetBucketStorageClass returns the manifest to create object bucket
+//GetBucketStorageClass returns the manifest to create object bucket
 func (m *CephManifestsMaster) GetBucketStorageClass(storeName, storageClassName, reclaimPolicy string) string {
 	return `apiVersion: storage.k8s.io/v1
 kind: StorageClass
@@ -528,7 +516,7 @@ parameters:
     objectStoreNamespace: ` + m.settings.Namespace
 }
 
-// GetOBC returns the manifest to create object bucket claim
+//GetOBC returns the manifest to create object bucket claim
 func (m *CephManifestsMaster) GetOBC(claimName string, storageClassName string, objectBucketName string, maxObject string, varBucketName bool) string {
 	bucketParameter := "generateBucketName"
 	if varBucketName {
@@ -545,7 +533,7 @@ spec:
     maxObjects: "` + maxObject + `"`
 }
 
-// GetOBCNotification returns the manifest to create object bucket claim
+//GetOBCNotification returns the manifest to create object bucket claim
 func (m *CephManifestsMaster) GetOBCNotification(claimName string, storageClassName string, objectBucketName string, notificationName string, varBucketName bool) string {
 	bucketParameter := "generateBucketName"
 	if varBucketName {
@@ -562,7 +550,7 @@ spec:
   storageClassName: ` + storageClassName
 }
 
-// GetBucketNotification returns the manifest to create ceph bucket notification
+//GetBucketNotification returns the manifest to create ceph bucket notification
 func (m *CephManifestsMaster) GetBucketNotification(notificationName string, topicName string) string {
 	return `apiVersion: ceph.rook.io/v1
 kind: CephBucketNotification
@@ -576,7 +564,7 @@ spec:
 `
 }
 
-// GetBucketTopic returns the manifest to create ceph bucket topic
+//GetBucketTopic returns the manifest to create ceph bucket topic
 func (m *CephManifestsMaster) GetBucketTopic(topicName string, storeName string, httpEndpointService string) string {
 	return `apiVersion: ceph.rook.io/v1
 kind: CephBucketTopic

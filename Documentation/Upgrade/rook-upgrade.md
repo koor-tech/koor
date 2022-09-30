@@ -1,5 +1,5 @@
 ---
-title: Upgrades
+title: Rook Upgrades
 ---
 
 This guide will walk you through the steps to upgrade the software in a Rook cluster from one
@@ -14,7 +14,7 @@ We welcome feedback and opening issues!
 
 ## Supported Versions
 
-This guide is for upgrading from **Rook v1.0.x to Rook v1.0.x**.
+This guide is for upgrading from **Rook v1.9.x to Rook v1.10.x**.
 
 Please refer to the upgrade guides from previous releases for supported upgrade paths.
 Rook upgrades are only supported between official releases.
@@ -26,7 +26,7 @@ those releases.
 
 !!! important
     **Rook releases from master are expressly unsupported.** It is strongly recommended that you use
-    [official releases](https://github.com/koor-tech/koor/releases) of Rook. Unreleased versions from the
+    [official releases](https://github.com/rook/rook/releases) of Rook. Unreleased versions from the
     master branch are subject to changes and incompatibilities that will not be supported in the
     official releases. Builds from the master branch can have functionality changed or removed at any
     time without compatibility support and without prior notice.
@@ -190,8 +190,11 @@ kubectl -n $ROOK_OPERATOR_NAMESPACE set image deploy/rook-ceph-operator rook-cep
 !!! hint
     If have not customized the CSI image versions, this is automatically updated.
 
-If you have specified custom CSI images, we recommended you
-update to use the latest Ceph-CSI drivers. See the [CSI Custom Images](../Storage-Configuration/Ceph-CSI/custom-images.md) documentation.
+!!! important
+    The minimum supported version of Ceph-CSI is v3.6.0.
+
+If you have specified custom CSI images, we recommended you update to the latest Ceph-CSI drivers.
+See the [CSI Custom Images](../Storage-Configuration/Ceph-CSI/custom-images.md) documentation.
 
 !!! note
     If using snapshots, refer to the [Upgrade Snapshot API guide](../Storage-Configuration/Ceph-CSI/ceph-csi-snapshot.md#upgrade-snapshot-api).

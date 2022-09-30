@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/coreos/pkg/capnslog"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
@@ -170,6 +171,12 @@ func (r *ReconcileCephNFS) reconcile(request reconcile.Request) (reconcile.Resul
 		updateStatus(k8sutil.ObservedGenerationNotAvailable, r.client, request.NamespacedName, k8sutil.EmptyStatus)
 	}
 
+	if err := cephNFS.Spec.Security.Validate(); err != nil {
+		return reconcile.Result{Requeue: true, RequeueAfter: 15 * time.Second}, *cephNFS,
+			errors.Wrapf(err, "failed to validate security spec for CephNFS %q",
+				types.NamespacedName{Namespace: cephNFS.Namespace, Name: cephNFS.Name})
+	}
+
 	// Make sure a CephCluster is present otherwise do nothing
 	cephCluster, isReadyToReconcile, cephClusterExists, reconcileResponse := opcontroller.IsReadyToReconcile(r.opManagerContext, r.client, request.NamespacedName, controllerName)
 	if !isReadyToReconcile {
@@ -196,7 +203,7 @@ func (r *ReconcileCephNFS) reconcile(request reconcile.Request) (reconcile.Resul
 
 	// Populate clusterInfo
 	// Always populate it during each reconcile
-	r.clusterInfo, _, _, err = opcontroller.LoadClusterInfo(r.context, r.opManagerContext, request.NamespacedName.Namespace)
+	r.clusterInfo, _, _, err = opcontroller.LoadClusterInfo(r.context, r.opManagerContext, request.NamespacedName.Namespace, r.cephClusterSpec)
 	if err != nil {
 		return reconcile.Result{}, *cephNFS, errors.Wrap(err, "failed to populate cluster info")
 	}

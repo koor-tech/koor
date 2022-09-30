@@ -38,9 +38,7 @@ func (c *Cluster) makeJob(osdProps osdProperties, provisionConfig *provisionConf
 		return nil, err
 	}
 
-	if !osdProps.onPVC() {
-		podSpec.Spec.NodeSelector = map[string]string{v1.LabelHostname: osdProps.crushHostname}
-	} else {
+	if osdProps.onPVC() {
 		// This is not needed in raw mode and 14.2.8 brings it
 		// but we still want to do this not to lose backward compatibility with lvm based OSDs...
 		podSpec.Spec.InitContainers = append(podSpec.Spec.InitContainers, c.getPVCInitContainer(osdProps))
@@ -50,6 +48,8 @@ func (c *Cluster) makeJob(osdProps osdProperties, provisionConfig *provisionConf
 		if osdProps.onPVCWithWal() {
 			podSpec.Spec.InitContainers = append(podSpec.Spec.InitContainers, c.getPVCWalInitContainer("/wal", osdProps))
 		}
+	} else {
+		podSpec.Spec.NodeSelector = map[string]string{v1.LabelHostname: osdProps.crushHostname}
 	}
 
 	job := &batch.Job{
@@ -108,12 +108,6 @@ func (c *Cluster) provisionPodTemplateSpec(osdProps osdProperties, restart v1.Re
 	udevVolume := v1.Volume{Name: "udev", VolumeSource: v1.VolumeSource{HostPath: &v1.HostPathVolumeSource{Path: "/run/udev"}}}
 	volumes = append(volumes, udevVolume)
 
-	// If not running on PVC we mount the rootfs of the host to validate the presence of the LVM package
-	if !osdProps.onPVC() {
-		rootFSVolume := v1.Volume{Name: "rootfs", VolumeSource: v1.VolumeSource{HostPath: &v1.HostPathVolumeSource{Path: "/"}}}
-		volumes = append(volumes, rootFSVolume)
-	}
-
 	if osdProps.onPVC() {
 		// Create volume config for PVCs
 		volumes = append(volumes, getPVCOSDVolumes(&osdProps, c.spec.DataDirHostPath, c.clusterInfo.Namespace, true)...)
@@ -124,8 +118,16 @@ func (c *Cluster) provisionPodTemplateSpec(osdProps osdProperties, restart v1.Re
 					volumeTLS, _ := kms.VaultVolumeAndMount(c.spec.Security.KeyManagementService.ConnectionDetails, "")
 					volumes = append(volumes, volumeTLS)
 				}
+				if c.spec.Security.KeyManagementService.IsKMIPKMS() {
+					volumeKMIP, _ := kms.KMIPVolumeAndMount(c.spec.Security.KeyManagementService.TokenSecretName)
+					volumes = append(volumes, volumeKMIP)
+				}
 			}
 		}
+	} else {
+		// If not running on PVC we mount the rootfs of the host to validate the presence of the LVM package
+		rootFSVolume := v1.Volume{Name: "rootfs", VolumeSource: v1.VolumeSource{HostPath: &v1.HostPathVolumeSource{Path: "/"}}}
+		volumes = append(volumes, rootFSVolume)
 	}
 
 	if len(volumes) == 0 {
@@ -235,11 +237,6 @@ func (c *Cluster) provisionOSDContainer(osdProps osdProperties, copyBinariesMoun
 		copyBinariesMount,
 	}...)
 
-	// If not running on PVC we mount the rootfs of the host to validate the presence of the LVM package
-	if !osdProps.onPVC() {
-		volumeMounts = append(volumeMounts, v1.VolumeMount{Name: "rootfs", MountPath: "/rootfs", ReadOnly: true})
-	}
-
 	// If the OSD runs on PVC
 	if osdProps.onPVC() {
 		volumeMounts = append(volumeMounts, getPvcOSDBridgeMount(osdProps.pvc.ClaimName))
@@ -283,10 +280,18 @@ func (c *Cluster) provisionOSDContainer(osdProps osdProperties, copyBinariesMoun
 					volumeMounts = append(volumeMounts, volumeMountsTLS)
 				}
 				envVars = append(envVars, kms.ConfigToEnvVar(c.spec)...)
+				if c.spec.Security.KeyManagementService.IsKMIPKMS() {
+					envVars = append(envVars, cephVolumeRawEncryptedEnvVarFromSecret(osdProps))
+					_, volmeMountsKMIP := kms.KMIPVolumeAndMount(c.spec.Security.KeyManagementService.TokenSecretName)
+					volumeMounts = append(volumeMounts, volmeMountsKMIP)
+				}
 			} else {
 				envVars = append(envVars, cephVolumeRawEncryptedEnvVarFromSecret(osdProps))
 			}
 		}
+	} else {
+		// If not running on PVC we mount the rootfs of the host to validate the presence of the LVM package
+		volumeMounts = append(volumeMounts, v1.VolumeMount{Name: "rootfs", MountPath: "/rootfs", ReadOnly: true})
 	}
 
 	// run privileged always since we always mount /dev
@@ -296,13 +301,14 @@ func (c *Cluster) provisionOSDContainer(osdProps osdProperties, copyBinariesMoun
 	readOnlyRootFilesystem := false
 
 	osdProvisionContainer := v1.Container{
-		Command:      []string{path.Join(rookBinariesMountPath, "rook")},
-		Args:         []string{"ceph", "osd", "provision"},
-		Name:         "provision",
-		Image:        c.spec.CephVersion.Image,
-		VolumeMounts: volumeMounts,
-		Env:          envVars,
-		EnvFrom:      getEnvFromSources(),
+		Command:         []string{path.Join(rookBinariesMountPath, "rook")},
+		Args:            []string{"ceph", "osd", "provision"},
+		Name:            "provision",
+		Image:           c.spec.CephVersion.Image,
+		ImagePullPolicy: controller.GetContainerImagePullPolicy(c.spec.CephVersion.ImagePullPolicy),
+		VolumeMounts:    volumeMounts,
+		Env:             envVars,
+		EnvFrom:         getEnvFromSources(),
 		SecurityContext: &v1.SecurityContext{
 			Privileged:             &privileged,
 			RunAsUser:              &runAsUser,

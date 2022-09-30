@@ -32,6 +32,8 @@ Settings can be specified at the global level to apply to the cluster as a whole
   Tags also exist that would give the latest version, but they are only recommended for test environments. For example, the tag `v17` will be updated each time a new Quincy build is released.
   Using the `v17` tag is not recommended in production because it may lead to inconsistent versions of the image running across different nodes in the cluster.
   * `allowUnsupported`: If `true`, allow an unsupported major version of the Ceph release. Currently `pacific` and `quincy` are supported. Future versions such as `reef` (v18) would require this to be set to `true`. Should be set to `false` in production.
+  `imagePullPolicy`: The image pull policy for the ceph daemon pods. Possible values are `Always`, `IfNotPresent`, and `Never`.
+  The default is `IfNotPresent`.
 * `dataDirHostPath`: The path on the host ([hostPath](https://kubernetes.io/docs/concepts/storage/volumes/#hostpath)) where config and data should be stored for each of the services. If the directory does not exist, it will be created. Because this directory persists on the host, it will remain after pods are deleted. Following paths and any of their subpaths **must not be used**: `/etc/ceph`, `/rook` or `/var/log/ceph`.
   * **WARNING**: For test scenarios, if you delete a cluster and start a new cluster on the same hosts, the path used by `dataDirHostPath` must be deleted. Otherwise, stale keys and other config will remain from the previous cluster and the new mons will fail to start.
 If this value is empty, each pod will get an ephemeral directory to store their config files that is tied to the lifetime of the pod running on that node. More details can be found in the Kubernetes [empty dir docs](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir).
@@ -323,14 +325,14 @@ This feature is only available when `useAllNodes` has been set to `false`.
 
 Below are the settings for host-based cluster. This type of cluster can specify devices for OSDs, both at the cluster and individual node level, for selecting which storage resources will be included in the cluster.
 
-* `useAllDevices`: `true` or `false`, indicating whether all devices found on nodes in the cluster should be automatically consumed by OSDs. **Not recommended** unless you have a very controlled environment where you will not risk formatting of devices with existing data. When `true`, all devices and partitions will be used. Is overridden by `deviceFilter` if specified.
-  * `deviceFilter`: A regular expression for short kernel names of devices (e.g. `sda`) that allows selection of devices and partitions to be consumed by OSDs.  If individual devices have been specified for a node then this filter will be ignored.  This field uses [golang regular expression syntax](https://golang.org/pkg/regexp/syntax/). For example:
+* `useAllDevices`: `true` or `false`, indicating whether all devices found on nodes in the cluster should be automatically consumed by OSDs. **Not recommended** unless you have a very controlled environment where you will not risk formatting of devices with existing data. When `true`, all devices and partitions will be used. Is overridden by `deviceFilter` if specified. LVM logical volumes are not picked by `useAllDevices`.
+  * `deviceFilter`: A regular expression for short kernel names of devices (e.g. `sda`) that allows selection of devices and partitions to be consumed by OSDs.  LVM logical volumes are not picked by `deviceFilter`.If individual devices have been specified for a node then this filter will be ignored.  This field uses [golang regular expression syntax](https://golang.org/pkg/regexp/syntax/). For example:
   * `sdb`: Only selects the `sdb` device if found
   * `^sd.`: Selects all devices starting with `sd`
   * `^sd[a-d]`: Selects devices starting with `sda`, `sdb`, `sdc`, and `sdd` if found
   * `^s`: Selects all devices that start with `s`
   * `^[^r]`: Selects all devices that do *not* start with `r`
-* `devicePathFilter`: A regular expression for device paths (e.g. `/dev/disk/by-path/pci-0:1:2:3-scsi-1`) that allows selection of devices and partitions to be consumed by OSDs.  If individual devices or `deviceFilter` have been specified for a node then this filter will be ignored.  This field uses [golang regular expression syntax](https://golang.org/pkg/regexp/syntax/). For example:
+* `devicePathFilter`: A regular expression for device paths (e.g. `/dev/disk/by-path/pci-0:1:2:3-scsi-1`) that allows selection of devices and partitions to be consumed by OSDs.  LVM logical volumes are not picked by `devicePathFilter`.If individual devices or `deviceFilter` have been specified for a node then this filter will be ignored.  This field uses [golang regular expression syntax](https://golang.org/pkg/regexp/syntax/). For example:
   * `^/dev/sd.`: Selects all devices starting with `sd`
   * `^/dev/disk/by-path/pci-.*`: Selects all devices which are connected to PCI bus
 * `devices`: A list of individual device names belonging to this node to include in the storage cluster.

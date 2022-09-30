@@ -66,6 +66,8 @@ csi:
   enableCSIHostNetwork: true
   # set to false to disable deployment of snapshotter container in CephFS provisioner pod.
   enableCephfsSnapshotter: true
+  # set to false to disable deployment of snapshotter container in NFS provisioner pod.
+  enableNFSSnapshotter: true
   # set to false to disable deployment of snapshotter container in RBD provisioner pod.
   enableRBDSnapshotter: true
   # set to false if the selinux is not enabled or unavailable in cluster nodes.
@@ -81,15 +83,15 @@ csi:
 
   # (Optional) policy for modifying a volume's ownership or permissions when the RBD PVC is being mounted.
   # supported values are documented at https://kubernetes-csi.github.io/docs/support-fsgroup.html
-  rbdFSGroupPolicy: "ReadWriteOnceWithFSType"
+  rbdFSGroupPolicy: "File"
 
   # (Optional) policy for modifying a volume's ownership or permissions when the CephFS PVC is being mounted.
   # supported values are documented at https://kubernetes-csi.github.io/docs/support-fsgroup.html
-  cephFSFSGroupPolicy: "ReadWriteOnceWithFSType"
+  cephFSFSGroupPolicy: "File"
 
   # (Optional) policy for modifying a volume's ownership or permissions when the NFS PVC is being mounted.
   # supported values are documented at https://kubernetes-csi.github.io/docs/support-fsgroup.html
-  nfsFSGroupPolicy: "ReadWriteOnceWithFSType"
+  nfsFSGroupPolicy: "File"
 
   # OMAP generator generates the omap mapping between the PV name and the RBD image
   # which helps CSI to identify the rbd images for CSI operations.
@@ -98,9 +100,17 @@ csi:
   # sidecar with CSI provisioner pod, to enable set it to true.
   enableOMAPGenerator: false
 
+  # (Optional) set to true to enable adding volume metadata on the CephFS subvolumes and RBD images.
+  # Not all users might be interested in getting volume/snapshot details as metadata on CephFS subvolume and RBD images.
+  # Hence enable metadata is false by default.
+  enableMetadata: false
+
   # Set replicas for csi provisioner deployment.
   provisionerReplicas: 2
 
+  # (Optional) cluster name identifier to set as metadata on the CephFS subvolume and RBD images. This will be useful
+  # in cases like for example, when two container orchestrator clusters (Kubernetes/OCP) are using a single ceph cluster.
+  # clusterName: "my-prod-cluster"
   # Set logging level for cephCSI containers maintained by the cephCSI.
   # Supported values from 0 to 5. 0 for general useful logs, 5 for trace level verbosity.
   #logLevel: 0
@@ -121,6 +131,37 @@ csi:
 
   # Allow starting unsupported ceph-csi image
   allowUnsupportedVersion: false
+
+  # CephCSI RBD plugin Volumes
+  # csiRBDPluginVolumes: |
+  #  - name: lib-modules
+  #    hostPath:
+  #      path: /run/current-system/kernel-modules/lib/modules/
+  #  - name: host-nix
+  #    hostPath:
+  #      path: /nix
+
+  # CephCSI RBD plugin Volume mounts
+  # csiRBDPluginVolumeMounts: |
+  #  - name: host-nix
+  #    mountPath: /nix
+  #    readOnly: true
+
+  # CephCSI CephFS plugin Volumes
+  # csiCephFSPluginVolumes: |
+  #  - name: lib-modules
+  #    hostPath:
+  #      path: /run/current-system/kernel-modules/lib/modules/
+  #  - name: host-nix
+  #    hostPath:
+  #      path: /nix
+
+  # CephCSI CephFS plugin Volume mounts
+  # csiCephFSPluginVolumeMounts: |
+  #  - name: host-nix
+  #    mountPath: /nix
+  #    readOnly: true
+
   # CEPH CSI RBD provisioner resource requirement list, Put here list of resource
   # requests and limits you want to apply for provisioner pod
   # csi-omap-generator resources will be applied only if enableOMAPGenerator is set to true
@@ -352,17 +393,18 @@ csi:
   #rbdLivenessMetricsPort: 9080
   #kubeletDirPath: /var/lib/kubelet
   #cephcsi:
-  #image: quay.io/cephcsi/cephcsi:v3.6.2
+  #  image: quay.io/cephcsi/cephcsi:v3.7.1
   #registrar:
-  #image: registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.5.1
+  #  image: registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.5.1
   #provisioner:
-  #image: registry.k8s.io/sig-storage/csi-provisioner:v3.1.0
+  #  image: registry.k8s.io/sig-storage/csi-provisioner:v3.3.0
   #snapshotter:
-  #image: registry.k8s.io/sig-storage/csi-snapshotter:v6.0.1
+  #  image: registry.k8s.io/sig-storage/csi-snapshotter:v6.1.0
   #attacher:
-  #image: registry.k8s.io/sig-storage/csi-attacher:v3.4.0
+  #  image: registry.k8s.io/sig-storage/csi-attacher:v4.0.0
   #resizer:
-  #image: registry.k8s.io/sig-storage/csi-resizer:v1.4.0
+  #  image: registry.k8s.io/sig-storage/csi-resizer:v1.6.0
+  #imagePullPolicy: IfNotPresent
   # Labels to add to the CSI CephFS Deployments and DaemonSets Pods.
   #cephfsPodLabels: "key1=value1,key2=value2"
   # Labels to add to the CSI NFS Deployments and DaemonSets Pods.
@@ -378,11 +420,22 @@ csi:
   # Enable the CSIAddons sidecar.
   csiAddons:
     enabled: false
-    #image: "quay.io/csiaddons/k8s-sidecar:v0.4.0"
+    #image: "quay.io/csiaddons/k8s-sidecar:v0.5.0"
   # Enable the nfs csi driver.
   nfs:
     enabled: false
     #image: "registry.k8s.io/sig-storage/nfsplugin:v4.0.0"
+  # Enable topology based provisioning.
+  topology:
+    enabled: false
+    # domainLabels define which node labels to use as domains
+    # for CSI nodeplugins to advertise their domains
+    # NOTE: the value here serves as an example and needs to be
+    # updated with node labels that define domains of interest
+    # domainLabels:
+    # - kubernetes.io/hostname
+    # - topology.kubernetes.io/zone
+    # - topology.rook.io/rack
 enableDiscoveryDaemon: false
 cephCommandsTimeoutSeconds: "15"
 
@@ -406,7 +459,7 @@ cephCommandsTimeoutSeconds: "15"
 
 # In some situations SELinux relabelling breaks (times out) on large filesystems, and doesn't work with cephfs ReadWriteMany volumes (last relabel wins).
 # Disable it here if you have similar issues.
-# For more details see https://github.com/koor-tech/koor/issues/2417
+# For more details see https://github.com/rook/rook/issues/2417
 enableSelinuxRelabeling: true
 
 disableAdmissionController: false

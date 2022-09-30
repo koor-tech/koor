@@ -50,8 +50,8 @@ func (s *ObjectStoreSpec) IsExternal() bool {
 }
 
 func (s *ObjectStoreSpec) IsHostNetwork(c *ClusterSpec) bool {
-	if s.HostNetwork != nil {
-		return *s.HostNetwork
+	if s.Gateway.HostNetwork != nil {
+		return *s.Gateway.HostNetwork
 	}
 	return c.Network.IsHost()
 }
@@ -108,4 +108,8 @@ func (s *ObjectStoreSpec) GetServiceServingCert() string {
 
 func (c *CephObjectStore) GetStatusConditions() *[]Condition {
 	return &c.Status.Conditions
+}
+
+func (z *CephObjectZone) GetStatusConditions() *[]Condition {
+	return &z.Status.Conditions
 }

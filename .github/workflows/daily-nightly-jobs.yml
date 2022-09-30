@@ -10,7 +10,7 @@ defaults:
 
 jobs:
   canary-arm64:
-    runs-on: [self-hosted, ubuntu-20.04, ARM64]
+    runs-on: [self-hosted, ubuntu-20.04-arm64, ARM64]
     if: github.repository == 'koor-tech/koor'
     env:
       BLOCK: /dev/sdb
@@ -91,7 +91,7 @@ jobs:
 
   smoke-suite-pacific-devel:
     if: github.repository == 'koor-tech/koor'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - name: checkout
         uses: actions/checkout@v2
@@ -99,10 +99,10 @@ jobs:
           fetch-depth: 0
 
       - name: setup cluster resources
-        uses: ./.github/workflows/integration-test-config
+        uses: ./.github/workflows/integration-test-config-latest-k8s
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          kubernetes-version: "1.24.1"
+          kubernetes-version: "1.25.0"
 
       - name: TestCephSmokeSuite
         run: |
@@ -126,7 +126,7 @@ jobs:
 
   smoke-suite-quincy-devel:
     if: github.repository == 'koor-tech/koor'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - name: checkout
         uses: actions/checkout@v2
@@ -134,10 +134,10 @@ jobs:
           fetch-depth: 0
 
       - name: setup cluster resources
-        uses: ./.github/workflows/integration-test-config
+        uses: ./.github/workflows/integration-test-config-latest-k8s
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          kubernetes-version: "1.24.1"
+          kubernetes-version: "1.25.0"
 
       - name: TestCephSmokeSuite
         run: |
@@ -161,7 +161,7 @@ jobs:
 
   smoke-suite-ceph-master:
     if: github.repository == 'koor-tech/koor'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - name: checkout
         uses: actions/checkout@v2
@@ -169,10 +169,10 @@ jobs:
           fetch-depth: 0
 
       - name: setup cluster resources
-        uses: ./.github/workflows/integration-test-config
+        uses: ./.github/workflows/integration-test-config-latest-k8s
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          kubernetes-version: "1.24.1"
+          kubernetes-version: "1.25.0"
 
       - name: TestCephSmokeSuite
         run: |
@@ -192,11 +192,11 @@ jobs:
         if: failure()
         with:
           name: ceph-smoke-suite-master-artifact
-          path: /home/runner/work/koor/koor/tests/integration/_output/tests/
+          path: /home/runner/work/rook/rook/tests/integration/_output/tests/
 
   object-suite-pacific-devel:
     if: github.repository == 'koor-tech/koor'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - name: checkout
         uses: actions/checkout@v2
@@ -204,10 +204,10 @@ jobs:
           fetch-depth: 0
 
       - name: setup cluster resources
-        uses: ./.github/workflows/integration-test-config
+        uses: ./.github/workflows/integration-test-config-latest-k8s
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          kubernetes-version: "1.24.1"
+          kubernetes-version: "1.25.0"
 
       - name: TestCephObjectSuite
         run: |
@@ -239,10 +239,10 @@ jobs:
           fetch-depth: 0
 
       - name: setup cluster resources
-        uses: ./.github/workflows/integration-test-config
+        uses: ./.github/workflows/integration-test-config-latest-k8s
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          kubernetes-version: "1.24.1"
+          kubernetes-version: "1.25.0"
 
       - name: TestCephObjectSuite
         run: |
@@ -266,7 +266,7 @@ jobs:
 
   upgrade-from-pacific-stable-to-pacific-devel:
     if: github.repository == 'koor-tech/koor'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - name: checkout
         uses: actions/checkout@v2
@@ -274,10 +274,10 @@ jobs:
           fetch-depth: 0
 
       - name: setup cluster resources
-        uses: ./.github/workflows/integration-test-config
+        uses: ./.github/workflows/integration-test-config-latest-k8s
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          kubernetes-version: "1.24.1"
+          kubernetes-version: "1.25.0"
 
       - name: TestCephUpgradeSuite
         run: |
@@ -301,7 +301,7 @@ jobs:
 
   upgrade-from-quincy-stable-to-quincy-devel:
     if: github.repository == 'koor-tech/koor'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - name: checkout
         uses: actions/checkout@v2
@@ -309,15 +309,15 @@ jobs:
           fetch-depth: 0
 
       - name: setup cluster resources
-        uses: ./.github/workflows/integration-test-config
+        uses: ./.github/workflows/integration-test-config-latest-k8s
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          kubernetes-version: "1.24.1"
+          kubernetes-version: "1.25.0"
 
       - name: TestCephUpgradeSuite
         run: |
           export DEVICE_FILTER=$(lsblk|awk '/14G/ {print $1}'| head -1)
-          go test -v -timeout 1800s -failfast -run TestCephUpgradeSuite/TestUpgradeCephToQuincyDevel github.com/koor-tech/koor/tests/integration
+          go test -v -timeout 1800s -failfast -run TestCephUpgradeSuite/TestUpgradeCephToQuincyDevel github.com/rook/rook/tests/integration
 
       - name: collect common logs
         if: always()
@@ -336,7 +336,7 @@ jobs:
 
   rgw-multisite-test-with-ceph-devel:
     if: github.repository == 'koor-tech/koor'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         ceph-image-tag:
@@ -362,7 +362,7 @@ jobs:
 
   encryption-pvc-kms-ibm-kp:
     if: github.repository == 'koor-tech/koor'
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
         with:

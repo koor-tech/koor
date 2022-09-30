@@ -42,6 +42,15 @@ data:
   # there is significant drop in read/write performance.
   # CSI_ENABLE_HOST_NETWORK: "true"
 
+  # Set to true to enable adding volume metadata on the CephFS subvolume and RBD images.
+  # Not all users might be interested in getting volume/snapshot details as metadata on CephFS subvolume and RBD images.
+  # Hence enable metadata is false by default.
+  # CSI_ENABLE_METADATA: "true"
+
+  # cluster name identifier to set as metadata on the CephFS subvolume and RBD images. This will be useful in cases
+  # like for example, when two container orchestrator clusters (Kubernetes/OCP) are using a single ceph cluster.
+  # CSI_CLUSTER_NAME: "my-prod-cluster"
+
   # Set logging level for cephCSI containers maintained by the cephCSI.
   # Supported values from 0 to 5. 0 for general useful logs, 5 for trace level verbosity.
   # CSI_LOG_LEVEL: "0"
@@ -62,6 +71,9 @@ data:
   # set to false to disable deployment of snapshotter container in CephFS provisioner pod.
   CSI_ENABLE_CEPHFS_SNAPSHOTTER: "true"
 
+  # set to false to disable deployment of snapshotter container in NFS provisioner pod.
+  CSI_ENABLE_NFS_SNAPSHOTTER: "true"
+
   # set to false to disable deployment of snapshotter container in RBD provisioner pod.
   CSI_ENABLE_RBD_SNAPSHOTTER: "true"
 
@@ -73,15 +85,15 @@ data:
 
   # (Optional) policy for modifying a volume's ownership or permissions when the RBD PVC is being mounted.
   # supported values are documented at https://kubernetes-csi.github.io/docs/support-fsgroup.html
-  CSI_RBD_FSGROUPPOLICY: "ReadWriteOnceWithFSType"
+  CSI_RBD_FSGROUPPOLICY: "File"
 
   # (Optional) policy for modifying a volume's ownership or permissions when the CephFS PVC is being mounted.
   # supported values are documented at https://kubernetes-csi.github.io/docs/support-fsgroup.html
-  CSI_CEPHFS_FSGROUPPOLICY: "ReadWriteOnceWithFSType"
+  CSI_CEPHFS_FSGROUPPOLICY: "File"
 
   # (Optional) policy for modifying a volume's ownership or permissions when the NFS PVC is being mounted.
   # supported values are documented at https://kubernetes-csi.github.io/docs/support-fsgroup.html
-  CSI_NFS_FSGROUPPOLICY: "ReadWriteOnceWithFSType"
+  CSI_NFS_FSGROUPPOLICY: "File"
 
   # (Optional) Allow starting unsupported ceph-csi image
   ROOK_CSI_ALLOW_UNSUPPORTED_VERSION: "false"
@@ -92,13 +104,15 @@ data:
   # The default version of CSI supported by Rook will be started. To change the version
   # of the CSI driver to something other than what is officially supported, change
   # these images to the desired release of the CSI driver.
-  # ROOK_CSI_CEPH_IMAGE: "quay.io/cephcsi/cephcsi:v3.6.2"
+  # ROOK_CSI_CEPH_IMAGE: "quay.io/cephcsi/cephcsi:v3.7.1"
   # ROOK_CSI_REGISTRAR_IMAGE: "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.5.1"
   # ROOK_CSI_RESIZER_IMAGE: "registry.k8s.io/sig-storage/csi-resizer:v1.4.0"
   # ROOK_CSI_PROVISIONER_IMAGE: "registry.k8s.io/sig-storage/csi-provisioner:v3.1.0"
   # ROOK_CSI_SNAPSHOTTER_IMAGE: "registry.k8s.io/sig-storage/csi-snapshotter:v6.0.1"
   # ROOK_CSI_ATTACHER_IMAGE: "registry.k8s.io/sig-storage/csi-attacher:v3.4.0"
-  # ROOK_CSI_NFS_IMAGE: "registry.k8s.io/sig-storage/nfsplugin:v4.0.0"
+
+  # To indicate the image pull policy to be applied to all the containers in the csi driver pods.
+  # ROOK_CSI_IMAGE_PULL_POLICY: "IfNotPresent"
 
   # (Optional) set user created priorityclassName for csi plugin pods.
   CSI_PLUGIN_PRIORITY_CLASSNAME: "system-node-critical"
@@ -126,6 +140,36 @@ data:
   # ROOK_CSI_RBD_POD_LABELS: "key1=value1,key2=value2"
   # Labels to add to the CSI NFS Deployments and DaemonSets Pods.
   # ROOK_CSI_NFS_POD_LABELS: "key1=value1,key2=value2"
+
+  # (Optional) CephCSI CephFS plugin Volumes
+  # CSI_CEPHFS_PLUGIN_VOLUME: |
+  #  - name: lib-modules
+  #    hostPath:
+  #      path: /run/current-system/kernel-modules/lib/modules/
+  #  - name: host-nix
+  #    hostPath:
+  #      path: /nix
+
+  # (Optional) CephCSI CephFS plugin Volume mounts
+  # CSI_CEPHFS_PLUGIN_VOLUME_MOUNT: |
+  #  - name: host-nix
+  #    mountPath: /nix
+  #    readOnly: true
+
+  # (Optional) CephCSI RBD plugin Volumes
+  # CSI_RBD_PLUGIN_VOLUME: |
+  #  - name: lib-modules
+  #    hostPath:
+  #      path: /run/current-system/kernel-modules/lib/modules/
+  #  - name: host-nix
+  #    hostPath:
+  #      path: /nix
+
+  # (Optional) CephCSI RBD plugin Volume mounts
+  # CSI_RBD_PLUGIN_VOLUME_MOUNT: |
+  #  - name: host-nix
+  #    mountPath: /nix
+  #    readOnly: true
 
   # (Optional) CephCSI provisioner NodeAffinity (applied to both CephFS and RBD provisioner).
   # CSI_PROVISIONER_NODE_AFFINITY: "role=storage-node; storage=rook, ceph"
@@ -433,16 +477,19 @@ data:
   ROOK_ENABLE_DISCOVERY_DAEMON: "false"
   # The timeout value (in seconds) of Ceph commands. It should be >= 1. If this variable is not set or is an invalid value, it's default to 15.
   ROOK_CEPH_COMMANDS_TIMEOUT_SECONDS: "15"
-  # Enable the volume replication controller.
-  # Before enabling, ensure the Volume Replication CRDs are created.
-  # See https://docs.koor.tech/docs/latest/ceph-csi-drivers.html#rbd-mirroring
-  CSI_ENABLE_VOLUME_REPLICATION: "false"
-  # CSI_VOLUME_REPLICATION_IMAGE: "quay.io/csiaddons/volumereplication-operator:v0.3.0"
   # Enable the csi addons sidecar.
   CSI_ENABLE_CSIADDONS: "false"
-  # ROOK_CSIADDONS_IMAGE: "quay.io/csiaddons/k8s-sidecar:v0.4.0"
+  # ROOK_CSIADDONS_IMAGE: "quay.io/csiaddons/k8s-sidecar:v0.5.0"
   # The CSI GRPC timeout value (in seconds). It should be >= 120. If this variable is not set or is an invalid value, it's default to 150.
   CSI_GRPC_TIMEOUT_SECONDS: "150"
+
+  # Enable topology based provisioning.
+  CSI_ENABLE_TOPOLOGY: "false"
+  # Domain labels define which node labels to use as domains
+  # for CSI nodeplugins to advertise their domains
+  # NOTE: the value here serves as an example and needs to be
+  # updated with node labels that define domains of interest
+  # CSI_TOPOLOGY_DOMAIN_LABELS: "kubernetes.io/hostname,topology.kubernetes.io/zone,topology.rook.io/rack"
 ---
 # OLM: BEGIN OPERATOR DEPLOYMENT
 apiVersion: apps/v1

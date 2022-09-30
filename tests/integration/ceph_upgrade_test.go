@@ -123,7 +123,7 @@ func (s *UpgradeSuite) testUpgrade(useHelm bool, initialCephVersion v1.CephVersi
 		objectStoreCleanUp(&s.Suite, s.helper, s.k8sh, s.settings.Namespace, installer.ObjectStoreName)
 	}()
 
-	// Delete Object-SC before upgrade test (https://github.com/koor-tech/koor/issues/10153)
+	// Delete Object-SC before upgrade test (https://github.com/rook/rook/issues/10153)
 	_ = s.helper.BucketClient.DeleteBucketStorageClass(s.namespace, installer.ObjectStoreName, installer.ObjectStoreSCName, "Delete")
 
 	//
@@ -139,7 +139,7 @@ func (s *UpgradeSuite) testUpgrade(useHelm bool, initialCephVersion v1.CephVersi
 	assert.NoError(s.T(), err)
 
 	logger.Infof("Done with automatic upgrade from %s to master", installer.Version1_0)
-	newFile := "post-upgrade-1_8-to-master-file"
+	newFile := "post-upgrade-1_0-to-master-file"
 	s.verifyFilesAfterUpgrade(newFile, rbdFilesToRead, cephfsFilesToRead)
 	rbdFilesToRead = append(rbdFilesToRead, newFile)
 	cephfsFilesToRead = append(cephfsFilesToRead, newFile)

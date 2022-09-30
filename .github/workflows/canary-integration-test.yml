@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   canary:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     steps:
       - name: checkout
@@ -216,7 +216,7 @@ jobs:
         timeout-minutes: 60
 
   raw-disk:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     steps:
       - name: checkout
@@ -270,7 +270,7 @@ jobs:
         timeout-minutes: 60
 
   two-osds-in-device:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     steps:
       - name: checkout
@@ -324,7 +324,7 @@ jobs:
         timeout-minutes: 60
 
   osd-with-metadata-device:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     steps:
       - name: checkout
@@ -384,7 +384,7 @@ jobs:
         timeout-minutes: 60
 
   encryption:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     steps:
       - name: checkout
@@ -430,7 +430,7 @@ jobs:
         timeout-minutes: 60
 
   lvm:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     steps:
       - name: checkout
@@ -489,7 +489,7 @@ jobs:
         timeout-minutes: 60
 
   pvc:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     steps:
       - name: checkout
@@ -562,7 +562,7 @@ jobs:
         timeout-minutes: 60
 
   pvc-db:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     steps:
       - name: checkout
@@ -618,7 +618,7 @@ jobs:
         timeout-minutes: 60
 
   pvc-db-wal:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     steps:
       - name: checkout
@@ -677,7 +677,7 @@ jobs:
         timeout-minutes: 60
 
   encryption-pvc:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     steps:
       - name: checkout
@@ -753,7 +753,7 @@ jobs:
         timeout-minutes: 60
 
   encryption-pvc-db:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     steps:
       - name: checkout
@@ -811,7 +811,7 @@ jobs:
         timeout-minutes: 60
 
   encryption-pvc-db-wal:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     steps:
       - name: checkout
@@ -870,7 +870,7 @@ jobs:
         timeout-minutes: 60
 
   encryption-pvc-kms-vault-token-auth:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     steps:
       - name: checkout
@@ -956,7 +956,7 @@ jobs:
         timeout-minutes: 60
 
   encryption-pvc-kms-vault-k8s-auth:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     steps:
       - name: checkout
@@ -1025,7 +1025,7 @@ jobs:
         timeout-minutes: 60
 
   lvm-pvc:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     steps:
       - name: checkout
@@ -1086,7 +1086,7 @@ jobs:
         timeout-minutes: 60
 
   multi-cluster-mirroring:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     steps:
       - name: checkout
@@ -1285,7 +1285,7 @@ jobs:
         timeout-minutes: 60
 
   rgw-multisite-testing:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     steps:
       - name: checkout
@@ -1320,7 +1320,7 @@ jobs:
         timeout-minutes: 60
 
   encryption-pvc-kms-ibm-kp:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
         with:
@@ -1358,7 +1358,7 @@ jobs:
         timeout-minutes: 60
 
   multus-cluster-network:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     steps:
       - name: checkout
@@ -1394,11 +1394,18 @@ jobs:
       - name: wait for ceph-csi configmap to be updated with network namespace
         run: tests/scripts/github-action-helper.sh wait_for_ceph_csi_configmap_to_be_updated
 
+      - name: wait for cephnfs to be ready
+        run: IS_POD_NETWORK=true IS_MULTUS=true tests/scripts/github-action-helper.sh wait_for_ceph_to_be_ready nfs 1
+
       - name: test ceph-csi-rbd plugin restart
         run: tests/scripts/github-action-helper.sh test_csi_rbd_workload
 
       - name: test ceph-csi-cephfs plugin restart
         run: tests/scripts/github-action-helper.sh test_csi_cephfs_workload
+
+      # uncomment once https://github.com/rook/rook/issues/10812 is resolved.
+      # - name: test ceph-csi-nfs plugin restart
+      #   run: tests/scripts/github-action-helper.sh test_csi_nfs_workload
 
       - name: collect common logs
         if: always()
@@ -1410,7 +1417,7 @@ jobs:
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 
@@ -1420,7 +1427,7 @@ jobs:
         timeout-minutes: 60
 
   csi-hostnetwork-disabled:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
     steps:
       - name: checkout
@@ -1455,6 +1462,9 @@ jobs:
 
       - name: test ceph-csi-cephfs plugin restart
         run: tests/scripts/github-action-helper.sh test_csi_cephfs_workload
+
+      - name: test ceph-csi-nfs plugin restart
+        run: tests/scripts/github-action-helper.sh test_csi_nfs_workload
 
       - name: collect common logs
         if: always()

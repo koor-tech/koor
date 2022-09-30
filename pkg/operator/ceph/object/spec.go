@@ -210,7 +210,7 @@ func (c *clusterConfig) makeRGWPodSpec(rgwConfig *rgwConfig) (v1.PodTemplateSpec
 
 	// If host networking is not enabled, preferred pod anti-affinity is added to the rgw daemons
 	labels := getLabels(c.store.Name, c.store.Namespace, false)
-	k8sutil.SetNodeAntiAffinityForPod(&podSpec, c.clusterSpec.Network.IsHost(), v1.LabelHostname, labels, nil)
+	k8sutil.SetNodeAntiAffinityForPod(&podSpec, c.store.Spec.IsHostNetwork(c.clusterSpec), v1.LabelHostname, labels, nil)
 
 	podTemplateSpec := v1.PodTemplateSpec{
 		ObjectMeta: metav1.ObjectMeta{
@@ -247,6 +247,7 @@ func (c *clusterConfig) createCaBundleUpdateInitContainer(rgwConfig *rgwConfig) 
 			fmt.Sprintf("/usr/bin/update-ca-trust extract; cp -rf %s/* %s", caBundleExtractedDir, updatedCaBundleDir),
 		},
 		Image:           c.clusterSpec.CephVersion.Image,
+		ImagePullPolicy: controller.GetContainerImagePullPolicy(c.clusterSpec.CephVersion.ImagePullPolicy),
 		VolumeMounts:    volumeMounts,
 		Resources:       c.store.Spec.Gateway.Resources,
 		SecurityContext: controller.PodSecurityContext(),
@@ -281,7 +282,8 @@ func (c *clusterConfig) vaultTokenInitContainer(rgwConfig *rgwConfig, kmsEnabled
 			fmt.Sprintf(setupVaultTokenFile,
 				kms.EtcVaultDir, rgwVaultDirName),
 		},
-		Image: c.clusterSpec.CephVersion.Image,
+		Image:           c.clusterSpec.CephVersion.Image,
+		ImagePullPolicy: controller.GetContainerImagePullPolicy(c.clusterSpec.CephVersion.ImagePullPolicy),
 		VolumeMounts: append(
 			controller.DaemonVolumeMounts(c.DataPathMap, rgwConfig.ResourceName), vaultVolMounts...),
 		Resources:       c.store.Spec.Gateway.Resources,
@@ -293,6 +295,7 @@ func (c *clusterConfig) makeChownInitContainer(rgwConfig *rgwConfig) v1.Containe
 	return controller.ChownCephDataDirsInitContainer(
 		*c.DataPathMap,
 		c.clusterSpec.CephVersion.Image,
+		controller.GetContainerImagePullPolicy(c.clusterSpec.CephVersion.ImagePullPolicy),
 		controller.DaemonVolumeMounts(c.DataPathMap, rgwConfig.ResourceName),
 		c.store.Spec.Gateway.Resources,
 		controller.PodSecurityContext(),
@@ -302,8 +305,9 @@ func (c *clusterConfig) makeChownInitContainer(rgwConfig *rgwConfig) v1.Containe
 func (c *clusterConfig) makeDaemonContainer(rgwConfig *rgwConfig) (v1.Container, error) {
 	// start the rgw daemon in the foreground
 	container := v1.Container{
-		Name:  "rgw",
-		Image: c.clusterSpec.CephVersion.Image,
+		Name:            "rgw",
+		Image:           c.clusterSpec.CephVersion.Image,
+		ImagePullPolicy: controller.GetContainerImagePullPolicy(c.clusterSpec.CephVersion.ImagePullPolicy),
 		Command: []string{
 			"radosgw",
 		},
@@ -452,7 +456,7 @@ func (c *clusterConfig) generateProbePort() intstr.IntOrString {
 	port := intstr.FromInt(int(rgwPortInternalPort))
 
 	// If Host Networking is enabled, the port from the spec must be reflected
-	if c.clusterSpec.Network.IsHost() {
+	if c.store.Spec.IsHostNetwork(c.clusterSpec) {
 		port = intstr.FromInt(int(c.store.Spec.Gateway.Port))
 	}
 
@@ -474,7 +478,7 @@ func (c *clusterConfig) generateService(cephObjectStore *cephv1.CephObjectStore)
 	if c.store.Spec.Gateway.Service != nil {
 		c.store.Spec.Gateway.Service.Annotations.ApplyToObjectMeta(&svc.ObjectMeta)
 	}
-	if c.clusterSpec.Network.IsHost() {
+	if c.store.Spec.IsHostNetwork(c.clusterSpec) {
 		svc.Spec.ClusterIP = v1.ClusterIPNone
 	}
 

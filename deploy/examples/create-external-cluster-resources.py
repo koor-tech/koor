@@ -25,10 +25,13 @@ from hashlib import sha1 as sha
 from os import linesep as LINESEP
 from os import path
 from email.utils import formatdate
-import urllib.parse
-
 import requests
 from requests.auth import AuthBase
+
+py3k = False
+if sys.version_info.major >= 3:
+    py3k = True
+    import urllib.parse
 
 ModuleNotFoundError = ImportError
 
@@ -58,13 +61,9 @@ except ModuleNotFoundError:
     # for 3.x
     from urllib.parse import urlparse
 
-py3k = False
 try:
-    from urlparse import urlparse
     from base64 import encodestring
 except:
-    py3k = True
-    from urllib.parse import urlparse
     from base64 import encodebytes as encodestring
 
 
@@ -333,11 +332,12 @@ class RadosJSON:
         common_group.add_argument(
             "--restricted-auth-permission",
             default=False,
-            help="Restricted cephCSIKeyrings auth permissions to specific pools, cluster."
+            help="Restrict cephCSIKeyrings auth permissions to specific pools, cluster."
             + "Mandatory flags that need to be set are --rbd-data-pool-name, and --cluster-name."
             + "--cephfs-filesystem-name flag can also be passed in case of cephfs user restriction, so it can restrict user to particular cephfs filesystem"
-            + "sample run: `python3 /etc/ceph/create-external-cluster-resources.py --cephfs-filesystem-name myfs --rbd-data-pool-name replicapool --cluster-name rookStorage --restricted-auth-permission true`"
-            + "Note: Restricting the users per pool, and per cluster will require to create new users and new secrets for that users.",
+            + "sample run: `python3 /etc/ceph/create-external-cluster-resources.py --cephfs-filesystem-name myfs --rbd-data-pool-name replicapool --cluster-name rookstorage --restricted-auth-permission true`"
+            + "Note: Restricting the csi-users per pool, and per cluster will require creating new csi-users and new secrets for that csi-users."
+            + "So apply these secrets only to new `Consumer cluster` deployment while using the same `Source cluster`.",
         )
 
         output_group = argP.add_argument_group("output")
@@ -440,8 +440,8 @@ class RadosJSON:
             + "For restricted users(For example: client.csi-cephfs-provisioner-openshift-storage-myfs), users created using --restricted-auth-permission flag need to pass mandatory flags"
             + "mandatory flags: '--rbd-data-pool-name, --cluster-name and --run-as-user' flags while upgrading"
             + "in case of cephfs users if you have passed --cephfs-filesystem-name flag while creating user then while upgrading it will be mandatory too"
-            + "Sample run: `python3 /etc/ceph/create-external-cluster-resources.py --upgrade --rbd-data-pool-name replicapool --cluster-name rookStorage  --run-as-user client.csi-rbd-node-rookStorage-replicapool`"
-            + "PS: An existing non-restricted user cannot be downgraded to a restricted user by upgrading. Admin need to create a new restricted user for this by re-running the script."
+            + "Sample run: `python3 /etc/ceph/create-external-cluster-resources.py --upgrade --rbd-data-pool-name replicapool --cluster-name rookstorage  --run-as-user client.csi-rbd-node-rookstorage-replicapool`"
+            + "PS: An existing non-restricted user cannot be converted to a restricted user by upgrading."
             + "Upgrade flag should only be used to append new permissions to users, it shouldn't be used for changing user already applied permission, for example you shouldn't change in which pool user has access",
         )
 
@@ -1097,7 +1097,7 @@ class RadosJSON:
             "--display-name",
             "Rook RGW Admin Ops user",
             "--caps",
-            "info=read;buckets=*;users=*;usage=read;metadata=read;zone=read",
+            "buckets=*;users=*;usage=read;metadata=read;zone=read",
         ]
         if self._arg_parser.dry_run:
             return self.dry_run("ceph " + " ".join(cmd))
@@ -1128,7 +1128,7 @@ class RadosJSON:
                 )
                 raise Exception(err_msg)
 
-        # separately add info=read caps, because sometimes users already exited and the cap doesn't update
+        # separately add info=read caps for rgw-endpoint ip validation
         info_cap_supported = True
         cmd = [
             "radosgw-admin",

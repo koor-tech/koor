@@ -202,12 +202,11 @@ func (r *ReconcileCephBlockPool) reconcile(request reconcile.Request) (reconcile
 	}
 
 	// Populate clusterInfo during each reconcile
-	clusterInfo, _, _, err := opcontroller.LoadClusterInfo(r.context, r.opManagerContext, request.NamespacedName.Namespace)
+	clusterInfo, _, _, err := opcontroller.LoadClusterInfo(r.context, r.opManagerContext, request.NamespacedName.Namespace, &cephCluster.Spec)
 	if err != nil {
 		return opcontroller.ImmediateRetryResult, *cephBlockPool, errors.Wrap(err, "failed to populate cluster info")
 	}
 	r.clusterInfo = clusterInfo
-	r.clusterInfo.NetworkSpec = cephCluster.Spec.Network
 
 	// Initialize the channel for this pool
 	// This allows us to track multiple CephBlockPool in the same namespace
@@ -385,13 +384,16 @@ func createPool(context *clusterd.Context, clusterInfo *cephclient.ClusterInfo, 
 		return errors.Wrapf(err, "failed to create pool %q", p.Name)
 	}
 
-	logger.Infof("initializing pool %q", p.Name)
+	if appName != poolApplicationNameRBD {
+		return nil
+	}
+	logger.Infof("initializing pool %q for RBD use", p.Name)
 	args := []string{"pool", "init", p.Name}
 	output, err := cephclient.NewRBDCommand(context, clusterInfo, args).Run()
 	if err != nil {
-		return errors.Wrapf(err, "failed to initialize pool %q. %s", p.Name, string(output))
+		return errors.Wrapf(err, "failed to initialize pool %q for RBD use. %s", p.Name, string(output))
 	}
-	logger.Infof("successfully initialized pool %q", p.Name)
+	logger.Infof("successfully initialized pool %q for RBD use", p.Name)
 
 	return nil
 }

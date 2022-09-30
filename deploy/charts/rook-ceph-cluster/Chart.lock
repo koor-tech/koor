@@ -1,0 +1,9 @@
+dependencies:
+- name: library
+  repository: file://../library
+  version: 0.0.1
+- name: extended-ceph-exporter
+  repository: https://koor-tech.github.io/extended-ceph-exporter
+  version: 1.0.0
+digest: sha256:be81188ce3259537be4f4da3dd362ebc215fab8e883a65f22ee1ae5a5b7e895b
+generated: "2022-09-29T14:44:41.655332631+05:30"

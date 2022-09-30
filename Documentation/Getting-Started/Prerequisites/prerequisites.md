@@ -5,21 +5,13 @@ title: Prerequisites
 Koor Storage Distribution can be installed on any existing Kubernetes cluster as long as it meets the minimum version
 and Koor Storage Distribution is granted the required privileges (see below for more information).
 
-## Minimum Kubernetes Version
+## Minimum Version
 
-Kubernetes **v1.17** or higher is supported for the Ceph operator.
+Kubernetes **v1.19** or higher is supported for the Ceph operator.
 
-Other Kubernetes-based distributions, such as OpenShift (OCP) and Rancher (RKE) are also supported.
+## CPU Architecture  
 
-| Name       | Minimum Version |
-| ---------- | --------------- |
-| Kubernetes | `v1.17.0`       |
-| OpenShift  | `4.6`           |
-| Rancher    | `2.6`           |
-
-## CPU Architecture
-
-Architectures released are `amd64 / x86_64` and `arm64`.
+Architectures released are `amd64 / x86_64` and `arm64`.  
 
 ## Ceph Prerequisites
 
@@ -27,7 +19,8 @@ In order to configure the Ceph storage cluster, at least one of these local stor
 
 * Raw devices (no partitions or formatted filesystems)
 * Raw partitions (no formatted filesystem)
-* PVs available from a storage class in `block` mode
+* LVM Logical Volumes (no formatted filesystem)
+* Persistent Volumes available from a storage class in `block` mode
 
 You can confirm whether your partitions or devices are formatted with filesystems with the following command.
 
