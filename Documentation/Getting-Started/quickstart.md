@@ -4,7 +4,7 @@ title: Quickstart
 
 Welcome to Rook! We hope you have a great experience installing the Rook **cloud-native storage orchestrator** platform to enable highly available, durable Ceph storage in your Kubernetes cluster.
 
-If you have any questions along the way, please don't hesitate to ask us in our [Slack channel](https://rook-io.slack.com). You can sign up for our Slack [here](https://slack.rook.io).
+If you have any questions along the way, please don't hesitate to ask us on our [GitHub Discussions](https://github.com/koor-tech/koor/discussions).
 
 This guide will walk you through the basic setup of a Ceph cluster and enable you to consume block, object, and file storage
 from other pods running in your cluster.

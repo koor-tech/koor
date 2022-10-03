@@ -2,7 +2,7 @@
 title: Block Pool CRD
 ---
 
-Rook allows creation and customization of storage pools through the custom resource definitions (CRDs). The following settings are available for pools.
+Koor Storage Distribution allows creation and customization of storage pools through the custom resource definitions (CRDs). The following settings are available for pools.
 
 ## Examples
 
@@ -178,7 +178,7 @@ spec:
 ### Metadata
 
 * `name`: The name of the pool to create.
-* `namespace`: The namespace of the Rook cluster where the pool is created.
+* `namespace`: The namespace of the Koor Storage Distribution cluster where the pool is created.
 
 ### Spec
 
@@ -197,9 +197,9 @@ stretched) then you will have 2 replicas per datacenter where each replica ends 
     If erasure coding is used, the data and coding chunks are spread across the configured failure domain.
 
     !!! caution
-        Neither Rook, nor Ceph, prevent the creation of a cluster where the replicated data (or Erasure Coded chunks) can be written safely. By design, Ceph will delay checking for suitable OSDs until a write request is made and this write can hang if there are not sufficient OSDs to satisfy the request.
+        Neither Koor Storage Distribution, nor Ceph, prevent the creation of a cluster where the replicated data (or Erasure Coded chunks) can be written safely. By design, Ceph will delay checking for suitable OSDs until a write request is made and this write can hang if there are not sufficient OSDs to satisfy the request.
 * `deviceClass`: Sets up the CRUSH rule for the pool to distribute data only on the specified device class. If left empty or unspecified, the pool will use the cluster's default CRUSH root, which usually distributes data over all OSDs, regardless of their class.
-* `crushRoot`: The root in the crush map to be used by the pool. If left empty or unspecified, the default root will be used. Creating a crush hierarchy for the OSDs currently requires the Rook toolbox to run the Ceph tools described [here](http://docs.ceph.com/docs/master/rados/operations/crush-map/#modifying-the-crush-map).
+* `crushRoot`: The root in the crush map to be used by the pool. If left empty or unspecified, the default root will be used. Creating a crush hierarchy for the OSDs currently requires the Koor Storage Distribution toolbox to run the Ceph tools described [here](http://docs.ceph.com/docs/master/rados/operations/crush-map/#modifying-the-crush-map).
 * `enableRBDStats`: Enables collecting RBD per-image IO statistics by enabling dynamic OSD performance counters. Defaults to false. For more info see the [ceph documentation](https://docs.ceph.com/docs/master/mgr/prometheus/#rbd-io-statistics).
 * `name`: The name of Ceph pools is based on the `metadata.name` of the CephBlockPool CR. Some built-in Ceph pools
   require names that are incompatible with K8s resource names. These special pools can be configured
@@ -274,4 +274,4 @@ The `failureDomain` must be also be taken into account when determining the numb
 
 If you do not have a sufficient number of hosts or OSDs for unique placement the pool can be created, writing to the pool will hang.
 
-Rook currently only configures two levels in the CRUSH map. It is also possible to configure other levels such as `rack` with by adding [topology labels](../Cluster/ceph-cluster-crd.md#osd-topology) to the nodes.
+Koor Storage Distribution currently only configures two levels in the CRUSH map. It is also possible to configure other levels such as `rack` with by adding [topology labels](../Cluster/ceph-cluster-crd.md#osd-topology) to the nodes.

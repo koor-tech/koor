@@ -4,7 +4,7 @@ title: Example Configurations
 
 Configuration for Rook and Ceph can be configured in multiple ways to provide block devices, shared filesystem volumes or object storage in a kubernetes namespace. We have provided several examples to simplify storage setup, but remember there are many tunables and you will need to decide what settings work for your use case and environment.
 
-See the **[example yaml files](https://github.com/koor-tech/koor/blob/master/deploy/examples)** folder for all the koorinc/ceph setup example spec files.
+See the **[example yaml files](https://github.com/koor-tech/koor/blob/master/deploy/examples)** folder for all the Koor Storage Distribution setup example spec files.
 
 ## Common Resources
 

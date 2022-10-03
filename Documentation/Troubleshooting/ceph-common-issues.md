@@ -2,9 +2,9 @@
 title: Ceph Common Issues
 ---
 
-Many of these problem cases are hard to summarize down to a short phrase that adequately describes the problem. Each problem will start with a bulleted list of symptoms. Keep in mind that all symptoms may not apply depending on the configuration of Rook. If the majority of the symptoms are seen there is a fair chance you are experiencing that problem.
+Many of these problem cases are hard to summarize down to a short phrase that adequately describes the problem. Each problem will start with a bulleted list of symptoms. Keep in mind that all symptoms may not apply depending on the configuration of Koor Storage Distribution. If the majority of the symptoms are seen there is a fair chance you are experiencing that problem.
 
-If after trying the suggestions found on this page and the problem is not resolved, the Rook team is very happy to help you troubleshoot the issues in their Slack channel. Once you have [registered for the Rook Slack](https://slack.rook.io), proceed to the `#ceph` channel to ask for assistance.
+If after trying the suggestions found on this page and the problem is not resolved, the Koor Storage Distribution team is very happy to help you troubleshoot the issues through the [GitHub Discussions](https://github.com/koor-tech/koor/discussions).
 
 See also the [CSI Troubleshooting Guide](../Troubleshooting/ceph-csi-common-issues.md).
 
@@ -17,7 +17,7 @@ There are two main categories of information you will need to investigate issues
 
 ### Ceph Tools
 
-After you verify the basic health of the running pods, next you will want to run Ceph tools for status of the storage components. There are two ways to run the Ceph tools, either in the Rook toolbox or inside other Rook pods that are already running.
+After you verify the basic health of the running pods, next you will want to run Ceph tools for status of the storage components. There are two ways to run the Ceph tools, either in the Koor Storage Distribution toolbox or inside other Koor Storage Distribution pods that are already running.
 
 * Logs on a specific node to find why a PVC is failing to mount
 * See the [log collection topic](../Storage-Configuration/Advanced/ceph-configuration.md#log-collection) for a script that will help you gather the logs
@@ -92,7 +92,7 @@ The `dataDirHostPath` setting specifies a path on the local host for the Ceph da
 
 ### Symptoms
 
-* Rook operator is running
+* Koor Storage Distribution operator is running
 * Either a single mon starts or the mons start very slowly (at least several minutes apart)
 * The crash-collector pods are crashing
 * No mgr, osd, or other daemons are created except the CSI driver
@@ -594,81 +594,6 @@ To overcome this, you need to increase the value of `fs.aio-max-nr` of your sysc
 You can do this with your favorite configuration management system.
 
 Alternatively, you can have a [DaemonSet](https://github.com/koor-tech/koor/issues/6279#issuecomment-694390514) to apply the configuration for you on all your nodes.
-
-## Unexpected partitions created
-
-### Symptoms
-
-**Users running Rook versions v1.6.0-v1.6.7 may observe unwanted OSDs on partitions that appear
-unexpectedly and seemingly randomly, which can corrupt existing OSDs.**
-
-Unexpected partitions are created on host disks that are used by Ceph OSDs. This happens more often
-on SSDs than HDDs and usually only on disks that are 875GB or larger. Many tools like `lsblk`,
-`blkid`, `udevadm`, and `parted` will not show a partition table type for the partition. Newer
-versions of `blkid` are generally able to recognize the type as "atari".
-
-The underlying issue causing this is Atari partition (sometimes identified as AHDI) support in the
-Linux kernel. Atari partitions have very relaxed specifications compared to other partition types,
-and it is relatively easy for random data written to a disk to appear as an Atari partition to the
-Linux kernel. Ceph's Bluestore OSDs have an anecdotally high probability of writing data on to disks
-that can appear to the kernel as an Atari partition.
-
-Below is an example of `lsblk` output from a node where phantom Atari partitions are present. Note
-that `sdX1` is never present for the phantom partitions, and `sdX2` is 48G on all disks. `sdX3`
-is a variable size and may not always be present. It is possible for `sdX4` to appear, though it is
-an anecdotally rare event.
-
-```console
-# lsblk
-NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
-sdb      8:16   0     3T  0 disk
-├─sdb2   8:18   0    48G  0 part
-└─sdb3   8:19   0   6.1M  0 part
-sdc      8:32   0     3T  0 disk
-├─sdc2   8:34   0    48G  0 part
-└─sdc3   8:35   0   6.2M  0 part
-sdd      8:48   0     3T  0 disk
-├─sdd2   8:50   0    48G  0 part
-└─sdd3   8:51   0   6.3M  0 part
-```
-
-You can see [GitHub rook/rook - Issue 7940 unexpected partition on disks >= 1TB (atari partitions)](https://github.com/koor-tech/koor/issues/7940) for more detailed information and discussion.
-
-### Solution
-
-#### Recover from corruption (v1.6.0-v1.6.7)
-
-If you are using Rook v1.6, you must first update to v1.6.8 or higher to avoid further incidents of
-OSD corruption caused by these Atari partitions.
-
-An old workaround suggested using `deviceFilter: ^sd[a-z]+$`, but this still results in unexpected
-partitions. Rook will merely stop creating new OSDs on the partitions. It does not fix a related
-issue that `ceph-volume` that is unaware of the Atari partition problem. Users who used this
-workaround are still at risk for OSD failures in the future.
-
-To resolve the issue, immediately update to v1.6.8 or higher. After the update, no corruption should
-occur on OSDs created in the future. Next, to get back to a healthy Ceph cluster state, focus on one
-corrupted disk at a time and [remove all OSDs on each corrupted disk](../Storage-Configuration/Advanced/ceph-osd-mgmt.md#remove-an-osd)
-one disk at a time.
-
-As an example, you may have `/dev/sdb` with two unexpected partitions (`/dev/sdb2` and `/dev/sdb3`)
-as well as a second corrupted disk `/dev/sde` with one unexpected partition (`/dev/sde2`).
-
-1. First, remove the OSDs associated with `/dev/sdb`, `/dev/sdb2`, and `/dev/sdb3`. There might be
-   only one, or up to 3 OSDs depending on how your system was affected. Again see the
-   [OSD management doc](../Storage-Configuration/Advanced/ceph-osd-mgmt.md#remove-an-osd).
-2. Use `dd` to wipe the first sectors of the partitions followed by the disk itself. E.g.,
-    * `dd if=/dev/zero of=/dev/sdb2 bs=1M`
-    * `dd if=/dev/zero of=/dev/sdb3 bs=1M`
-    * `dd if=/dev/zero of=/dev/sdb bs=1M`
-3. Then wipe clean `/dev/sdb` to prepare it for a new OSD.
-   See [the teardown document](../Storage-Configuration/ceph-teardown.md#zapping-devices) for details.
-4. After this, scale up the Rook operator to deploy a new OSD to `/dev/sdb`. This will allow Ceph to
-   use `/dev/sdb` for data recovery and replication while the next OSDs are removed.
-5. Now Repeat steps 1-4 for `/dev/sde` and `/dev/sde2`, and continue for any other corrupted disks.
-
-If your Rook cluster does not have any critical data stored in it, it may be simpler to
-uninstall Rook completely and redeploy with v1.6.8 or higher.
 
 ## Operator environment variables are ignored
 
