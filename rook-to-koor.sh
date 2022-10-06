@@ -22,8 +22,10 @@ find "${ROOKDIR}" -type f ! -path "./.git/*" ! -path "rook-to-koor.sh" ! -path "
     -e 's|rook/rook/issues|koor-tech/koor/issues|g' \
     -e 's|/work/rook/rook|/work/koor/koor|g' \
     -e 's|/work/rook|/work/koor|g' \
+    -r 's|rook/rook/blob|koor-tech/koor/blob|g' \
+    -e 's|quay.io/ceph:myversion|koorinc/ceph:myversion|g' \
     -e '/cmd/! s|rook/rook|koor-tech/koor|g' \
-    -e 's|[Rook.io Slack](https://slack.rook.io/)|[GitHub Discussions](https://github.com/koor-tech/koor/discussions)|g' \
+    -e 's|on our \[Rook.io Slack\](https://slack.rook.io/)|in [the Github Discussions](https://github.com/koor-tech/koor/discussions)|g' \
     -e 's|Rook version|Koor Storage Distribution version|g' \
     -e 's|rook.io/docs/rook|docs.koor.tech/docs|g' \
     -e 's|"$GITHUB_REPOSITORY_OWNER" = "rook"|"$GITHUB_REPOSITORY_OWNER" = "koor-tech"|g' \
@@ -34,6 +36,7 @@ find "${ROOKDIR}" -type f ! -path "./.git/*" ! -path "rook-to-koor.sh" ! -path "
     -e 's|rook-release|koor-release|g' \
     -e 's|charts.rook.io|charts.koor.tech|g' \
     -e 's|Rook Ceph Operator|Koor Operator|g' \
+    -e 's|Rook Ceph toolbox|Koor toolbox|g' \
     -e 's|cncf-rook-security@lists.cncf.io|security@koor.tech|g' \
     -e 's|cncf-rook-distributors-announce@lists.cncf.io|the Koor Newletter|g' \
     -e 's|rook_io|koor_tech|g' \
@@ -45,7 +48,10 @@ find "${ROOKDIR}" -type f ! -path "./.git/*" ! -path "rook-to-koor.sh" ! -path "
 sed -i "s|Rook|Koor Storage Distribution|g" "${ROOKDIR}"/.github/PULL_REQUEST_TEMPLATE.md \
     "${ROOKDIR}"/CODE_OF_CONDUCT.md \
     "${ROOKDIR}"/Documentation/Contributing/development-flow.md \
-    "${ROOKDIR}"/README.md
+    "${ROOKDIR}"/README.md \
+    .github/ISSUE_TEMPLATE.md \
+    .github/ISSUE_TEMPLATE/bug_report.md \
+    Documentation/Getting-Started/storage-architecture.md \
 
 # release version mangling 1.10 and 1.9 -> 1.0
 sed -i "s/release\-[0-9].[0-9]/release\-1\.0/g" "${ROOKDIR}"/Documentation/Contributing/development-flow.md
