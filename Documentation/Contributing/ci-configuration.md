@@ -2,7 +2,7 @@
 title: CI Configuration
 ---
 
-This page contains information regarding the CI configuration used for the Rook project to test, build and release the project.
+This page contains information regarding the CI configuration used for the Koor Storage Distribution project to test, build and release the project.
 
 ## Secrets
 
@@ -13,6 +13,6 @@ This page contains information regarding the CI configuration used for the Rook 
     * `IBM_SERVICE_API_KEY`: Used for KMS (Key Management System) IBM Key Protect access (see [`.github/workflows/encryption-pvc-kms-ibm-kp/action.yml`](https://github.com/koor-tech/koor/blob/master/.github/workflows/encryption-pvc-kms-ibm-kp/action.yml)).
 * Publishing:
     * `DOCKER_USERNAME` + `DOCKER_PASSWORD`: Username and password of registry.
-    * `DOCKER_REGISTRY`: Target registry namespace (e.g., `rook`)
+    * `DOCKER_REGISTRY`: Target registry namespace (e.g., `koorinc`)
     * `AWS_USR` + `AWS_PSW`: AWS credentials with access to S3 for Helm chart publishing.
     * `GIT_API_TOKEN`: GitHub access token, used to push docs changes to the docs repositories `gh-pages` branch.

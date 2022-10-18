@@ -158,7 +158,7 @@ step to upgrade the Prometheus RBAC resources as well.
 kubectl apply -f deploy/examples/monitoring/rbac.yaml
 ```
 
-Rook no longer deploys Prometheus rules from the operator.
+Koor Storage Distribution no longer deploys Prometheus rules from the operator.
 
 If you use the Helm chart `monitoring.enabled` value to deploy Prometheus rules, you may now
 additionally use `monitoring.createPrometheusRules` to instruct Helm to deploy the rules. You may
@@ -171,9 +171,9 @@ To see the latest information about manually deploying rules, see the
 
 If you configure MDS probes in the CephCluster resource, copy them to the
 [CephFilesystem `metadataServer` settings](../CRDs/Shared-Filesystem/ceph-filesystem-crd.md#metadata-server-settings) at this
-point. Do not remove them from the CephCluster until after the Rook upgrade is fully complete.
+point. Do not remove them from the CephCluster until after the Koor Storage Distribution upgrade is fully complete.
 
-### **2. Update the Rook Operator**
+### **2. Update the Koor Storage Distribution Operator**
 
 !!! hint
     If you are upgrading via the Helm chart, the operator is automatically updated.
@@ -237,6 +237,6 @@ This cluster is finished:
 
 ### **5. Verify the updated cluster**
 
-At this point, your Rook operator should be running version `koorinc/ceph:v1.0.0`.
+At this point, your Koor Storage Distribution operator should be running version `koorinc/ceph:v1.0.0`.
 
 Verify the Ceph cluster's health using the [health verification doc](health-verification.md).

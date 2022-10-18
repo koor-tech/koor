@@ -2,7 +2,7 @@
 title: Block Pool RADOS Namespace CRD
 ---
 
-This guide assumes you have created a Rook cluster as explained in the main [Quickstart guide](../../Getting-Started/quickstart.md)
+This guide assumes you have created a Koor Storage Distribution cluster as explained in the main [Quickstart guide](../../Getting-Started/quickstart.md)
 
 RADOS currently uses pools both for data distribution (pools are shared into
 PGs, which map to OSDs) and as the granularity for security (capabilities can
@@ -19,7 +19,7 @@ to share one unique ceph cluster without creating a pool per kubernetes cluster
 and it will also allow to have tenant isolation between multiple tenants in a
 single Kubernetes cluster without creating multiple pools for tenants.
 
-Rook allows creation of Ceph BlockPool
+Koor Storage Distribution allows creation of Ceph BlockPool
 [RadosNamespaces](https://docs.ceph.com/en/latest/man/8/rbd/) through the
 custom resource definitions (CRDs).
 

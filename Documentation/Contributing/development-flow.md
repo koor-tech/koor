@@ -2,8 +2,8 @@
 title: Development Flow
 ---
 
-Thank you for your time and effort to help us improve Rook! Here are a few steps to get started. If you have any questions,
-don't hesitate to reach out to us on our [Slack](https://Rook-io.slack.com) dev channel.
+Thank you for your time and effort to help us improve Koor Storage Distribution! Here are a few steps to get started. If you have any questions,
+don't hesitate to reach out to us on our [GitHub Discussions](https://github.com/koor-tech/koor/discussions).
 
 ## Prerequisites
 
@@ -22,20 +22,20 @@ From your browser navigate to [http://github.com/koor-tech/koor](http://github.c
 Open a console window and do the following;
 
 ```console
-# Create the rook repo path
-mkdir -p $GOPATH/src/github.com/rook
+# Create the Koor Storage Distribution repo path
+mkdir -p $GOPATH/src/github.com/koor-tech
 
 # Navigate to the local repo path and clone your fork
-cd $GOPATH/src/github.com/rook
+cd $GOPATH/src/github.com/koor-tech
 
 # Clone your fork, where <user> is your GitHub account name
-$ git clone https://github.com/<user>/rook.git
+$ git clone https://github.com/<user>/koor-tech.git
 cd rook
 ```
 
 ### Build
 
-Building Rook Ceph is simple.
+Building Koor Storage Distribution is simple.
 
 ```console
 make build
@@ -60,7 +60,7 @@ the following settings in your IDE:
     VS Code should prompt you automatically with some recommended extensions to install.
     E.g., Markdown All in One, Go and YAML validator.
 
-A set of recommended settings when working on Rook, can be found [here](https://github.com/koor-tech/koor/blob/master/.vscode/settings.json).
+A set of recommended settings when working on Koor Storage Distribution, can be found [here](https://github.com/koor-tech/koor/blob/master/.vscode/settings.json).
 
 !!! tip
     VS Code should automatically use these settings through the `.vscode/settings.json` file.
@@ -81,7 +81,7 @@ Now you should have at least `origin` and `upstream` remotes. You can also add o
 
 ### Self assign Issue
 
-You can self-assign any issue that is open and not assigned to anyone in Rook upstream repo, by adding
+You can self-assign any issue that is open and not assigned to anyone in Koor Storage Distribution upstream repo, by adding
 an issue comment with `/assign` in the body.
 
 ## Layout
@@ -89,7 +89,7 @@ an issue comment with `/assign` in the body.
 A source code layout is shown below, annotated with comments about the use of each important directory:
 
 ```text
-rook
+koor
 ├── build                         # build makefiles and logic to build, publish and release all Rook artifacts
 ├── cluster
 │   ├── charts                    # Helm charts

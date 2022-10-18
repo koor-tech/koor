@@ -186,7 +186,7 @@ kubectl create -f updated-chart.yaml
 
 ## Grafana Dashboards
 
-The dashboards have been created by [@galexrt](https://github.com/galexrt). For feedback on the dashboards please reach out to him on the [Rook.io Slack](https://slack.rook.io).
+The dashboards have been created by [@galexrt](https://github.com/galexrt). For feedback on the dashboards please reach out to him through the [GitHub Discussions](https://github.com/koor-tech/koor/discussions).
 
 !!! note
     The dashboards are only compatible with Grafana 7.2.0 or higher.
