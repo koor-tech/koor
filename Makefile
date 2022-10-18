@@ -50,7 +50,7 @@ LDFLAGS ?=
 TAGS ?=
 
 # turn on more verbose build
-V ?= 0
+V ?= 1
 ifeq ($(V),1)
 LDFLAGS += -v -n
 BUILDFLAGS += -x
