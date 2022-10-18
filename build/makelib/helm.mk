@@ -34,8 +34,9 @@ $(HELM):
 	@curl -sL https://get.helm.sh/helm-$(HELM_VERSION)-$(shell go env GOHOSTOS)-$(GOHOSTARCH).tar.gz | tar -xz -C $(TOOLS_HOST_DIR)/tmp
 	@mv $(TOOLS_HOST_DIR)/tmp/$(shell go env GOHOSTOS)-$(GOHOSTARCH)/helm $(HELM)
 	@rm -fr $(TOOLS_HOST_DIR)/tmp
+	@echo === helm repo add
+	@$(HELM) repo add extended-ceph-exporter https://koor-tech.github.io/extended-ceph-exporter
 
-@$(HELM) repo add extended-ceph-exporter https://koor-tech.github.io/extended-ceph-exporter
 define helm.chart
 $(HELM_OUTPUT_DIR)/$(1)-$(VERSION).tgz: $(HELM) $(HELM_OUTPUT_DIR) $(shell find $(HELM_CHARTS_DIR)/$(1) -type f)
 	@echo === helm package $(1)
