@@ -44,8 +44,17 @@ Please use the following to reach members of the community:
 - GitHub: Start a [discussion](https://github.com/koor-tech/koor/discussions) or open an [issue](https://github.com/koor-tech/koor/issues)
 - Twitter: [@koor_tech](https://twitter.com/koor_tech)
 - Security topics: [security@koor.tech](#reporting-security-vulnerabilities)
+- Office hours meeting: We have a bi-weekly office hour meeting to answer questions and help with any issues around Koor, Rook and Ceph, see [office hours section](#office-hours).
 
-### Official Releases
+## Office Hours
+
+This is our bi-weekly office hour meeting to answer any questions and help with issues around Koor, Rook and Ceph.
+
+You can add the meeting to your calendar using [this link (invite is sent through Google Calendar)](https://calendar.google.com/calendar/event?action=TEMPLATE&tmeid=NHRhMTBqY2Y0ZTFkb2x1MnZkYThma290M2FfMjAyMjExMDlUMTgzMDAwWiBjXzJjY2Y0OWY1NDZlYzRlYzQ0NzhhMmRiMDI1ZmVjYjdmN2U4MDgxMjZkYmViNzY3MWYxMzg1NGVlNjgwNmQyMmRAZw&tmsrc=c_2ccf49f546ec4ec4478a2db025fecb7f7e808126dbeb7671f13854ee6806d22d%40group.calendar.google.com&scp=ALL).
+
+Feel free to add a topic to the meeting minutes document [here](https://docs.google.com/document/d/1twakYk3XNZD_1Xmi3GDXojuPPkUp7fb06e_4rtgNWdM/edit).
+
+## Official Releases
 
 Official releases of Koor Storage Distribution can be found on the [releases page](https://github.com/koor-tech/koor/releases).
 Please note that it is **strongly recommended** that you use [official releases](https://github.com/koor-tech/koor/releases) of Koor Storage Distribution, as unreleased versions from the master branch are subject to changes and incompatibilities that will not be supported in the official releases.
