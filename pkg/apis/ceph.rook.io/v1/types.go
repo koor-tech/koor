@@ -308,22 +308,22 @@ type DashboardSpec struct {
 }
 
 type SSOSpec struct {
-	// Enabled determines whether to enable SSO
+	// Determines whether to enable SSO
 	// +optional
 	Enabled bool `json:"enabled,omitempty"`
-	// If users that login through SSO should be auto created
+	// Base URL where the Ceph Dashboard is exposed via an Ingress or other type of Service.
 	// +optional
 	BaseURL string `json:"baseUrl,omitempty"`
 	// URL to IDP Metadata
 	// +optional
 	IDPMetadataURL string `json:"idpMetadataUrl,omitempty"`
-	// List of users to be created with a respective role from the admin side
+	// List of users to be created with a respective [Ceph dashboard system role](https://docs.ceph.com/en/latest/mgr/dashboard/#user-roles-and-permissions).
 	// +optional
 	Users []UserRef `json:"users,omitempty"`
-	// IDP Attributes that should be used to get the username from the authentication response. Defaults to uid.
+	// IDP Attributes that are used by the dashboard to get certain info about them during login.
 	// +optional
 	IDPAttributes IDPAttributes `json:"idpAttributes,omitempty"`
-	// To be used when more than one entity id exists on the IdP metadata
+	// To be used when more than one entity id exists on the IDP metadata
 	// +optional
 	EntityID string `json:"entityID,omitempty"`
 }
@@ -331,13 +331,13 @@ type SSOSpec struct {
 type UserRef struct {
 	// Name of the user created
 	Username string `json:"username,omitempty"`
-	// Respective roles of the user which is needed for the same
+	// List of roles. Respective roles of the user which is needed for the same
 	Roles []string `json:"roles,omitempty"`
 }
 
 // Attributes to take into account for SSO and user creation
 type IDPAttributes struct {
-	// It should be used to get the username from the authentication response. Defaults to uid.
+	// It should be used to get the username from the authentication response. Defaults to `uid`.
 	Username string `json:"username,omitempty"`
 }
 

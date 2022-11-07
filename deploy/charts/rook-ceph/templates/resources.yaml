@@ -1006,30 +1006,30 @@ spec:
                       description: SSO determines whether to enable SSO for dashboard
                       properties:
                         baseUrl:
-                          description: If users that login through SSO should be auto created
+                          description: Base URL where the Ceph Dashboard is exposed via an Ingress or other type of Service.
                           type: string
                         enabled:
-                          description: Enabled determines whether to enable SSO
+                          description: Determines whether to enable SSO
                           type: boolean
                         entityID:
-                          description: To be used when more than one entity id exists on the IdP metadata
+                          description: To be used when more than one entity id exists on the IDP metadata
                           type: string
                         idpAttributes:
-                          description: IDP Attributes that should be used to get the username from the authentication response. Defaults to uid.
+                          description: IDP Attributes that are used by the dashboard to get certain info about them during login.
                           properties:
                             username:
-                              description: It should be used to get the username from the authentication response. Defaults to uid.
+                              description: It should be used to get the username from the authentication response. Defaults to `uid`.
                               type: string
                           type: object
                         idpMetadataUrl:
                           description: URL to IDP Metadata
                           type: string
                         users:
-                          description: List of users to be created with a respective role from the admin side
+                          description: List of users to be created with a respective [Ceph dashboard system role](https://docs.ceph.com/en/latest/mgr/dashboard/#user-roles-and-permissions).
                           items:
                             properties:
                               roles:
-                                description: Respective roles of the user which is needed for the same
+                                description: List of roles. Respective roles of the user which is needed for the same
                                 items:
                                   type: string
                                 type: array

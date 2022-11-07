@@ -45,12 +45,14 @@ spec:
     # configure sso for the dashboard access
     sso:
       enabled: false # by default it’ll be false
-      autoCreateUsers: true # by default true
+      users:
+        - username:
+          roles:
+           - <role>
       baseUrl: <url_value>
       idpMetadataUrl: <url_value>
-      idpAttributes:
-        username: “username”
-      entityIDd:
+      idpUsernameAttribute: "username"
+      entityID: <entity_id_value>
       spCert:
         key: tls.crt
         secret:

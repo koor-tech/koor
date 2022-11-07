@@ -44,6 +44,16 @@ If this value is empty, each pod will get an ephemeral directory to store their 
     * `urlPrefix`: Allows to serve the dashboard under a subpath (useful when you are accessing the dashboard via a reverse proxy)
     * `port`: Allows to change the default port where the dashboard is served
     * `ssl`: Whether to serve the dashboard via SSL, ignored on Ceph versions older than `13.2.2`
+    * `sso`: Dashboard SSO configuration (only supports `SAML2`)
+        * `enabled`: Default is `false`. Whether to enable the dashboard SSO setup.
+        * `baseURL`: Base URL where the Ceph Dashboard is exposed via an Ingress or other type of Service.
+        * `idpMetadataUrl`: URL to IDP Metadata.
+        * `users`: List of users to be created with a respective [Ceph dashboard system role](https://docs.ceph.com/en/latest/mgr/dashboard/#user-roles-and-permissions).
+            * `username`: Name of the user created.
+            * `roles`: List of roles. Respective roles of the user which is needed for the same.
+        * `idpAttributes`: IDP Attributes that are used by the dashboard to get certain info about them during login.
+            * `username`: It should be used to get the username from the authentication response. Defaults to `uid`.
+        * `entityID`: To be used when more than one entity id exists on the IDP metadata
 * `monitoring`: Settings for monitoring Ceph using Prometheus. To enable monitoring on your cluster see the [monitoring guide](../../Storage-Configuration/Monitoring/ceph-monitoring.md#prometheus-alerts).
     * `enabled`: Whether to enable prometheus based monitoring for this cluster
     * `externalMgrEndpoints`: external cluster manager endpoints
