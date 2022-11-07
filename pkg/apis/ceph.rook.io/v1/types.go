@@ -302,6 +302,19 @@ type DashboardSpec struct {
 	// SSL determines whether SSL should be used
 	// +optional
 	SSL bool `json:"ssl,omitempty"`
+	// SSO determines whether to enable SSO for dashboard
+	// +optional
+	SSO *SSOSpec `json:"sso,omitempty"`
+}
+
+type SSOSpec struct {
+	// Enabled determines whether to enable SSO
+	// +optional
+	Enabled bool `json:"enabled,omitempty"`
+	// Ceph Dashboard base URL needed to enable SSO
+	BaseURL string `json:"baseUrl,omitempty"`
+	// URL to IDP Metadata
+	IDPMetadataUrl string `json:"idpMetadataUrl,omitempty"`
 }
 
 // MonitoringSpec represents the settings for Prometheus based Ceph monitoring
