@@ -970,6 +970,49 @@ spec:
                     ssl:
                       description: SSL determines whether SSL should be used
                       type: boolean
+                    sso:
+                      description: SSO determines whether to enable SSO for dashboard
+                      properties:
+                        autoCreateUsers:
+                          description: If users that login through SSO should be auto created
+                          type: boolean
+                        baseUrl:
+                          description: Ceph Dashboard base URL needed to enable SSO
+                          type: string
+                        enabled:
+                          description: Enabled determines whether to enable SSO
+                          type: boolean
+                        entityId:
+                          type: string
+                        idpAttributes:
+                          properties:
+                            roles:
+                              type: string
+                            username:
+                              type: string
+                          type: object
+                        idpMetadataUrl:
+                          description: URL to IDP Metadata
+                          type: string
+                        spCert:
+                          description: SecretKeyRef
+                          properties:
+                            key:
+                              description: Key
+                              type: string
+                            secretName:
+                              type: string
+                          type: object
+                        spPrivateKey:
+                          description: SecretKeyRef
+                          properties:
+                            key:
+                              description: Key
+                              type: string
+                            secretName:
+                              type: string
+                          type: object
+                      type: object
                     urlPrefix:
                       description: URLPrefix is a prefix for all URLs to use the dashboard with a reverse proxy
                       type: string
