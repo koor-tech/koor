@@ -311,10 +311,37 @@ type SSOSpec struct {
 	// Enabled determines whether to enable SSO
 	// +optional
 	Enabled bool `json:"enabled,omitempty"`
+
+	// If users that login through SSO should be auto created
+	AutoCreateUsers bool `json:"autoCreateUsers,omitempty"`
 	// Ceph Dashboard base URL needed to enable SSO
 	BaseURL string `json:"baseUrl,omitempty"`
 	// URL to IDP Metadata
 	IDPMetadataUrl string `json:"idpMetadataUrl,omitempty"`
+	//
+	IDPAttributes *IDPAttributes `json:"idpAttributes,omitempty"`
+	//
+	EntityID string `json:"entityId,omitempty"`
+	//
+	SPCert SecretKeyRef `json:"spCert,omitempty"`
+	//
+	SPPrivateKey SecretKeyRef `json:"spPrivateKey,omitempty"`
+}
+
+// SecretKeyRef reference a key from a Secret
+type SecretKeyRef struct {
+	// Secret key name, existing key in the Secret
+	Key string `json:"key,omitempty"`
+	// Secret name, must be located in the same namespace as the Rook Ceph cluster
+	SecretName string `json:"secretName,omitempty"`
+}
+
+// Attributes to take into account for SSO and user creation
+type IDPAttributes struct {
+	//
+	Username string `json:"username,omitempty"`
+	//
+	Roles string `json:"roles,omitempty"`
 }
 
 // MonitoringSpec represents the settings for Prometheus based Ceph monitoring
