@@ -320,14 +320,30 @@ func (c *Cluster) restartDashboard() error {
 
 func (c *Cluster) setupSSO() (bool, error) {
 	if !c.spec.Dashboard.SSO.Enabled {
-		// TODO make sure SSO is disabled
+		// Make sure SSO is disabled
+		args := []string{"dashboard", "sso", "disable"}
+		for i := 0; i < 5; i++ {
+			_, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
+			if err == context.DeadlineExceeded {
+				logger.Warning("SSO disable timed out. trying again")
+			}
+		}
 		return false, nil
 	}
-	// TODO check if we need to "re-setup" SSO
+	// TODO create and build sso setup args command
+	dashboardUrl := c.spec.Dashboard.SSO.BaseURL
+	idpMetadataUrl := c.spec.Dashboard.SSO.IDPMetadataUrl
+	args := []string{"dashboard", "sso", "setup", dashboardUrl, idpMetadataUrl}
+	idpUsernameAttribute := c.spec.Dashboard.SSO.IDPAttributes.Username
+	idpEntityId := c.spec.Dashboard.SSO.EntityID
+	spCertificateKey := c.spec.Dashboard.SSO.SPCert.Key
+	spCertificateSecretname := c.spec.Dashboard.SSO.SPCert.SecretName
+	spPrivateKeyname := c.spec.Dashboard.SSO.SPPrivateKey.Key
+	spPrivateKeysecret := c.spec.Dashboard.SSO.SPPrivateKey.SecretName
 
-	// create a self-signed cert for the https connections
-	args := []string{"dashboard", "sso", "setup"}
-	// TODO build sso setup args command
+	if idpUsernameAttribute != "" || idpEntityId != "" {
+		args = []string{"dashboard", "sso", "setup", dashboardUrl, idpMetadataUrl, idpUsernameAttribute, idpEntityId}
+	}
 
 	// retry a few times in the case that the mgr module is not ready to accept commands
 	for i := 0; i < 5; i++ {

@@ -305,20 +305,26 @@ type SSOSpec struct {
 	// Enabled determines whether to enable SSO
 	// +optional
 	Enabled bool `json:"enabled,omitempty"`
-
 	// If users that login through SSO should be auto created
+	// +optional
 	AutoCreateUsers bool `json:"autoCreateUsers,omitempty"`
 	// Ceph Dashboard base URL needed to enable SSO
+	// +optional
 	BaseURL string `json:"baseUrl,omitempty"`
 	// URL to IDP Metadata
+	// +optional
 	IDPMetadataUrl string `json:"idpMetadataUrl,omitempty"`
-	//
+	// IDP Attributes that should be used to get the username from the authentication response. Defaults to uid.
+	// +optional
 	IDPAttributes *IDPAttributes `json:"idpAttributes,omitempty"`
-	//
+	// To be used when more than one entity id exists on the IdP metadata
+	// +optional
 	EntityID string `json:"entityId,omitempty"`
-	//
+	// Certificate that should be used by Ceph Dashboard for signing and encryption
+	// +optional
 	SPCert SecretKeyRef `json:"spCert,omitempty"`
-	//
+	// Private key that should be used by Ceph Dashboard for signing and encryption
+	// +optional
 	SPPrivateKey SecretKeyRef `json:"spPrivateKey,omitempty"`
 }
 
@@ -332,9 +338,9 @@ type SecretKeyRef struct {
 
 // Attributes to take into account for SSO and user creation
 type IDPAttributes struct {
-	//
+	// It should be used to get the username from the authentication response. Defaults to uid.
 	Username string `json:"username,omitempty"`
-	//
+	// To be defined to accept roles as an input for SSO setup in dashboard
 	Roles string `json:"roles,omitempty"`
 }
 
