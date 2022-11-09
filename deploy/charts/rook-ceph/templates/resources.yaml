@@ -1015,33 +1015,39 @@ spec:
                           description: Enabled determines whether to enable SSO
                           type: boolean
                         entityId:
+                          description: To be used when more than one entity id exists on the IdP metadata
                           type: string
                         idpAttributes:
+                          description: IDP Attributes that should be used to get the username from the authentication response. Defaults to uid.
                           properties:
                             roles:
+                              description: To be defined to accept roles as an input for SSO setup in dashboard
                               type: string
                             username:
+                              description: It should be used to get the username from the authentication response. Defaults to uid.
                               type: string
                           type: object
                         idpMetadataUrl:
                           description: URL to IDP Metadata
                           type: string
                         spCert:
-                          description: SecretKeyRef
+                          description: Certificate that should be used by Ceph Dashboard for signing and encryption
                           properties:
                             key:
-                              description: Key
+                              description: Secret key name, existing key in the Secret
                               type: string
                             secretName:
+                              description: Secret name, must be located in the same namespace as the Rook Ceph cluster
                               type: string
                           type: object
                         spPrivateKey:
-                          description: SecretKeyRef
+                          description: Private key that should be used by Ceph Dashboard for signing and encryption
                           properties:
                             key:
-                              description: Key
+                              description: Secret key name, existing key in the Secret
                               type: string
                             secretName:
+                              description: Secret name, must be located in the same namespace as the Rook Ceph cluster
                               type: string
                           type: object
                       type: object
