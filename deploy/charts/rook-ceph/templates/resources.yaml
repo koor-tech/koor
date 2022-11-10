@@ -1005,11 +1005,8 @@ spec:
                     sso:
                       description: SSO determines whether to enable SSO for dashboard
                       properties:
-                        autoCreateUsers:
-                          description: If users that login through SSO should be auto created
-                          type: boolean
                         baseUrl:
-                          description: Ceph Dashboard base URL needed to enable SSO
+                          description: If users that login through SSO should be auto created
                           type: string
                         enabled:
                           description: Enabled determines whether to enable SSO
@@ -1050,6 +1047,22 @@ spec:
                               description: Secret name, must be located in the same namespace as the Rook Ceph cluster
                               type: string
                           type: object
+                        users:
+                          description: List of users to be created with a respective role from the admin side
+                          items:
+                            properties:
+                              role:
+                                description: Respective role of the user which is needed for the same
+                                items:
+                                  type: string
+                                type: array
+                              username:
+                                description: Name of the user created
+                                items:
+                                  type: string
+                                type: array
+                            type: object
+                          type: array
                       type: object
                     urlPrefix:
                       description: URLPrefix is a prefix for all URLs to use the dashboard with a reverse proxy

@@ -336,10 +336,18 @@ func (c *Cluster) setupSSO() (bool, error) {
 	args := []string{"dashboard", "sso", "setup", dashboardUrl, idpMetadataUrl}
 	idpUsernameAttribute := c.spec.Dashboard.SSO.IDPAttributes.Username
 	idpEntityId := c.spec.Dashboard.SSO.EntityID
-	spCertificateKey := c.spec.Dashboard.SSO.SPCert.Key
-	spCertificateSecretname := c.spec.Dashboard.SSO.SPCert.SecretName
-	spPrivateKeyname := c.spec.Dashboard.SSO.SPPrivateKey.Key
-	spPrivateKeysecret := c.spec.Dashboard.SSO.SPPrivateKey.SecretName
+	// spCertificateKey := c.spec.Dashboard.SSO.SPCert.Key
+	// spCertificateSecretname := c.spec.Dashboard.SSO.SPCert.SecretName
+	// spPrivateKeyname := c.spec.Dashboard.SSO.SPPrivateKey.Key
+	// spPrivateKeysecret := c.spec.Dashboard.SSO.SPPrivateKey.SecretName
+
+	// users_len := len(c.spec.Dashboard.SSO.Users)
+	// Objective: To Get the list of Users and their respective roles from the struct
+	// And create them with their roles
+	// for i := 0; i < users_len; i++ {
+	// 	userlist := c.spec.Dashboard.SSO.Users
+
+	// }
 
 	if idpUsernameAttribute != "" || idpEntityId != "" {
 		args = []string{"dashboard", "sso", "setup", dashboardUrl, idpMetadataUrl, idpUsernameAttribute, idpEntityId}

@@ -313,13 +313,13 @@ type SSOSpec struct {
 	Enabled bool `json:"enabled,omitempty"`
 	// If users that login through SSO should be auto created
 	// +optional
-	AutoCreateUsers bool `json:"autoCreateUsers,omitempty"`
-	// Ceph Dashboard base URL needed to enable SSO
-	// +optional
 	BaseURL string `json:"baseUrl,omitempty"`
 	// URL to IDP Metadata
 	// +optional
 	IDPMetadataUrl string `json:"idpMetadataUrl,omitempty"`
+	// List of users to be created with a respective role from the admin side
+	// +optional
+	Users []UserRef `json:"users,omitempty"`
 	// IDP Attributes that should be used to get the username from the authentication response. Defaults to uid.
 	// +optional
 	IDPAttributes *IDPAttributes `json:"idpAttributes,omitempty"`
@@ -332,6 +332,13 @@ type SSOSpec struct {
 	// Private key that should be used by Ceph Dashboard for signing and encryption
 	// +optional
 	SPPrivateKey SecretKeyRef `json:"spPrivateKey,omitempty"`
+}
+
+type UserRef struct {
+	// Name of the user created
+	Name []string `json:"username,omitempty"`
+	// Respective role of the user which is needed for the same
+	Role []string `json:"role,omitempty"`
 }
 
 // SecretKeyRef reference a key from a Secret
