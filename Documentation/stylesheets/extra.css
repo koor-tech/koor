@@ -6,3 +6,7 @@
 .md-header {
   background-color: #1d2628;
 }
+
+[data-md-color-primary="koor"] {
+  --md-primary-fg-color: #19dda5;
+}
