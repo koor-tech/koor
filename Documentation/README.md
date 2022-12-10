@@ -24,3 +24,9 @@ For detailed design documentation, see also the [design docs](https://github.com
 ## Need help? Be sure to use the GitHub Discussions
 
 If you have any questions along the way, please don't hesitate to ask us on our [GitHub Discussions](https://github.com/koor-tech/koor/discussions).
+
+## Roadmap
+
+Our high-level development roadmap can be seen on our website [here](https://koor.tech/development-roadmap/).
+
+We are discussing the current development roadmap every now and then in [our public office hours meetings](https://github.com/koor-tech/koor#office-hours).
