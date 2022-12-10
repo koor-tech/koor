@@ -2,6 +2,7 @@
 title: Common Issues
 ---
 
+To help troubleshoot your Koor Storage Distribution clusters, here are some tips on what information will help solve the issues you might be seeing.
 If after trying the suggestions found on this page and the problem is not resolved, the Koor Storage Distribution team is very happy to help you troubleshoot the issues through [GitHub Discussions](https://github.com/koor-tech/koor/discussions).
 
 Be sure to checkout the [Ceph Common Issues](ceph-common-issues.md) and **that [all prerequisites](../Getting-Started/Prerequisites/prerequisites.md) for the storage backend of your choice** are met.
