@@ -4,7 +4,7 @@ title: Common Issues
 
 If after trying the suggestions found on this page and the problem is not resolved, the Koor Storage Distribution team is very happy to help you troubleshoot the issues through [GitHub Discussions](https://github.com/koor-tech/koor/discussions).
 
-Be sure to checkout the [Ceph Common Issues](ceph-common-issues.md) and **that [all prerequisites](../Getting-Started/Prerequisites/prerequisites.md) for the storage backend of your choice** are met!
+Be sure to checkout the [Ceph Common Issues](ceph-common-issues.md) and **that [all prerequisites](../Getting-Started/Prerequisites/prerequisites.md) for the storage backend of your choice** are met.
 
 ***
 
@@ -30,7 +30,7 @@ This behavior is controlled by the `ROOK_ENABLE_DISCOVERY_DAEMON` located in the
     * Can you talk to Cluster Service IPs from every node?
     * Can you talk to Pod IPs from every node? Even to Pods not on the same node you are testing from?
     * Check the docs of your CNI, most have a troubleshooting section, e.g., Cilium had some issues from systemd version 245 onwards with `rp_filter`, see here: [rp_filter (default) strict mode breaks certain load balancing cases in kube-proxy-free mode · Issue #13130 · cilium/cilium](https://github.com/cilium/cilium/issues/13130)
-2. Does your environment fit all the prerequisites? Check top of page for the links to some of the prerequisites and / or consult the [Rook.io docs](https://rook.io/).
+2. Does your environment fit all the prerequisites? Check top of page for the links to some of the prerequisites and / or consult the [Koor docs](../Getting-Started/intro.md).
 3. Check the `rook-ceph-operator` Logs for any warnings, errors, etc.
 
 ## Disk(s) / Partition(s) not used for Ceph
@@ -44,20 +44,20 @@ This behavior is controlled by the `ROOK_ENABLE_DISCOVERY_DAEMON` located in the
         dd if=/dev/zero of="$DISK" bs=1M count=100 oflag=direct,dsync
         blkdiscard "$DISK"
         ```
-        Source: [https://rook.io/docs/rook/v1.8/ceph-teardown.html#delete-the-data-on-hosts](https://rook.io/docs/rook/v1.8/ceph-teardown.html#delete-the-data-on-hosts)
+        Source: [Koor Storage Cluster Cleanup - Delete the data on hosts](../Storage-Configuration/ceph-teardown.md#delete-the-data-on-hosts)
 * Was the disk previously used as a Ceph OSD?
-    * Make sure to follow the teardown steps, but make sure to only remove the LVM stuff from that one disk and not from all, see [https://rook.io/docs/rook/v1.8/ceph-teardown.html#delete-the-data-on-hosts](https://rook.io/docs/rook/v1.8/ceph-teardown.html#delete-the-data-on-hosts).
+    * Make sure to follow the teardown steps, but make sure to only remove the LVM stuff from that one disk and not from all, see [Koor Storage Cluster Cleanup - Delete the data on hosts](../Storage-Configuration/ceph-teardown.md#delete-the-data-on-hosts).
 
 ## A Pod can't mount its PersistentVolume after an "unclean" / "undrained" Node shutdown
 
 1. Check the events of the Pod using `kubectl describe pod POD_NAME`.
 2. Check the Node's `dmesg` logs.
 3. Check the kubelet logs for errors related to CSI connectivity and / or make sure the node can reach every other Kubernetes cluster node (at least the Rook Ceph cluster nodes (Ceph Mons, OSDs, MGRs, etc.)).
-4. Checkout the [CSI Common Issues - Rook Docs](https://rook.io/docs/rook/v1.8/ceph-csi-troubleshooting.html).
+4. Checkout the [CSI Common Issues - Koor Docs](ceph-csi-common-issues.md).
 
 ## Ceph CSI: Provisioning, Mounting, Deletion or something doesn't work
 
-Make sure you have checked out the [CSI Common Issues - Rook Docs](https://rook.io/docs/rook/v1.8/ceph-csi-troubleshooting.html).
+Make sure you have checked out the [CSI Common Issues - Koor Docs](ceph-csi-common-issues.md).
 
 If you have some weird kernel and / or kubelet configuration, make sure Ceph CSI's config options in the Rook Ceph Operator config is correctly setup (e.g., `LIB_MODULES_DIR_PATH`, `ROOK_CSI_KUBELET_DIR_PATH`, `AGENT_MOUNTS`).
 
@@ -69,7 +69,7 @@ If you have some weird kernel and / or kubelet configuration, make sure Ceph CSI
 * Check the `rook-ceph-mon-*` and `rook-ceph-mgr-*` logs for errors
 * Try deleting the toolbox Pod, "maybe it is just a fluke in your Kubernetes cluster network / CNI.
     * Also make sure you are using the latest Rook Ceph Toolbox YAML for the Rook Ceph version you are running on, see [Rook Ceph Toolbox Pod not Creating / Stuck section](#rook-ceph-toolbox-pod-not-creating--stuck).
-* In case all these seem to indicate a loss of quorum, e.g., the `rook-ceph-mon-*` talk about `probing` for other mons only, you might need to follow the disaster recovery guide for your Rook Ceph version here: [Rook v1.8 Docs - Ceph Disaster Recovery - Restoring Mon Quorum](https://rook.io/docs/rook/v1.8/ceph-disaster-recovery.html#restoring-mon-quorum).
+* In case all these seem to indicate a loss of quorum, e.g., the `rook-ceph-mon-*` talk about `probing` for other mons only, you might need to follow the disaster recovery guide for your Rook Ceph version here: [Rook Ceph Disaster Recovery - Restoring Mon Quorum](disaster-recovery.md#restoring-mon-quorum).
 
 ## A MON Pod is running on a Node which is down
 
@@ -79,7 +79,7 @@ If you have some weird kernel and / or kubelet configuration, make sure Ceph CSI
 
 ## Remove / Replace a failed disk
 
-Checkout the official Ceph OSD Management guide from Rook here: [Rook v1.8 Docs - Ceph OSD Management](https://rook.io/docs/rook/v1.8/ceph-osd-mgmt.html).
+Checkout the official Ceph OSD Management guide from Rook here: [Rook Ceph OSD Management Docs](../Storage-Configuration/Advanced/ceph-osd-mgmt.md).
 
 ## Rook Ceph Toolbox Pod not Creating / Stuck
 
@@ -182,7 +182,7 @@ kubectl apply -f https://raw.githubusercontent.com/rook/rook/master/cluster/exam
 
 This normally means that you don't have the [Prometheus Operator](https://github.com/prometheus-operator/prometheus-operator) installed in your Kubernetes cluster. It is required for `.spec.monitoring.enabled: true` in the CephCluster object to work (the operator to be able to create the `ServiceMonitor` object to enable monitoring).
 
-For the [Rook Ceph - Prometheus Monitoring Setup Steps](https://rook.io/docs/rook/v1.8/ceph-monitoring.html#prometheus-alerts) check the link.
+For the [Rook Ceph Prometheus Monitoring Setup Steps](../Storage-Configuration/Monitoring/ceph-monitoring.md#prometheus-alerts) check the link.
 
 ### Solution A: Disable Monitoring in CephCluster
 
@@ -198,11 +198,11 @@ Checkout the [Prometheus Operator - Getting Started Guide](https://github.com/pr
 
 You are only supposed to run `ceph`, `rbd`, `radosgw-admin`, etc., commands in the **Rook Ceph Toolbox / Tools Pod**.
 
-Regarding the Rook Ceph Toolbox Pod checkout the Rook documentation here: [Rook Ceph Docs - Ceph Toolbox](https://rook.io/docs/rook/v1.8/ceph-toolbox.html).
+Regarding the Rook Ceph Toolbox Pod checkout the Rook documentation here: [Ceph Toolbox](ceph-toolbox.md).
 
 ### Quick Command to Rook Ceph Toolbox Pod
 
-This requires you to have the Rook Ceph Toolbox deployed, see [Rook Ceph Docs - Ceph Toolbox](https://rook.io/docs/rook/v1.8/ceph-toolbox.html) for more information.
+This requires you to have the Rook Ceph Toolbox deployed, see [Ceph Toolbox](ceph-toolbox.md) for more information.
 
 ```console
 kubectl -n rook-ceph exec -it $(kubectl -n rook-ceph get pod -l "app=rook-ceph-tools" -o jsonpath='{.items[0].metadata.name}') -- bash
@@ -246,7 +246,7 @@ spec:
 
 Depending your hosts, you might not need to even have the `ceph` packages installed. If you are using Rook Ceph, you normally don't need any ceph related packages on the hosts.
 
-Should this have not fixed your issue, you might be running into some other permission issue. If your hosts are using a Linux distribution that uses SELinux, you might need to follow these steps to re-configure the Rook Ceph operator: [Rook Ceph Docs - OpenShift Special Configuration Guide](https://rook.io/docs/rook/v1.8/ceph-openshift.html#rook-settings).
+Should this have not fixed your issue, you might be running into some other permission issue. If your hosts are using a Linux distribution that uses SELinux, you might need to follow these steps to re-configure the Rook Ceph operator: [OpenShift Special Configuration Guide](../Getting-Started/ceph-openshift.md#rook-settings).
 
 ***
 

@@ -682,7 +682,7 @@ You can try to increase the `mds cache memory limit` setting[^1].
     For Rook Ceph users, you set/increase the memory requests on the CephFilesystem object for the MDS daemons[^2].
 
 [^1]: Report / Source for information regarding this issue has been taken from http://lists.ceph.com/pipermail/ceph-users-ceph.com/2019-December/037633.html
-[^2]: [Rook Ceph Docs v1.7 - Ceph Filesystem CRD - MDS Resources Configuration Settings](https://rook.io/docs/rook/v1.7/ceph-filesystem-crd.html#mds-resources-configuration-settings)
+[^2]: [Ceph Filesystem CRD - MDS Resources Configuration Settings](../CRDs/Shared-Filesystem/ceph-filesystem-crd.md#mds-resources-configuration-settings)
 
 ## Find Device OSD is using
 
