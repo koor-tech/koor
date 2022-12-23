@@ -49,6 +49,9 @@ func (c *Cluster) makeDeployment(mgrConfig *mgrConfig) (*apps.Deployment, error)
 		volumes = append(volumes, adminKeyringVol)
 	}
 
+	// TODO Add volumes for SPCert and SPPrivateKey
+	// Get inspired by pkg/operator/ceph/object/spec.go:654
+
 	podSpec := v1.PodTemplateSpec{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   mgrConfig.ResourceName,
