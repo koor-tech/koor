@@ -296,6 +296,59 @@ type DashboardSpec struct {
 	// SSL determines whether SSL should be used
 	// +optional
 	SSL bool `json:"ssl,omitempty"`
+	// SSO determines whether to enable SSO for dashboard
+	// +optional
+	SSO *SSOSpec `json:"sso,omitempty"`
+}
+
+type SSOSpec struct {
+	// Enabled determines whether to enable SSO
+	// +optional
+	Enabled bool `json:"enabled,omitempty"`
+	// If users that login through SSO should be auto created
+	// +optional
+	BaseURL string `json:"baseUrl,omitempty"`
+	// URL to IDP Metadata
+	// +optional
+	IDPMetadataUrl string `json:"idpMetadataUrl,omitempty"`
+	// List of users to be created with a respective role from the admin side
+	// +optional
+	Users []UserRef `json:"users,omitempty"`
+	// IDP Attributes that should be used to get the username from the authentication response. Defaults to uid.
+	// +optional
+	IDPAttributes *IDPAttributes `json:"idpAttributes,omitempty"`
+	// To be used when more than one entity id exists on the IdP metadata
+	// +optional
+	EntityID string `json:"entityId,omitempty"`
+	// Certificate that should be used by Ceph Dashboard for signing and encryption
+	// +optional
+	SPCert SecretKeyRef `json:"spCert,omitempty"`
+	// Private key that should be used by Ceph Dashboard for signing and encryption
+	// +optional
+	SPPrivateKey SecretKeyRef `json:"spPrivateKey,omitempty"`
+}
+
+type UserRef struct {
+	// Name of the user created
+	Name []string `json:"username,omitempty"`
+	// Respective role of the user which is needed for the same
+	Role []string `json:"role,omitempty"`
+}
+
+// SecretKeyRef reference a key from a Secret
+type SecretKeyRef struct {
+	// Secret key name, existing key in the Secret
+	Key string `json:"key,omitempty"`
+	// Secret name, must be located in the same namespace as the Rook Ceph cluster
+	SecretName string `json:"secretName,omitempty"`
+}
+
+// Attributes to take into account for SSO and user creation
+type IDPAttributes struct {
+	// It should be used to get the username from the authentication response. Defaults to uid.
+	Username string `json:"username,omitempty"`
+	// To be defined to accept roles as an input for SSO setup in dashboard
+	Roles string `json:"roles,omitempty"`
 }
 
 // MonitoringSpec represents the settings for Prometheus based Ceph monitoring

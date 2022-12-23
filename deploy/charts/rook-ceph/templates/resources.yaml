@@ -972,6 +972,68 @@ spec:
                     ssl:
                       description: SSL determines whether SSL should be used
                       type: boolean
+                    sso:
+                      description: SSO determines whether to enable SSO for dashboard
+                      properties:
+                        baseUrl:
+                          description: If users that login through SSO should be auto created
+                          type: string
+                        enabled:
+                          description: Enabled determines whether to enable SSO
+                          type: boolean
+                        entityId:
+                          description: To be used when more than one entity id exists on the IdP metadata
+                          type: string
+                        idpAttributes:
+                          description: IDP Attributes that should be used to get the username from the authentication response. Defaults to uid.
+                          properties:
+                            roles:
+                              description: To be defined to accept roles as an input for SSO setup in dashboard
+                              type: string
+                            username:
+                              description: It should be used to get the username from the authentication response. Defaults to uid.
+                              type: string
+                          type: object
+                        idpMetadataUrl:
+                          description: URL to IDP Metadata
+                          type: string
+                        spCert:
+                          description: Certificate that should be used by Ceph Dashboard for signing and encryption
+                          properties:
+                            key:
+                              description: Secret key name, existing key in the Secret
+                              type: string
+                            secretName:
+                              description: Secret name, must be located in the same namespace as the Rook Ceph cluster
+                              type: string
+                          type: object
+                        spPrivateKey:
+                          description: Private key that should be used by Ceph Dashboard for signing and encryption
+                          properties:
+                            key:
+                              description: Secret key name, existing key in the Secret
+                              type: string
+                            secretName:
+                              description: Secret name, must be located in the same namespace as the Rook Ceph cluster
+                              type: string
+                          type: object
+                        users:
+                          description: List of users to be created with a respective role from the admin side
+                          items:
+                            properties:
+                              role:
+                                description: Respective role of the user which is needed for the same
+                                items:
+                                  type: string
+                                type: array
+                              username:
+                                description: Name of the user created
+                                items:
+                                  type: string
+                                type: array
+                            type: object
+                          type: array
+                      type: object
                     urlPrefix:
                       description: URLPrefix is a prefix for all URLs to use the dashboard with a reverse proxy
                       type: string

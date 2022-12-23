@@ -102,6 +102,8 @@ func (c *Cluster) configureDashboardModules() error {
 			hasChanged = true
 		}
 	}
+	c.setupSSO()
+
 	if hasChanged {
 		logger.Info("dashboard config has changed. restarting the dashboard module")
 		return c.restartDashboard()
@@ -314,4 +316,62 @@ func (c *Cluster) restartDashboard() error {
 		return errors.Wrapf(err, "failed to enable mgr module %q.", dashboardModuleName)
 	}
 	return nil
+}
+
+func (c *Cluster) setupSSO() (bool, error) {
+	if !c.spec.Dashboard.SSO.Enabled {
+		// Make sure SSO is disabled
+		args := []string{"dashboard", "sso", "disable"}
+		for i := 0; i < 5; i++ {
+			_, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
+			if err == context.DeadlineExceeded {
+				logger.Warning("SSO disable timed out. trying again")
+			}
+		}
+		return false, nil
+	}
+	// TODO create and build sso setup args command
+	dashboardUrl := c.spec.Dashboard.SSO.BaseURL
+	idpMetadataUrl := c.spec.Dashboard.SSO.IDPMetadataUrl
+	args := []string{"dashboard", "sso", "setup", dashboardUrl, idpMetadataUrl}
+	idpUsernameAttribute := c.spec.Dashboard.SSO.IDPAttributes.Username
+	idpEntityId := c.spec.Dashboard.SSO.EntityID
+	// spCertificateKey := c.spec.Dashboard.SSO.SPCert.Key
+	// spCertificateSecretname := c.spec.Dashboard.SSO.SPCert.SecretName
+	// spPrivateKeyname := c.spec.Dashboard.SSO.SPPrivateKey.Key
+	// spPrivateKeysecret := c.spec.Dashboard.SSO.SPPrivateKey.SecretName
+
+	// users_len := len(c.spec.Dashboard.SSO.Users)
+	// Objective: To Get the list of Users and their respective roles from the struct
+	// And create them with their roles
+	// for i := 0; i < users_len; i++ {
+	// 	userlist := c.spec.Dashboard.SSO.Users
+
+	// }
+
+	if idpUsernameAttribute != "" || idpEntityId != "" {
+		args = []string{"dashboard", "sso", "setup", dashboardUrl, idpMetadataUrl, idpUsernameAttribute, idpEntityId}
+	}
+
+	// retry a few times in the case that the mgr module is not ready to accept commands
+	for i := 0; i < 5; i++ {
+		_, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
+		if err == context.DeadlineExceeded {
+			logger.Warning("sso setup timed out. trying again")
+			continue
+		}
+		if err != nil {
+			exitCode, parsed := c.exitCode(err)
+			if parsed {
+				if exitCode == invalidArgErrorCode {
+					logger.Info("dashboard module is not ready yet. trying again")
+					time.Sleep(dashboardInitWaitTime)
+					continue
+				}
+			}
+			return false, errors.Wrap(err, "failed to setup sso on mgr dashboard")
+		}
+		break
+	}
+	return false, nil
 }
