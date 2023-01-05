@@ -21,7 +21,20 @@ theme:
   favicon: https://koor.tech/images/favicon.svg
   logo: https://koor.tech/images/logo.svg
   palette:
-    scheme: "default"
+    - media: "(prefers-color-scheme: light)"
+      scheme: "default"
+      primary: "koor"
+      accent: "deep orange"
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: "slate"
+      primary: "koor-dark"
+      accent: "deep orange"
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
   icon:
     repo: fontawesome/brands/github
   features:
