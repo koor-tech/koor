@@ -33,10 +33,10 @@ import (
 
 	"github.com/coreos/pkg/capnslog"
 	"github.com/go-ini/ini"
-	"github.com/pkg/errors"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephutil "github.com/koor-tech/koor/pkg/daemon/ceph/util"
 	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
+	"github.com/pkg/errors"
 )
 
 var logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "cephclient")

@@ -705,6 +705,7 @@ func (p *Provisioner) setAdminOpsAPIClient() error {
 
 	return nil
 }
+<<<<<<< HEAD
 func (p Provisioner) updateAdditionalSettings(ob *bktv1alpha1.ObjectBucket) error {
 	var maxObjectsInt64 int64
 	var maxSizeInt64 int64
@@ -771,3 +772,5 @@ func (p Provisioner) Update(ob *bktv1alpha1.ObjectBucket) error {
 
 	return p.updateAdditionalSettings(ob)
 }
+=======
+>>>>>>> d00aaacdd (core: run gofmt to reorder rook to koor changes)

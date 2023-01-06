@@ -21,10 +21,10 @@ import (
 	"fmt"
 	"path"
 
-	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mgr"
 	opconfig "github.com/koor-tech/koor/pkg/operator/ceph/config"
+	"github.com/pkg/errors"
 )
 
 const (

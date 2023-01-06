@@ -28,7 +28,7 @@ import (
 	"github.com/koor-tech/koor/pkg/operator/ceph/config"
 	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
-	"github.com/rook/rook/pkg/operator/k8sutil/cmdreporter"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil/cmdreporter"
 	"k8s.io/client-go/kubernetes"
 )
 

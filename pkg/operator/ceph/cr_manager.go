@@ -19,7 +19,6 @@ package operator
 import (
 	"context"
 
-	"github.com/pkg/errors"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/operator/ceph/client"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster"
@@ -45,11 +44,12 @@ import (
 	"github.com/koor-tech/koor/pkg/operator/ceph/object/zonegroup"
 	"github.com/koor-tech/koor/pkg/operator/ceph/pool"
 	"github.com/koor-tech/koor/pkg/operator/ceph/pool/radosnamespace"
+	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	mapiv1 "github.com/openshift/cluster-api/pkg/apis/machine/v1beta1"
 	healthchecking "github.com/openshift/machine-api-operator/pkg/apis/healthchecking/v1alpha1"
-	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/manager"

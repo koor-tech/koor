@@ -24,8 +24,8 @@ import (
 	"time"
 
 	"github.com/coreos/pkg/capnslog"
-	"github.com/pkg/errors"
 	"github.com/koor-tech/koor/pkg/daemon/util"
+	"github.com/pkg/errors"
 
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	batch "k8s.io/api/batch/v1"

@@ -20,12 +20,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/pkg/errors"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
 	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
 	"github.com/koor-tech/koor/pkg/util/sys"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 
