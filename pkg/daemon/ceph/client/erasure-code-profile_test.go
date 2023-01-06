@@ -22,11 +22,6 @@ import (
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
 	"github.com/pkg/errors"
-<<<<<<< HEAD
-=======
-	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
-	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
->>>>>>> wip-temp-rook-merge
 	"github.com/stretchr/testify/assert"
 
 	"github.com/koor-tech/koor/pkg/clusterd"

@@ -20,7 +20,6 @@ package cluster
 import (
 	"context"
 
-	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
@@ -31,6 +30,7 @@ import (
 	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	"github.com/koor-tech/koor/pkg/operator/ceph/csi"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

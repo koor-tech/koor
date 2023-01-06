@@ -22,8 +22,8 @@ import (
 	"syscall"
 
 	"github.com/ceph/go-ceph/rgw/admin"
-	"github.com/pkg/errors"
 	"github.com/koor-tech/koor/pkg/util/exec"
+	"github.com/pkg/errors"
 )
 
 const (

@@ -19,9 +19,9 @@ package client
 import (
 	"testing"
 
-	"github.com/pkg/errors"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 

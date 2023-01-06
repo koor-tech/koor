@@ -17,9 +17,9 @@ limitations under the License.
 package machinelabel
 
 import (
+	"github.com/koor-tech/koor/pkg/operator/ceph/disruption/controllerconfig"
 	mapiv1 "github.com/openshift/cluster-api/pkg/apis/machine/v1beta1"
 	"github.com/pkg/errors"
-	"github.com/koor-tech/koor/pkg/operator/ceph/disruption/controllerconfig"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"

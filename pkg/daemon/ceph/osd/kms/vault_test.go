@@ -23,9 +23,9 @@ import (
 	"testing"
 
 	"github.com/coreos/pkg/capnslog"
-	"github.com/pkg/errors"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/operator/test"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

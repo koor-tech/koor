@@ -27,11 +27,11 @@ import (
 
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/google/go-cmp/cmp"
-	bktv1alpha1 "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1"
-	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/operator/ceph/config"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	bktv1alpha1 "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1"
+	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"

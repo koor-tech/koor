@@ -18,10 +18,10 @@ limitations under the License.
 package pool
 
 import (
-	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/pkg/errors"
 )
 
 // validatePool Validate the pool arguments

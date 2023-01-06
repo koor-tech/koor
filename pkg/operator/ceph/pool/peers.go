@@ -17,10 +17,10 @@ limitations under the License.
 package pool
 
 import (
-	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
+	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"

@@ -17,8 +17,8 @@ limitations under the License.
 package mon
 
 import (
-	"github.com/pkg/errors"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/pkg/errors"
 	policyv1 "k8s.io/api/policy/v1"
 	policyv1beta1 "k8s.io/api/policy/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

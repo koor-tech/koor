@@ -23,9 +23,9 @@ import (
 	"math"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/util/exec"
+	"github.com/pkg/errors"
 )
 
 /*

@@ -23,9 +23,9 @@ import (
 	"path"
 
 	cs "github.com/jetstack/cert-manager/pkg/client/clientset/versioned/typed/certmanager/v1"
-	"github.com/pkg/errors"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

@@ -23,10 +23,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

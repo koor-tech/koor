@@ -17,8 +17,8 @@ limitations under the License.
 package mon
 
 import (
-	"github.com/pkg/errors"
 	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
+	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 )
 

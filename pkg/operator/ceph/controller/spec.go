@@ -26,7 +26,6 @@ import (
 
 	"github.com/coreos/pkg/capnslog"
 	"github.com/google/go-cmp/cmp"
-	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
@@ -34,6 +33,7 @@ import (
 	"github.com/koor-tech/koor/pkg/operator/ceph/config/keyring"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/koor-tech/koor/pkg/util/display"
+	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -702,8 +702,6 @@ func LogCollectorContainer(daemonID, ns string, c cephv1.ClusterSpec) *v1.Contai
 		periodicity = c.LogCollector.Periodicity
 	} else {
 		periodicity = "daily"
-	} else if c.LogCollector.Periodicity != "" {
-		periodicity = c.LogCollector.Periodicity
 	}
 
 	logger.Debugf("setting periodicity to %q. Supported periodicity are hourly, daily, weekly and monthly", periodicity)

@@ -26,11 +26,11 @@ import (
 	"time"
 
 	"github.com/coreos/pkg/capnslog"
-	"github.com/pkg/errors"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster"
 	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )

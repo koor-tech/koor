@@ -21,11 +21,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	rookclient "github.com/koor-tech/koor/pkg/client/clientset/versioned/fake"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

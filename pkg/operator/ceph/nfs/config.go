@@ -22,7 +22,6 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
@@ -30,6 +29,7 @@ import (
 	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/koor-tech/koor/pkg/util/exec"
+	"github.com/pkg/errors"
 )
 
 const kerberosRadosObjectName = "kerberos"

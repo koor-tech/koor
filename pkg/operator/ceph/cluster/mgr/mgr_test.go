@@ -23,8 +23,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
-	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/client/clientset/versioned/scheme"
 	"github.com/koor-tech/koor/pkg/clusterd"
@@ -34,6 +32,8 @@ import (
 	testopk8s "github.com/koor-tech/koor/pkg/operator/k8sutil/test"
 	testop "github.com/koor-tech/koor/pkg/operator/test"
 	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
+	"github.com/pkg/errors"
+	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	apps "k8s.io/api/apps/v1"

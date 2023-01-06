@@ -22,8 +22,8 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/pkg/errors"
 	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
+	"github.com/pkg/errors"
 )
 
 // StartHostPathCleanup is the main entrypoint function to clean up dataDirHostPath and monitor store

@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
@@ -31,6 +30,7 @@ import (
 	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/koor-tech/koor/pkg/operator/test"
 	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"

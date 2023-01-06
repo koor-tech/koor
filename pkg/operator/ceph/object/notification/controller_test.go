@@ -25,10 +25,10 @@ import (
 	"time"
 
 	"github.com/coreos/pkg/capnslog"
-	bktv1alpha1 "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	rookclient "github.com/koor-tech/koor/pkg/client/clientset/versioned/fake"
 	"github.com/koor-tech/koor/pkg/operator/test"
+	bktv1alpha1 "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1"
 
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"

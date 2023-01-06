@@ -20,11 +20,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mgr"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mon"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/rbd"
+	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/batch/v1"
 	"k8s.io/api/batch/v1beta1"
