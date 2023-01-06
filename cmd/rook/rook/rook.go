@@ -25,7 +25,6 @@ import (
 
 	"github.com/coreos/pkg/capnslog"
 	netclient "github.com/k8snetworkplumbingwg/network-attachment-definition-client/pkg/client/clientset/versioned/typed/k8s.cni.cncf.io/v1"
-	"github.com/pkg/errors"
 	rookclient "github.com/koor-tech/koor/pkg/client/clientset/versioned"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
@@ -33,6 +32,7 @@ import (
 	"github.com/koor-tech/koor/pkg/util/exec"
 	"github.com/koor-tech/koor/pkg/util/flags"
 	"github.com/koor-tech/koor/pkg/version"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	v1 "k8s.io/api/core/v1"

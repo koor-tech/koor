@@ -24,12 +24,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	v1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/osd/kms"
 	oposd "github.com/koor-tech/koor/pkg/operator/ceph/cluster/osd"
+	"github.com/pkg/errors"
 )
 
 const (

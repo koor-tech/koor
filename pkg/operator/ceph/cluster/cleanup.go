@@ -23,7 +23,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mgr"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mon"
@@ -34,6 +33,7 @@ import (
 	"github.com/koor-tech/koor/pkg/operator/ceph/file/mirror"
 	"github.com/koor-tech/koor/pkg/operator/ceph/object"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/pkg/errors"
 	batch "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

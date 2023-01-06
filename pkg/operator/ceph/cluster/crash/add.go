@@ -21,9 +21,9 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/pkg/errors"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/pkg/errors"
 
 	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	appsv1 "k8s.io/api/apps/v1"

@@ -22,7 +22,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/client/clientset/versioned/scheme"
 	"github.com/koor-tech/koor/pkg/clusterd"
@@ -30,6 +29,7 @@ import (
 	"github.com/koor-tech/koor/pkg/operator/ceph/disruption/controllerconfig"
 	"github.com/koor-tech/koor/pkg/operator/test"
 	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"

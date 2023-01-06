@@ -21,11 +21,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/pkg/errors"
 	"github.com/koor-tech/koor/cmd/rook/rook"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	"github.com/koor-tech/koor/pkg/util/exec"
+	"github.com/pkg/errors"
 	"gopkg.in/ini.v1"
 )
 

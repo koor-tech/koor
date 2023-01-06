@@ -23,8 +23,8 @@ import (
 	"strings"
 
 	"github.com/hashicorp/vault/api"
-	"github.com/libopenstorage/secrets/vault"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/libopenstorage/secrets/vault"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
 )
