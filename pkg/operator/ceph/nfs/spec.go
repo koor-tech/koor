@@ -17,6 +17,8 @@ limitations under the License.
 package nfs
 
 import (
+	"fmt"
+
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	"github.com/koor-tech/koor/pkg/operator/ceph/config/keyring"
@@ -128,6 +130,15 @@ func (r *ReconcileCephNFS) makeDeployment(nfs *cephv1.CephNFS, cfg daemonConfig)
 		},
 		HostNetwork:       r.cephClusterSpec.Network.IsHost(),
 		PriorityClassName: nfs.Spec.Server.PriorityClassName,
+		// for kerberos, nfs-ganesha uses the hostname via getaddrinfo() and uses that when
+		// connecting to the krb server. give all ganesha servers the same hostname so they can all
+		// use the same krb credentials to auth
+		Hostname: fmt.Sprintf("%s-%s", nfs.Namespace, nfs.Name),
+		DNSConfig: &v1.PodDNSConfig{
+			// for getaddrinfo() to get the hostname defined above, need to add localhost to
+			// searches in resolv.conf
+			Searches: []string{"localhost"},
+		},
 	}
 	// Replace default unreachable node toleration
 	k8sutil.AddUnreachableNodeToleration(&podSpec)
@@ -186,6 +197,7 @@ func (r *ReconcileCephNFS) connectionConfigInitContainer(nfs *cephv1.CephNFS, na
 		getNFSClientID(nfs, name),
 		keyring.VolumeMount().KeyringFilePath(),
 		r.cephClusterSpec.CephVersion.Image,
+		r.cephClusterSpec.CephVersion.ImagePullPolicy,
 		[]v1.VolumeMount{
 			cephConfigMount,
 			keyring.VolumeMount().Resource(instanceName(nfs, name)),
@@ -215,7 +227,8 @@ func (r *ReconcileCephNFS) daemonContainer(nfs *cephv1.CephNFS, cfg daemonConfig
 			"-p", ganeshaPid, // PID file location
 			"-N", logLevel, // Change Log level
 		},
-		Image: r.cephClusterSpec.CephVersion.Image,
+		Image:           r.cephClusterSpec.CephVersion.Image,
+		ImagePullPolicy: controller.GetContainerImagePullPolicy(r.cephClusterSpec.CephVersion.ImagePullPolicy),
 		VolumeMounts: []v1.VolumeMount{
 			cephConfigMount,
 			keyring.VolumeMount().Resource(instanceName(nfs, cfg.ID)),
@@ -242,7 +255,8 @@ func (r *ReconcileCephNFS) dbusContainer(nfs *cephv1.CephNFS) v1.Container {
 			"--nopidfile", // don't write a pid file
 			// some dbus-daemon versions have flag --nosyslog to send logs to sterr; not ceph upstream image
 		},
-		Image: r.cephClusterSpec.CephVersion.Image,
+		Image:           r.cephClusterSpec.CephVersion.Image,
+		ImagePullPolicy: controller.GetContainerImagePullPolicy(r.cephClusterSpec.CephVersion.ImagePullPolicy),
 		VolumeMounts: []v1.VolumeMount{
 			dbusMount,
 		},

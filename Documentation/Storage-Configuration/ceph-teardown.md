@@ -19,7 +19,7 @@ If you are tearing down a cluster frequently for development purposes, it is ins
 
 First you will need to clean up the resources created on top of the Rook cluster.
 
-These commands will clean up the resources from the [block](Block-Storage-RBD/block-storage.md#teardown) and [file](Shared-Filesystem-CephFS/filesystem-storage.md#teardown) walkthroughs (unmount volumes, delete volume claims, etc). If you did not complete those parts of the walkthrough, you can skip these instructions:
+These commands will clean up the resources from the [block](../Storage-Configuration/Block-Storage-RBD/block-storage.md#teardown) and [file](../Storage-Configuration/Shared-Filesystem-CephFS/filesystem-storage.md#teardown) walkthroughs (unmount volumes, delete volume claims, etc). If you did not complete those parts of the walkthrough, you can skip these instructions:
 
 ```console
 kubectl delete -f ../wordpress.yaml
@@ -74,6 +74,7 @@ This includes related resources such as the agent and discover daemonsets with t
 ```console
 kubectl delete -f operator.yaml
 kubectl delete -f common.yaml
+kubectl delete -f psp.yaml
 kubectl delete -f crds.yaml
 ```
 
@@ -163,7 +164,7 @@ If for some reason the operator is not able to remove the finalizer (i.e., the o
 ```console
 for CRD in $(kubectl get crd -n rook-ceph | awk '/ceph.rook.io/ {print $1}'); do
     kubectl get -n rook-ceph "$CRD" -o name | \
-    xargs -I {} kubectl patch -n rook-ceph {} --type merge -p '{"metadata":{"finalizers": [null]}}'
+    xargs -I {} kubectl patch -n rook-ceph {} --type merge -p '{"metadata":{"finalizers": []}}'
 done
 ```
 
@@ -195,6 +196,6 @@ The operator is responsible for removing the finalizers when a CephCluster is de
 If for some reason the operator is not able to remove the finalizers (i.e., the operator is not running anymore), you can remove the finalizers manually with the following commands:
 
 ```console
-kubectl -n rook-ceph patch configmap rook-ceph-mon-endpoints --type merge -p '{"metadata":{"finalizers": [null]}}'
-kubectl -n rook-ceph patch secrets rook-ceph-mon --type merge -p '{"metadata":{"finalizers": [null]}}'
+kubectl -n rook-ceph patch configmap rook-ceph-mon-endpoints --type merge -p '{"metadata":{"finalizers": []}}'
+kubectl -n rook-ceph patch secrets rook-ceph-mon --type merge -p '{"metadata":{"finalizers": []}}'
 ```

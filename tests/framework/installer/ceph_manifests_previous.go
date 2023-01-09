@@ -24,7 +24,7 @@ import (
 
 const (
 	// The version from which the upgrade test will start
-	Version1_0 = "v1.0.0"
+	Version1_9 = "v1.9.10"
 )
 
 // CephManifestsPreviousVersion wraps rook yaml definitions
@@ -111,6 +111,10 @@ func (m *CephManifestsPreviousVersion) GetFileStorageClass(fsName, storageClassN
 
 func (m *CephManifestsPreviousVersion) GetNFSStorageClass(fsName, nfsClusterName, server, storageClassName string) string {
 	return m.latest.GetNFSStorageClass(fsName, nfsClusterName, server, storageClassName)
+}
+
+func (m *CephManifestsPreviousVersion) GetNFSSnapshotClass(fsName, snapshotClassName string) string {
+	return m.latest.GetNFSSnapshotClass(fsName, snapshotClassName)
 }
 
 // GetFilesystem returns the manifest to create a Rook filesystem resource with the given config.

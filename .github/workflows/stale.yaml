@@ -10,12 +10,12 @@ permissions:
 jobs:
   stale:
     permissions:
-      issues: write  # for actions/stale to close stale issues
-      pull-requests: write  # for actions/stale to close stale PRs
-    runs-on: ubuntu-18.04
+      issues: write # for actions/stale to close stale issues
+      pull-requests: write # for actions/stale to close stale PRs
+    runs-on: ubuntu-20.04
     if: github.repository == 'koor-tech/koor'
     steps:
-      - uses: actions/stale@v4
+      - uses: actions/stale@v6
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           days-before-issue-stale: 60

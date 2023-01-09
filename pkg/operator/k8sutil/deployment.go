@@ -458,7 +458,7 @@ func WaitForDeploymentImage(ctx context.Context, clientset kubernetes.Interface,
 	return fmt.Errorf("failed to wait for image %s in label %s", desiredImage, label)
 }
 
-// AddRookVersionLabelToDeployment adds or updates a label reporting the Rook version which last
+// AddRookVersionLabelToDeployment adds or updates a label reporting the Koor Storage Distribution version which last
 // modified a deployment.
 func AddRookVersionLabelToDeployment(d *appsv1.Deployment) {
 	if d == nil {

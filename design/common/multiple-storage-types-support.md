@@ -313,9 +313,9 @@ Other backend operators could do a similar thing for their node/device level con
 
 As previously mentioned, the `rook.io` API group will also define some other useful `*Spec` types:
 
-* `PlacementSpec`: Defines placement requirements for components of the storage provider, such as node and pod affinity.  This is similar to the existing [Ceph focused `PlacementSpec`](https://github.com/koor-tech/koor/blob/release-1.0/pkg/apis/rook.io/v1alpha1/types.go#L141), but in a generic way that is reusable by all storage providers.  A `PlacementSpec` will essentially be a map of placement information structs that are indexed by component name.
+* `PlacementSpec`: Defines placement requirements for components of the storage provider, such as node and pod affinity.  This is similar to the existing [Ceph focused `PlacementSpec`](https://github.com/koor-tech/koor/blob/release-0.7/pkg/apis/rook.io/v1alpha1/types.go#L141), but in a generic way that is reusable by all storage providers.  A `PlacementSpec` will essentially be a map of placement information structs that are indexed by component name.
 * `NetworkSpec`: Defines the network configuration for the storage provider, such as `hostNetwork`.
-* `ResourceSpec`: Defines the resource usage of the provider, allowing limits on CPU and memory, similar to the existing [Ceph focused `ResourceSpec`](https://github.com/koor-tech/koor/blob/release-1.0/pkg/apis/rook.io/v1alpha1/types.go#L85).
+* `ResourceSpec`: Defines the resource usage of the provider, allowing limits on CPU and memory, similar to the existing [Ceph focused `ResourceSpec`](https://github.com/koor-tech/koor/blob/release-0.7/pkg/apis/rook.io/v1alpha1/types.go#L85).
 
 #### Additional Types
 
@@ -328,12 +328,12 @@ Some potential ideas for additional types to support in Rook:
 
 ### Source code and container images
 
-As more storage backends are integrated into Rook, it is preferable that all source code lives within the single `rook/rook` repository.
+As more storage backends are integrated into Rook, it is preferable that all source code lives within the single `koor-tech/koor` repository.
 This has a number of benefits such as easier sharing of build logic, developer iteration when updating shared code, and readability of the full source.
-Multiple container images can easily be built from the single source repository, similar to how `rook/rook` and `rook/toolbox` are currently built from the same repository.
+Multiple container images can easily be built from the single source repository, similar to how `koor-tech/koor` and `rook/toolbox` are currently built from the same repository.
 
-* `rook/rook` image:  defines all custom resource types, generated clients, general cluster discovery information (disks), and any storage operators that do not have special tool dependencies.
-* backend specific images: to avoid image bloat in the main `rook/rook` image, each backend will have their own image that contains all of their daemons and tools.  These images will be used for the various daemons/components of each backend, e.g. `rook/ceph`, `rook/minio`, etc.
+* `koor-tech/koor` image:  defines all custom resource types, generated clients, general cluster discovery information (disks), and any storage operators that do not have special tool dependencies.
+* backend specific images: to avoid image bloat in the main `koor-tech/koor` image, each backend will have their own image that contains all of their daemons and tools.  These images will be used for the various daemons/components of each backend, e.g. `koorinc/ceph`, `rook/minio`, etc.
 
 #### Layout
 

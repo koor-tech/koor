@@ -21,10 +21,10 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-sdk-go/service/s3"
+	bktv1alpha1 "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1"
 	rgw "github.com/koor-tech/koor/pkg/operator/ceph/object"
 	"github.com/koor-tech/koor/tests/framework/installer"
 	"github.com/koor-tech/koor/tests/framework/utils"
-	bktv1alpha1 "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1"
 )
 
 // BucketOperation is a wrapper for rook bucket operations
@@ -74,10 +74,9 @@ func (b *BucketOperation) UpdateObcNotificationRemove(obcName string, storageCla
 // CheckOBC, returns true if the obc, secret and configmap are all in the "check" state,
 // and returns false if any of these resources are not in the "check" state.
 // Check state values:
-//
-//	"created", all must exist,
-//	"bound", all must exist and OBC in Bound phase
-//	"deleted", all must be missing.
+//   "created", all must exist,
+//   "bound", all must exist and OBC in Bound phase
+//   "deleted", all must be missing.
 func (b *BucketOperation) CheckOBC(obcName, check string) bool {
 	resources := []string{"obc", "secret", "configmap"}
 	shouldBeBound := (check == "bound")

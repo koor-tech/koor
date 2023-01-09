@@ -22,9 +22,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
-
 	"sigs.k8s.io/yaml"
+	"strings"
 
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	v1 "k8s.io/api/core/v1"

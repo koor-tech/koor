@@ -18,9 +18,9 @@ include ../image.mk
 # Image Build Options
 
 ifeq ($(GOARCH),amd64)
-CEPH_VERSION ?= v17.2.3-20220804
+CEPH_VERSION ?= v17.2.5-20221017
 else
-CEPH_VERSION ?= v17.2.3-20220805
+CEPH_VERSION ?= v17.2.5-20221017
 endif
 REGISTRY_NAME = quay.io
 BASEIMAGE = $(REGISTRY_NAME)/ceph/ceph-$(GOARCH):$(CEPH_VERSION)
@@ -57,7 +57,7 @@ $(info )
 endif
 
 # s5cmd's version
-S5CMD_VERSION = 1.4.0
+S5CMD_VERSION = 2.0.0
 
 OPERATOR_SDK := $(TOOLS_HOST_DIR)/operator-sdk-$(OPERATOR_SDK_VERSION)
 YQv3 := $(TOOLS_HOST_DIR)/yq-$(YQv3_VERSION)

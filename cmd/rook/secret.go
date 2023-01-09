@@ -22,7 +22,7 @@ import (
 	"os"
 	"os/signal"
 
-	rook "github.com/koor-tech/koor/cmd/rook/rook"
+	"github.com/koor-tech/koor/cmd/rook/rook"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/osd/kms"
 	operator "github.com/koor-tech/koor/pkg/operator/ceph"

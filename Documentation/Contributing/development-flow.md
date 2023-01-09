@@ -95,20 +95,20 @@ koor
 │   ├── charts                    # Helm charts
 │   │   └── rook-ceph
 │   │   └── rook-ceph-cluster
-│   └── examples                  # Sample yaml files for Rook cluster
+│   └── examples                  # Sample yaml files for Koor Storage Distribution cluster
 │
 ├── cmd                           # Binaries with main entrypoint
 │   ├── rook                      # Main command entry points for operators and daemons
 │
-├── design                        # Design documents for the various components of the Rook project
-├── Documentation                 # Rook project Documentation
+├── design                        # Design documents for the various components of the Koor Storage Distribution project
+├── Documentation                 # Koor Storage Distribution project Documentation
 ├── images                        # Dockerfiles to build images for all supported storage providers
 │
 ├── pkg
 │   ├── apis
 │   │   ├── ceph.rook.io          # ceph specific specs for cluster, file, object
 │   │   │   ├── v1
-│   ├── client                    # auto-generated strongly typed client code to access Rook APIs
+│   ├── client                    # auto-generated strongly typed client code to access Koor Storage Distribution APIs
 │   ├── clusterd
 │   ├── daemon                    # daemons for each storage provider
 │   │   ├── ceph
@@ -122,9 +122,9 @@ koor
 │   ├── util
 │   └── version
 └── tests                         # integration tests
-    ├── framework                 # the Rook testing framework
-    │   ├── clients               # test clients used to consume Rook resources during integration tests
-    │   ├── installer             # installs Rook and its supported storage providers into integration tests environments
+    ├── framework                 # the Koor Storage Distribution testing framework
+    │   ├── clients               # test clients used to consume Koor Storage Distribution resources during integration tests
+    │   ├── installer             # installs Koor Storage Distribution and its supported storage providers into integration tests environments
     │   └── utils
     ├── integration               # all test cases that will be invoked during integration testing
     └── scripts                   # scripts for setting up integration and manual testing environments
@@ -150,7 +150,8 @@ Authoring a design document for big features has many advantages:
 * Gets agreement amongst the community before code is written that could be wasted effort in the wrong direction
 * Serves as an artifact of the architecture that is easier to read for visitors to the project than just the code by itself
 
-Note that writing code to prototype the feature while working on the design may be very useful to help flesh out the approach.
+!!! Note
+    Writing code to prototype the feature while working on the design may be very useful to help flesh out the approach.
 
 A design document should be written as a markdown file in the [design folder](https://github.com/koor-tech/koor/tree/master/design).
 You can follow the process outlined in the [design template](https://github.com/koor-tech/koor/tree/master/design/design_template.md).
@@ -198,7 +199,7 @@ Rebasing is a very powerful feature of Git. You need to understand how it works 
 ## Submitting a Pull Request
 
 Once you have implemented the feature or bug fix in your branch, you will open a Pull Request (PR)
-to the [upstream Rook repository](https://github.com/koor-tech/koor). Before opening the PR ensure you
+to the [upstream Koor Storage Distribution repository](https://github.com/koor-tech/koor). Before opening the PR ensure you
 have added unit tests and all unit tests are passing. Please clean your commit history and rebase on
 the latest upstream changes.
 
@@ -209,13 +210,13 @@ In order to open a pull request (PR) it is required to be up to date with the la
 ### Regression Testing
 
 All pull requests must pass the unit and integration tests before they can be merged. These tests
-automatically run against every pull request as a part of Rook's continuous integration (CI)
+automatically run against every pull request as a part of Koor Storage Distribution's continuous integration (CI)
 process. The results of these tests along with code reviews and other criteria determine whether
-your request will be accepted into the `rook/rook` repo.
+your request will be accepted into the `koor-tech/koor` repo.
 
 #### Unit Tests
 
-From the root of your local Rook repo execute the following to run all of the unit tests:
+From the root of your local Koor Storage Distribution repo execute the following to run all of the unit tests:
 
 ```console
 make test
@@ -231,7 +232,7 @@ go tool cover -html=coverage.out -o coverage.html
 #### Writing unit tests
 
 There is no one-size-fits-all approach to unit testing, but we attempt to provide good tips for
-writing unit tests for Rook below.
+writing unit tests for Koor Storage Distribution below.
 
 Unit tests should help people reading and reviewing the code understand the intended behavior of the
 code.
@@ -255,7 +256,7 @@ Common cases that may need tests:
 
 #### Running the Integration Tests
 
-Rook's upstream continuous integration (CI) tests will run integration tests against your changes
+Koor Storage Distribution's upstream continuous integration (CI) tests will run integration tests against your changes
 automatically.
 
 You do not need to run these tests locally, but you may if you like. For instructions on how to do
@@ -263,7 +264,7 @@ so, follow the [test instructions](https://github.com/koor-tech/koor/blob/master
 
 ### Commit structure
 
-Rook maintainers value clear, lengthy and explanatory commit messages. So by default each of your commits must:
+Koor Storage Distribution maintainers value clear, lengthy and explanatory commit messages. So by default each of your commits must:
 
 * be prefixed by the component it's affecting, if Ceph, then the title of the commit message should be `ceph: my commit title`. If not the commit-lint bot will complain.
 * contain a commit message which explains the original issue and how it was fixed if a bug.
@@ -312,7 +313,7 @@ Once your commit history is clean, ensure you have based on the [latest upstream
 
 ### Submitting
 
-Go to the [Rook github](https://www.github.com/koor-tech/koor) to open the PR. If you have pushed recently, you should see an obvious link to open the PR. If you have not pushed recently, go to the Pull Request tab and select your fork and branch for the PR.
+Go to the [Koor Storage Distribution github](https://www.github.com/koor-tech/koor) to open the PR. If you have pushed recently, you should see an obvious link to open the PR. If you have not pushed recently, go to the Pull Request tab and select your fork and branch for the PR.
 
 After the PR is open, you can make changes simply by pushing new commits. Your PR will track the changes in your fork and update automatically.
 

@@ -1,5 +1,5 @@
 ---
-title: Cluster CRD
+title: CephCluster CRD
 ---
 
 Rook allows creation and customization of storage clusters through the custom resource definitions (CRDs).
@@ -26,12 +26,14 @@ Settings can be specified at the global level to apply to the cluster as a whole
 * `external`:
   * `enable`: if `true`, the cluster will not be managed by Rook but via an external entity. This mode is intended to connect to an existing cluster. In this case, Rook will only consume the external cluster. However, Rook will be able to deploy various daemons in Kubernetes such as object gateways, mds and nfs if an image is provided and will refuse otherwise. If this setting is enabled **all** the other options will be ignored except `cephVersion.image` and `dataDirHostPath`. See [external cluster configuration](external-cluster.md). If `cephVersion.image` is left blank, Rook will refuse the creation of extra CRs like object, file and nfs.
 * `cephVersion`: The version information for launching the ceph daemons.
-  * `image`: The image used for running the ceph daemons. For example, `quay.io/ceph/ceph:v16.2.9` or `v17.2.3`. For more details read the [container images section](#ceph-container-images).
+  * `image`: The image used for running the ceph daemons. For example, `quay.io/ceph/ceph:v16.2.9` or `v17.2.5`. For more details read the [container images section](#ceph-container-images).
   For the latest ceph images, see the [Ceph DockerHub](https://hub.docker.com/r/ceph/ceph/tags/).
   To ensure a consistent version of the image is running across all nodes in the cluster, it is recommended to use a very specific image version.
   Tags also exist that would give the latest version, but they are only recommended for test environments. For example, the tag `v17` will be updated each time a new Quincy build is released.
   Using the `v17` tag is not recommended in production because it may lead to inconsistent versions of the image running across different nodes in the cluster.
   * `allowUnsupported`: If `true`, allow an unsupported major version of the Ceph release. Currently `pacific` and `quincy` are supported. Future versions such as `reef` (v18) would require this to be set to `true`. Should be set to `false` in production.
+  `imagePullPolicy`: The image pull policy for the ceph daemon pods. Possible values are `Always`, `IfNotPresent`, and `Never`.
+  The default is `IfNotPresent`.
 * `dataDirHostPath`: The path on the host ([hostPath](https://kubernetes.io/docs/concepts/storage/volumes/#hostpath)) where config and data should be stored for each of the services. If the directory does not exist, it will be created. Because this directory persists on the host, it will remain after pods are deleted. Following paths and any of their subpaths **must not be used**: `/etc/ceph`, `/rook` or `/var/log/ceph`.
   * **WARNING**: For test scenarios, if you delete a cluster and start a new cluster on the same hosts, the path used by `dataDirHostPath` must be deleted. Otherwise, stale keys and other config will remain from the previous cluster and the new mons will fail to start.
 If this value is empty, each pod will get an ephemeral directory to store their config files that is tied to the lifetime of the pod running on that node. More details can be found in the Kubernetes [empty dir docs](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir).
@@ -63,8 +65,8 @@ For more details on the mons and when to choose a number other than `3`, see the
   * `disable`: is set to `true`, the crash collector will not run on any node where a Ceph daemon runs
   * `daysToRetain`: specifies the number of days to keep crash entries in the Ceph cluster. By default the entries are kept indefinitely.
 * `logCollector`: The settings for log collector daemon.
-  * `enabled`: if set to `true`, the log collector will run as a side-car next to each Ceph daemon. The Ceph configuration option `log_to_file` will be turned on, meaning Ceph daemons will log on files in addition to still logging to container's stdout. These logs will be rotated. (default: false)
-  * `periodicity`: how often to rotate daemon's log. (default: 24h). Specified with a time suffix which may be 'h' for hours or 'd' for days. **Rotating too often will slightly impact the daemon's performance since the signal briefly interrupts the program.**
+  * `enabled`: if set to `true`, the log collector will run as a side-car next to each Ceph daemon. The Ceph configuration option `log_to_file` will be turned on, meaning Ceph daemons will log on files in addition to still logging to container's stdout. These logs will be rotated. In case a daemon terminates with a segfault, the coredump files will be commonly be generated in `/var/lib/systemd/coredump` directory on the host, depending on the underlying OS location. (default: `true`)
+  * `periodicity`: how often to rotate daemon's log. (default: 24h). Specified with a time suffix which may be `h` for hours or `d` for days. **Rotating too often will slightly impact the daemon's performance since the signal briefly interrupts the program.**
 * `annotations`: [annotations configuration settings](#annotations-and-labels)
 * `labels`: [labels configuration settings](#annotations-and-labels)
 * `placement`: [placement configuration settings](#placement-configuration-settings)
@@ -102,8 +104,8 @@ These are general purpose Ceph container with all necessary daemons and dependen
 | -------------------- | --------------------------------------------------------- |
 | vRELNUM              | Latest release in this series (e.g., *v17* = Quincy)      |
 | vRELNUM.Y            | Latest stable release in this stable series (e.g., v17.2) |
-| vRELNUM.Y.Z          | A specific release (e.g., v17.2.3)                        |
-| vRELNUM.Y.Z-YYYYMMDD | A specific build (e.g., v17.2.3-20220805)                 |
+| vRELNUM.Y.Z          | A specific release (e.g., v17.2.5)                        |
+| vRELNUM.Y.Z-YYYYMMDD | A specific build (e.g., v17.2.5-20221017)                 |
 
 A specific will contain a specific release of Ceph as well as security fixes from the Operating System.
 
@@ -184,6 +186,12 @@ Configure the network that will be enabled for the cluster and services.
 
 To use host networking, set `provider: host`.
 
+If the host networking setting is changed in a cluster where mons are already running, the existing mons will
+remain running with the same network settings with which they were created. To complete the conversion
+to or from host networking after you update this setting, you will need to
+[failover the mons](../../Storage-Configuration/Advanced/ceph-mon-health.md#failing-over-a-monitor)
+in order to have mons on the desired network configuration.
+
 #### Multus
 
 Rook supports addition of public and cluster network for ceph using Multus
@@ -231,7 +239,7 @@ Based on the configuration, the operator will do the following:
 \* Internal cluster traffic includes OSD heartbeats, data replication, and data recovery
 
 Only OSD pods will have both Public and Cluster networks attached. The rest of the Ceph component pods and CSI pods will only have the Public network attached.
-Koor Operator will not have any networks attached as it proxies the required commands via a sidecar container in the mgr pod.
+Koor operator will not have any networks attached as it proxies the required commands via a sidecar container in the mgr pod.
 
 In order to work, each selector value must match a `NetworkAttachmentDefinition` object name in Multus.
 
@@ -303,7 +311,7 @@ Nodes are removed from Ceph as OSD hosts only (1) if the node is deleted from Ku
 (2) if the node has its taints or affinities modified in such a way that the node is no longer
 usable by Rook. Any changes to taints or affinities, intentional or unintentional, may affect the
 data reliability of the Ceph cluster. In order to help protect against this somewhat, deletion of
-nodes by taint or affinity modifications must be "confirmed" by deleting the Rook Ceph operator pod
+nodes by taint or affinity modifications must be "confirmed" by deleting the Koor operator pod
 and allowing the operator deployment to restart the pod.
 
 For production clusters, we recommend that `useAllNodes` is set to `false` to prevent the Ceph
@@ -323,14 +331,14 @@ This feature is only available when `useAllNodes` has been set to `false`.
 
 Below are the settings for host-based cluster. This type of cluster can specify devices for OSDs, both at the cluster and individual node level, for selecting which storage resources will be included in the cluster.
 
-* `useAllDevices`: `true` or `false`, indicating whether all devices found on nodes in the cluster should be automatically consumed by OSDs. **Not recommended** unless you have a very controlled environment where you will not risk formatting of devices with existing data. When `true`, all devices and partitions will be used. Is overridden by `deviceFilter` if specified.
-  * `deviceFilter`: A regular expression for short kernel names of devices (e.g. `sda`) that allows selection of devices and partitions to be consumed by OSDs.  If individual devices have been specified for a node then this filter will be ignored.  This field uses [golang regular expression syntax](https://golang.org/pkg/regexp/syntax/). For example:
+* `useAllDevices`: `true` or `false`, indicating whether all devices found on nodes in the cluster should be automatically consumed by OSDs. **Not recommended** unless you have a very controlled environment where you will not risk formatting of devices with existing data. When `true`, all devices and partitions will be used. Is overridden by `deviceFilter` if specified. LVM logical volumes are not picked by `useAllDevices`.
+  * `deviceFilter`: A regular expression for short kernel names of devices (e.g. `sda`) that allows selection of devices and partitions to be consumed by OSDs.  LVM logical volumes are not picked by `deviceFilter`.If individual devices have been specified for a node then this filter will be ignored.  This field uses [golang regular expression syntax](https://golang.org/pkg/regexp/syntax/). For example:
   * `sdb`: Only selects the `sdb` device if found
   * `^sd.`: Selects all devices starting with `sd`
   * `^sd[a-d]`: Selects devices starting with `sda`, `sdb`, `sdc`, and `sdd` if found
   * `^s`: Selects all devices that start with `s`
   * `^[^r]`: Selects all devices that do *not* start with `r`
-* `devicePathFilter`: A regular expression for device paths (e.g. `/dev/disk/by-path/pci-0:1:2:3-scsi-1`) that allows selection of devices and partitions to be consumed by OSDs.  If individual devices or `deviceFilter` have been specified for a node then this filter will be ignored.  This field uses [golang regular expression syntax](https://golang.org/pkg/regexp/syntax/). For example:
+* `devicePathFilter`: A regular expression for device paths (e.g. `/dev/disk/by-path/pci-0:1:2:3-scsi-1`) that allows selection of devices and partitions to be consumed by OSDs.  LVM logical volumes are not picked by `devicePathFilter`.If individual devices or `deviceFilter` have been specified for a node then this filter will be ignored.  This field uses [golang regular expression syntax](https://golang.org/pkg/regexp/syntax/). For example:
   * `^/dev/sd.`: Selects all devices starting with `sd`
   * `^/dev/disk/by-path/pci-.*`: Selects all devices which are connected to PCI bus
 * `devices`: A list of individual device names belonging to this node to include in the storage cluster.
@@ -449,7 +457,7 @@ metadata:
   namespace: rook-ceph
 spec:
   cephVersion:
-    image: quay.io/ceph/ceph:v17.2.3
+    image: quay.io/ceph/ceph:v17.2.5
   dataDirHostPath: /var/lib/rook
   mon:
     count: 3
@@ -511,9 +519,15 @@ If a user configures a limit or request value that is too low, Rook will still r
 * `mon`: 1024MB
 * `mgr`: 512MB
 * `osd`: 2048MB
-* `prepareosd`: 50MB
 * `crashcollector`: 60MB
 * `mgr-sidecar`: 100MB limit, 40MB requests
+* `prepareosd`: no limits (see the note)
+
+!!! note
+    We recommend not setting memory limits on the OSD prepare job to prevent OSD provisioning failure due to memory constraints.
+    The OSD prepare job bursts memory usage during the OSD provisioning depending on the size of the device, typically
+    1-2Gi for large disks. The OSD prepare job only bursts a single time per OSD.
+    All future runs of the OSD prepare job will detect the OSD is already provisioned and skip the provisioning.
 
 !!! hint
     The resources for MDS daemons are not configured in the Cluster. Refer to the [Ceph Filesystem CRD](../Shared-Filesystem/ceph-filesystem-crd.md) instead.
@@ -544,7 +558,7 @@ metadata:
   namespace: rook-ceph
 spec:
   cephVersion:
-    image: quay.io/ceph/ceph:v17.2.3
+    image: quay.io/ceph/ceph:v17.2.5
   dataDirHostPath: /var/lib/rook
   mon:
     count: 3
@@ -578,7 +592,7 @@ The specific component keys will act as overrides to `all`.
 
 ### Health settings
 
-The Rook Ceph operator will monitor the state of the CephCluster on various components by default.
+The Koor operator will monitor the state of the CephCluster on various components by default.
 The following CRD settings are available:
 
 * `healthCheck`: main ceph cluster health monitoring section
@@ -673,7 +687,7 @@ kubectl -n rook-ceph get CephCluster -o yaml
       deviceClasses:
       - name: hdd
     version:
-      image: quay.io/ceph/ceph:v17.2.3
+      image: quay.io/ceph/ceph:v17.2.5
       version: 16.2.6-0
     conditions:
     - lastHeartbeatTime: "2021-03-02T21:22:11Z"
@@ -792,13 +806,13 @@ racks in the data center setup.
 ## Deleting a CephCluster
 
 During deletion of a CephCluster resource, Rook protects against accidental or premature destruction
-of user data by blocking deletion if there are any other Rook Ceph Custom Resources that reference
+of user data by blocking deletion if there are any other Koor Custom Resources that reference
 the CephCluster being deleted. Rook will warn about which other resources are blocking deletion in
 three ways until all blocking resources are deleted:
 
 1. An event will be registered on the CephCluster resource
 1. A status condition will be added to the CephCluster resource
-1. An error will be added to the Rook Ceph operator log
+1. An error will be added to the Koor operator log
 
 ## Cleanup policy
 

@@ -11,226 +11,17 @@ there is a manual procedure to get the quorum going again. The only requirement 
 is still healthy. The following steps will remove the unhealthy
 mons from quorum and allow you to form a quorum again with a single mon, then grow the quorum back to the original size.
 
-For example, if you have three mons and lose quorum, you will need to remove the two bad mons from quorum, notify the good mon
-that it is the only mon in quorum, and then restart the good mon.
+The [Rook Krew Plugin](https://github.com/rook/kubectl-rook-ceph/) has a command `restore-quorum` that will
+walk you through the mon quorum automated restoration process.
 
-### Stop the operator
-
-First, stop the operator so it will not try to failover the mons while we are modifying the monmap
+If the name of the healthy mon is `c`, you would run the command:
 
 ```console
-kubectl -n rook-ceph scale deployment rook-ceph-operator --replicas=0
+kubectl rook-ceph mons restore-quorum c
 ```
 
-### Inject a new monmap
-
-!!! warning
-    Injecting a monmap must be done very carefully. If run incorrectly, your cluster could be permanently destroyed.
-
-The Ceph monmap keeps track of the mon quorum. We will update the monmap to only contain the healthy mon.
-In this example, the healthy mon is `rook-ceph-mon-b`, while the unhealthy mons are `rook-ceph-mon-a` and `rook-ceph-mon-c`.
-
-Take a backup of the current `rook-ceph-mon-b` Deployment:
-
-```console
-kubectl -n rook-ceph get deployment rook-ceph-mon-b -o yaml > rook-ceph-mon-b-deployment.yaml
-```
-
-Open the file and copy the `command` and `args` from the `mon` container (see `containers` list). This is needed for the monmap changes.
-Cleanup the copied `command` and `args` fields to form a pastable command.
-Example:
-
-The following parts of the `mon` container:
-
-```yaml
-[...]
-  containers:
-  - args:
-    - --fsid=41a537f2-f282-428e-989f-a9e07be32e47
-    - --keyring=/etc/ceph/keyring-store/keyring
-    - --log-to-stderr=true
-    - --err-to-stderr=true
-    - --mon-cluster-log-to-stderr=true
-    - '--log-stderr-prefix=debug '
-    - --default-log-to-file=false
-    - --default-mon-cluster-log-to-file=false
-    - --mon-host=$(ROOK_CEPH_MON_HOST)
-    - --mon-initial-members=$(ROOK_CEPH_MON_INITIAL_MEMBERS)
-    - --id=b
-    - --setuser=ceph
-    - --setgroup=ceph
-    - --foreground
-    - --public-addr=10.100.13.242
-    - --setuser-match-path=/var/lib/ceph/mon/ceph-b/store.db
-    - --public-bind-addr=$(ROOK_POD_IP)
-    command:
-    - ceph-mon
-[...]
-```
-
-Should be made into a command like this: (**do not copy the example command!**)
-
-```console
-ceph-mon \
-    --fsid=41a537f2-f282-428e-989f-a9e07be32e47 \
-    --keyring=/etc/ceph/keyring-store/keyring \
-    --log-to-stderr=true \
-    --err-to-stderr=true \
-    --mon-cluster-log-to-stderr=true \
-    --log-stderr-prefix=debug \
-    --default-log-to-file=false \
-    --default-mon-cluster-log-to-file=false \
-    --mon-host=$ROOK_CEPH_MON_HOST \
-    --mon-initial-members=$ROOK_CEPH_MON_INITIAL_MEMBERS \
-    --id=b \
-    --setuser=ceph \
-    --setgroup=ceph \
-    --foreground \
-    --public-addr=10.100.13.242 \
-    --setuser-match-path=/var/lib/ceph/mon/ceph-b/store.db \
-    --public-bind-addr=$ROOK_POD_IP
-```
-
-(be sure to remove the single quotes around the `--log-stderr-prefix` flag and the parenthesis around the variables being passed ROOK_CEPH_MON_HOST, ROOK_CEPH_MON_INITIAL_MEMBERS and ROOK_POD_IP )
-
-Patch the `rook-ceph-mon-b` Deployment to stop this mon working without deleting the mon pod:
-
-```console
-kubectl -n rook-ceph patch deployment rook-ceph-mon-b  --type='json' -p '[{"op":"remove", "path":"/spec/template/spec/containers/0/livenessProbe"}]'
-
-kubectl -n rook-ceph patch deployment rook-ceph-mon-b -p '{"spec": {"template": {"spec": {"containers": [{"name": "mon", "command": ["sleep", "infinity"], "args": []}]}}}}'
-```
-
-Connect to the pod of a healthy mon and run the following commands.
-
-```console
-$ kubectl -n rook-ceph exec -it <mon-pod> bash
-# set a few simple variables
-cluster_namespace=rook-ceph
-good_mon_id=b
-monmap_path=/tmp/monmap
-
-# extract the monmap to a file, by pasting the ceph mon command
-# from the good mon deployment and adding the
-# `--extract-monmap=${monmap_path}` flag
-ceph-mon \
-    --fsid=41a537f2-f282-428e-989f-a9e07be32e47 \
-    --keyring=/etc/ceph/keyring-store/keyring \
-    --log-to-stderr=true \
-    --err-to-stderr=true \
-    --mon-cluster-log-to-stderr=true \
-    --log-stderr-prefix=debug \
-    --default-log-to-file=false \
-    --default-mon-cluster-log-to-file=false \
-    --mon-host=$ROOK_CEPH_MON_HOST \
-    --mon-initial-members=$ROOK_CEPH_MON_INITIAL_MEMBERS \
-    --id=b \
-    --setuser=ceph \
-    --setgroup=ceph \
-    --foreground \
-    --public-addr=10.100.13.242 \
-    --setuser-match-path=/var/lib/ceph/mon/ceph-b/store.db \
-    --public-bind-addr=$ROOK_POD_IP \
-    --extract-monmap=${monmap_path}
-
-# review the contents of the monmap
-monmaptool --print /tmp/monmap
-
-# remove the bad mon(s) from the monmap
-monmaptool ${monmap_path} --rm <bad_mon>
-
-# in this example we remove mon0 and mon2:
-monmaptool ${monmap_path} --rm a
-monmaptool ${monmap_path} --rm c
-
-# inject the modified monmap into the good mon, by pasting
-# the ceph mon command and adding the
-# `--inject-monmap=${monmap_path}` flag, like this
-ceph-mon \
-    --fsid=41a537f2-f282-428e-989f-a9e07be32e47 \
-    --keyring=/etc/ceph/keyring-store/keyring \
-    --log-to-stderr=true \
-    --err-to-stderr=true \
-    --mon-cluster-log-to-stderr=true \
-    --log-stderr-prefix=debug \
-    --default-log-to-file=false \
-    --default-mon-cluster-log-to-file=false \
-    --mon-host=$ROOK_CEPH_MON_HOST \
-    --mon-initial-members=$ROOK_CEPH_MON_INITIAL_MEMBERS \
-    --id=b \
-    --setuser=ceph \
-    --setgroup=ceph \
-    --foreground \
-    --public-addr=10.100.13.242 \
-    --setuser-match-path=/var/lib/ceph/mon/ceph-b/store.db \
-    --public-bind-addr=$ROOK_POD_IP \
-    --inject-monmap=${monmap_path}
-```
-
-Exit the shell to continue.
-
-### Edit the Rook configmaps
-
-Edit the configmap that the operator uses to track the mons.
-
-```console
-kubectl -n rook-ceph edit configmap rook-ceph-mon-endpoints
-```
-
-In the `data` element you will see three mons such as the following (or more depending on your `moncount`):
-
-```yaml
-data: a=10.100.35.200:6789;b=10.100.13.242:6789;c=10.100.35.12:6789
-```
-
-Delete the bad mons from the list, for example to end up with a single good mon:
-
-```yaml
-data: b=10.100.13.242:6789
-```
-
-Save the file and exit.
-
-Now we need to adapt a Secret which is used for the mons and other components.
-The following `kubectl patch` command is an easy way to do that. In the end it patches the `rook-ceph-config` secret and updates the two key/value pairs `mon_host` and `mon_initial_members`.
-
-```console
-mon_host=$(kubectl -n rook-ceph get svc rook-ceph-mon-b -o jsonpath='{.spec.clusterIP}')
-kubectl -n rook-ceph patch secret rook-ceph-config -p '{"stringData": {"mon_host": "[v2:'"${mon_host}"':3300,v1:'"${mon_host}"':6789]", "mon_initial_members": "'"${good_mon_id}"'"}}'
-```
-
-!!! note
-    If you are using `hostNetwork: true`, you need to replace the `mon_host` var with the node IP the mon is pinned to (`nodeSelector`). This is because there is no `rook-ceph-mon-*` service created in that "mode".
-
-### Restart the mon
-
-You will need to "restart" the good mon pod with the original `ceph-mon` command to pick up the changes. For this run `kubectl replace` on the backup of the mon deployment yaml:
-
-```console
-kubectl replace --force -f rook-ceph-mon-b-deployment.yaml
-```
-
-!!! note
-    Option `--force` will delete the deployment and create a new one
-
-Start the rook [toolbox](ceph-toolbox.md) and verify the status of the cluster.
-
-```console
-ceph -s
-```
-
-The status should show one mon in quorum. If the status looks good, your cluster should be healthy again.
-
-### Restart the operator
-
-Start the rook operator again to resume monitoring the health of the cluster.
-
-```console
-# create the operator. it is safe to ignore the errors that a number of resources already exist.
-kubectl -n rook-ceph scale deployment rook-ceph-operator --replicas=1
-```
-
-The operator will automatically add more mons to increase the quorum size again, depending on the `mon.count`.
+See the [restore-quorum documentation](https://github.com/rook/kubectl-rook-ceph/blob/master/docs/mons.md#restore-quorum)
+for more details.
 
 ## Restoring CRDs After Deletion
 
@@ -245,80 +36,119 @@ continue to ensure cluster health. Upgrades will be blocked, further updates to 
 Since Kubernetes does not allow undeleting resources, the following procedure will allow you to restore
 the CRs to their prior state without even necessarily suffering cluster downtime.
 
-1. Scale down the operator
+!!! note
+    In the following commands, the affected `CephCluster` resource is called `rook-ceph`. If yours is named differently, the
+    commands will need to be adjusted.
 
-```console
-kubectl -n rook-ceph scale --replicas=0 deploy/rook-ceph-operator
-```
+1.  Scale down the operator.
+
+    ```console
+    kubectl -n rook-ceph scale --replicas=0 deploy/rook-ceph-operator
+    ```
+
+2.  Backup all Rook CRs and critical metadata
+
+    ```console
+    # Store the `CephCluster` CR settings. Also, save other Rook CRs that are in terminating state.
+    kubectl -n rook-ceph get cephcluster rook-ceph -o yaml > cluster.yaml
+
+    # Backup critical secrets and configmaps in case something goes wrong later in the procedure
+    kubectl -n rook-ceph get secret -o yaml > secrets.yaml
+    kubectl -n rook-ceph get configmap -o yaml > configmaps.yaml
+    ```
+
+3.  (Optional, if webhook is enabled)
+    Delete the `ValidatingWebhookConfiguration`. This is the resource which connects Rook custom resources
+    to the operator pod's validating webhook. Because the operator is unavailable, we must temporarily disable
+    the valdiating webhook in order to make changes.
+
+        ```console
+        kubectl delete ValidatingWebhookConfiguration rook-ceph-webhook
+        ```
+
+4.  Remove the owner references from all critical Rook resources that were referencing the `CephCluster` CR.
+
+    1.  Programmatically determine all such resources, using this command:
+        ```console
+        # Determine the `CephCluster` UID
+        ROOK_UID=$(kubectl -n rook-ceph get cephcluster rook-ceph -o 'jsonpath={.metadata.uid}')
+        # List all secrets, configmaps, services, deployments, and PVCs with that ownership UID.
+        RESOURCES=$(kubectl -n rook-ceph get secret,configmap,service,deployment,pvc -o jsonpath='{range .items[?(@.metadata.ownerReferences[*].uid=="'"$ROOK_UID"'")]}{.kind}{"/"}{.metadata.name}{"\n"}{end}')
+        # Show the collected resources.
+        kubectl -n rook-ceph get $RESOURCES
+        ```
+
+    2.  **Verify that all critical resources are shown in the output.** The critical resources are these:
+
+          - Secrets: `rook-ceph-admin-keyring`, `rook-ceph-config`, `rook-ceph-mon`, `rook-ceph-mons-keyring`
+          - ConfigMap: `rook-ceph-mon-endpoints`
+          - Services: `rook-ceph-mon-*`, `rook-ceph-mgr-*`
+          - Deployments: `rook-ceph-mon-*`, `rook-ceph-osd-*`, `rook-ceph-mgr-*`
+          - PVCs (if applicable): `rook-ceph-mon-*` and the OSD PVCs (named `<deviceset>-*`, for example `set1-data-*`)
+
+    3.  For each listed resource, remove the `ownerReferences` metadata field, in order to unlink it from the deleting `CephCluster`
+        CR.
+
+        To do so programmatically, use the command:
+        ```console
+        for resource in $(kubectl -n rook-ceph get $RESOURCES -o name); do
+          kubectl -n rook-ceph patch $resource -p '{"metadata": {"ownerReferences":null}}'
+        done
+        ```
+
+        For a manual alternative, issue `kubectl edit` on each resource, and remove the block matching:
+        ```yaml
+        ownerReferences:
+        - apiVersion: ceph.rook.io/v1
+           blockOwnerDeletion: true
+           controller: true
+           kind: `CephCluster`
+           name: rook-ceph
+           uid: <uid>
+        ```
+
+5.  **Before completing this step, validate these things. Failing to do so could result in data loss.**
+
+    1.  Confirm that `cluster.yaml` contains the `CephCluster` CR.
+    2.  Confirm all critical resources listed above have had the `ownerReference` to the `CephCluster` CR removed.
 
 2. Backup all Rook CRs and critical metadata
 
-```console
-# Store the CephCluster CR settings. Also, save other Rook CRs that are in terminating state.
-kubectl -n rook-ceph get cephcluster rook-ceph -o yaml > cluster.yaml
+    Remove the finalizer from the `CephCluster` resource. This will cause the resource to be immediately deleted by Kubernetes.
 
-# Backup critical secrets and configmaps in case something goes wrong later in the procedure
-kubectl -n rook-ceph get secret -o yaml > secrets.yaml
-kubectl -n rook-ceph get configmap -o yaml > configmaps.yaml
-```
+    ```console
+    kubectl -n rook-ceph patch cephcluster/rook-ceph --type json --patch='[ { "op": "remove", "path": "/metadata/finalizers" } ]'
+    ```
 
-3. Remove the owner references from all critical Rook resources that were referencing the CephCluster CR.
-   The critical resources include:
-   - Secrets: `rook-ceph-admin-keyring`, `rook-ceph-config`, `rook-ceph-mon`, `rook-ceph-mons-keyring`
-   - ConfigMap: `rook-ceph-mon-endpoints`
-   - Services: `rook-ceph-mon-*`, `rook-ceph-mgr-*`
-   - Deployments: `rook-ceph-mon-*`, `rook-ceph-osd-*`, `rook-ceph-mgr-*`
-   - PVCs (if applicable): `rook-ceph-mon-*` and the OSD PVCs (named `<deviceset>-*`, for example `set1-data-*`)
+    After the finalizer is removed, the `CephCluster` will be immediately deleted. If all owner references were properly removed,
+    all ceph daemons will continue running and there will be no downtime.
 
-For example, remove this entire block from each resource:
+6.  Create the `CephCluster` CR with the same settings as previously
 
-```yaml
-ownerReferences:
-- apiVersion: ceph.rook.io/v1
-    blockOwnerDeletion: true
-    controller: true
-    kind: CephCluster
-    name: rook-ceph
-    uid: <uid>
-```
+    ```console
+    # Use the same cluster settings as exported in step 2.
+    kubectl create -f cluster.yaml
+    ```
 
-4. **After confirming all critical resources have had the owner reference to the CephCluster CR removed**, now
-   we allow the cluster CR to be deleted. Remove the finalizer by editing the CephCluster CR.
+7.  If there are other CRs in terminating state such as CephBlockPools, CephObjectStores, or CephFilesystems,
+    follow the above steps as well for those CRs:
 
-```console
-kubectl -n rook-ceph edit cephcluster
-```
+      1.  Backup the CR
+      2.  Remove the finalizer and confirm the CR is deleted (the underlying Ceph resources will be preserved)
+      3.  Create the CR again
 
-For example, remove the following from the CR metadata:
+8.  Scale up the operator
 
-```yaml
-    finalizers:
-    - cephcluster.ceph.rook.io
-```
+    ```console
+    kubectl -n rook-ceph scale --replicas=1 deploy/rook-ceph-operator
+    ```
 
-After the finalizer is removed, the CR will be immediately deleted. If all owner references were properly removed,
-all ceph daemons will continue running and there will be no downtime.
+9.  Watch the operator log to confirm that the reconcile completes successfully.
 
-5. Create the CephCluster CR with the same settings as previously
+    ```console
+    kubectl -n rook-ceph logs -f deployment/rook-ceph-operator
+    ```
 
-```console
-# Use the same cluster settings as exported above in step 2.
-kubectl create -f cluster.yaml
-```
-
-6. If there are other CRs in terminating state such as CephBlockPools, CephObjectStores, or CephFilesystems,
-   follow the above steps as well for those CRs:
-   - Backup the CR
-   - Remove the finalizer and confirm the CR is deleted (the underlying Ceph resources will be preserved)
-   - Create the CR again
-
-7. Scale up the operator
-
-```console
-kubectl -n rook-ceph scale --replicas=1 deploy/rook-ceph-operator
-```
-
-Watch the operator log to confirm that the reconcile completes successfully.
 
 ## Adopt an existing Koor cluster into a new Kubernetes cluster
 
@@ -352,7 +182,7 @@ Assuming `dataHostPathData` is `/var/lib/rook`, and the `CephCluster` trying to 
 
 1. Make sure the old Kubernetes cluster is completely torn down and the new Kubernetes cluster is up and running without Rook Ceph.
 1. Backup `/var/lib/rook` in all the Koor nodes to a different directory. Backups will be used later.
-1. Pick a `/var/lib/rook/rook-ceph/rook-ceph.config` from any previous Koor node and save the old cluster `fsid` from its content.
+1. Pick a `/var/lib/koor-tech/koor-ceph/rook-ceph.config` from any previous Koor node and save the old cluster `fsid` from its content.
 1. Remove `/var/lib/rook` from all the Koor nodes.
 1. Add identical `CephCluster` descriptor to the new Kubernetes cluster, especially identical `spec.storage.config` and `spec.storage.nodes`, except `mon.count`, which should be set to `1`.
 1. Add identical `CephFilesystem` `CephBlockPool` `CephNFS` `CephObjectStore` descriptors (if any) to the new Kubernetes cluster.

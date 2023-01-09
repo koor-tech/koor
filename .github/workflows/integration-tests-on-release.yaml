@@ -14,19 +14,19 @@ defaults:
 
 jobs:
   TestCephHelmSuite:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        kubernetes-versions: ["v1.17.17", "v1.19.16", "v1.21.7", "v1.24.1"]
+        kubernetes-versions: ["v1.19.16", "v1.21.14", "v1.23.10", "v1.25.0"]
     steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: setup cluster resources
-        uses: ./.github/workflows/integration-test-config
+        uses: ./.github/workflows/integration-test-config-latest-k8s
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           kubernetes-version: ${{ matrix.kubernetes-versions }}
@@ -48,26 +48,26 @@ jobs:
           tests/scripts/collect-logs.sh
 
       - name: Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: ceph-helm-suite-artifact-${{ matrix.kubernetes-versions }}
           path: /home/runner/work/koor/koor/tests/integration/_output/tests/
 
   TestCephMultiClusterDeploySuite:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        kubernetes-versions: ["v1.17.17", "v1.19.16", "v1.21.7", "v1.24.1"]
+        kubernetes-versions: ["v1.19.16", "v1.21.14", "v1.23.10", "v1.25.0"]
     steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: setup cluster resources
-        uses: ./.github/workflows/integration-test-config
+      - name: setup latest cluster resources
+        uses: ./.github/workflows/integration-test-config-latest-k8s
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           kubernetes-version: ${{ matrix.kubernetes-versions }}
@@ -88,26 +88,26 @@ jobs:
           CLUSTER_NAMESPACE="multi-external" tests/scripts/collect-logs.sh
 
       - name: Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: ceph-multi-cluster-deploy-suite-artifact-${{ matrix.kubernetes-versions }}
           path: /home/runner/work/koor/koor/tests/integration/_output/tests/
 
   TestCephSmokeSuite:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        kubernetes-versions: ["v1.17.17", "v1.19.16", "v1.21.7", "v1.24.1"]
+        kubernetes-versions: ["v1.19.16", "v1.21.14", "v1.23.10", "v1.25.0"]
     steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: setup cluster resources
-        uses: ./.github/workflows/integration-test-config
+      - name: setup latest cluster resources
+        uses: ./.github/workflows/integration-test-config-latest-k8s
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           kubernetes-version: ${{ matrix.kubernetes-versions }}
@@ -127,26 +127,26 @@ jobs:
           tests/scripts/collect-logs.sh
 
       - name: Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: ceph-smoke-suite-artifact-${{ matrix.kubernetes-versions }}
           path: /home/runner/work/koor/koor/tests/integration/_output/tests/
 
   TestCephUpgradeSuite:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        kubernetes-versions: ["v1.17.17", "v1.19.16", "v1.21.7", "v1.24.1"]
+        kubernetes-versions: ["v1.19.16", "v1.21.14", "v1.23.10", "v1.25.0"]
     steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: setup cluster resources
-        uses: ./.github/workflows/integration-test-config
+      - name: setup latest cluster resources
+        uses: ./.github/workflows/integration-test-config-latest-k8s
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           kubernetes-version: ${{ matrix.kubernetes-versions }}
@@ -166,26 +166,26 @@ jobs:
           tests/scripts/collect-logs.sh
 
       - name: Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: ceph-upgrade-suite-artifact-${{ matrix.kubernetes-versions }}
           path: /home/runner/work/koor/koor/tests/integration/_output/tests/
 
   TestHelmUpgradeSuite:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        kubernetes-versions: ["v1.19.16", "v1.21.7", "v1.24.1"]
+        kubernetes-versions: ["v1.19.16", "v1.23.10", "v1.25.0"]
     steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: setup cluster resources
-        uses: ./.github/workflows/integration-test-config
+        uses: ./.github/workflows/integration-test-config-latest-k8s
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           kubernetes-version: ${{ matrix.kubernetes-versions }}
@@ -208,7 +208,7 @@ jobs:
           tests/scripts/collect-logs.sh
 
       - name: Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: ceph-upgrade-suite-artifact-${{ matrix.kubernetes-versions }}
@@ -216,19 +216,19 @@ jobs:
 
   TestCephObjectSuite:
     if: ${{ github.event_name == 'pull_request' && github.ref != 'refs/heads/master' && !contains(github.event.pull_request.labels.*.name, 'skip-ci') }}
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        kubernetes-versions: ["v1.17.17", "v1.24.1"]
+        kubernetes-versions: ["v1.19.16", "v1.25.0"]
     steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: setup cluster resources
-        uses: ./.github/workflows/integration-test-config
+      - name: setup latest cluster resources
+        uses: ./.github/workflows/integration-test-config-latest-k8s
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           kubernetes-version: ${{ matrix.kubernetes-versions }}
@@ -248,7 +248,7 @@ jobs:
           tests/scripts/collect-logs.sh
 
       - name: Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: ceph-object-suite-artifact-${{ matrix.kubernetes-versions }}

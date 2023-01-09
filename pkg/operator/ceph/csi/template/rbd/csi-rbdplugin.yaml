@@ -9,6 +9,10 @@ spec:
       app: csi-rbdplugin
   updateStrategy:
     type: {{ .RBDPluginUpdateStrategy }}
+    {{ if eq .RBDPluginUpdateStrategy "RollingUpdate" }}
+    rollingUpdate:
+      maxUnavailable: {{ .RBDPluginUpdateStrategyMaxUnavailable }}
+    {{ end }}
   template:
     metadata:
       labels:
@@ -35,6 +39,7 @@ spec:
           securityContext:
             privileged: true
           image: {{ .RegistrarImage }}
+          imagePullPolicy: {{ .ImagePullPolicy }}
           args:
             - "--v={{ .LogLevel }}"
             - "--csi-address=/csi/csi.sock"
@@ -71,6 +76,9 @@ spec:
             {{ if .EnableCSIAddonsSideCar }}
             - "--csi-addons-endpoint=$(CSIADDONS_ENDPOINT)"
             {{ end }}
+            {{- if .EnableCSITopology }}
+            - "--domainlabels={{ .CSIDomainLabels }}"
+            {{- end }}
           env:
             - name: POD_IP
               valueFrom:
@@ -90,7 +98,7 @@ spec:
             - name: CSIADDONS_ENDPOINT
               value: unix:///csi/csi-addons.sock
             {{ end }}
-          imagePullPolicy: "IfNotPresent"
+          imagePullPolicy: {{ .ImagePullPolicy }}
           volumeMounts:
             - name: plugin-dir
               mountPath: /csi
@@ -141,7 +149,6 @@ spec:
             - "--node-id=$(NODE_ID)"
             - "--v={{ .LogLevel }}"
             - "--csi-addons-address=$(CSIADDONS_ENDPOINT)"
-            - "--controller-ip=$(POD_IP)"
             - "--controller-port={{ .CSIAddonsPort }}"
             - "--pod=$(POD_NAME)"
             - "--namespace=$(POD_NAMESPACE)"
@@ -150,10 +157,6 @@ spec:
           ports:
             - containerPort: {{ .CSIAddonsPort }}
           env:
-            - name: POD_IP
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.podIP
             - name: NODE_ID
               valueFrom:
                 fieldRef:
@@ -172,7 +175,7 @@ spec:
                   fieldPath: metadata.namespace
             - name: CSIADDONS_ENDPOINT
               value: unix:///csi/csi-addons.sock
-          imagePullPolicy: "IfNotPresent"
+          imagePullPolicy: {{ .ImagePullPolicy }}
           volumeMounts:
             - name: plugin-dir
               mountPath: /csi
@@ -199,7 +202,7 @@ spec:
           volumeMounts:
             - name: plugin-dir
               mountPath: /csi
-          imagePullPolicy: "IfNotPresent"
+          imagePullPolicy: {{ .ImagePullPolicy }}
         {{ end }}
       volumes:
         - name: plugin-dir

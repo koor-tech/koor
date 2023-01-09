@@ -21,7 +21,7 @@ specified in the Ceph custom resources (CRs) and apply the changes.
 
 Rook automatically configures the Ceph-CSI driver to mount the storage to your pods.
 
-![Koor Storage Distribution Components on Kubernetes](ceph-storage/kubernetes.png)
+![Rook Components on Kubernetes](ceph-storage/kubernetes.png)
 
 The `koorinc/ceph` image includes all necessary tools to manage the cluster. Koor Storage Distribution is not in the Ceph data path.
 Many of the Ceph concepts like placement groups and crush maps

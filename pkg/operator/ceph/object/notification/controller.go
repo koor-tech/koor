@@ -26,7 +26,6 @@ import (
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
-	"github.com/koor-tech/koor/pkg/operator/ceph/object"
 	"github.com/koor-tech/koor/pkg/operator/ceph/object/bucket"
 	"github.com/koor-tech/koor/pkg/operator/ceph/object/topic"
 	"github.com/koor-tech/koor/pkg/operator/ceph/reporting"
@@ -209,17 +208,7 @@ func (r *ReconcileNotifications) reconcile(request reconcile.Request) (reconcile
 }
 
 func getCephObjectStoreName(ob bktv1alpha1.ObjectBucket) (types.NamespacedName, error) {
-	// parse the following string: <prefix>-rgw-<store>.<namespace>.svc
-	// to ge the object store name and namespace
-	logger.Debugf("BucketHost of %q is %q",
-		types.NamespacedName{Name: ob.Name, Namespace: ob.Namespace}.String(),
-		ob.Spec.Connection.Endpoint.BucketHost,
-	)
-	objectStoreName, err := object.ParseDomainName(ob.Spec.Connection.Endpoint.BucketHost)
-	if err != nil {
-		return types.NamespacedName{}, errors.Wrapf(err, "malformed BucketHost %q", ob.Spec.Endpoint.BucketHost)
-	}
-	return objectStoreName, nil
+	return bucket.GetObjectStoreNameFromBucket(&ob)
 }
 
 // verify that object store is configured correctly for OB, CephBucketNotification and CephBucketTopic
@@ -245,7 +234,7 @@ func getReadyCluster(client client.Client, opManagerContext context.Context, con
 		logger.Debug("Ceph cluster not yet present.")
 		return nil, nil, nil
 	}
-	clusterInfo, _, _, err := opcontroller.LoadClusterInfo(&context, opManagerContext, cephCluster.Namespace)
+	clusterInfo, _, _, err := opcontroller.LoadClusterInfo(&context, opManagerContext, cephCluster.Namespace, &cephCluster.Spec)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to populate cluster info")
 	}

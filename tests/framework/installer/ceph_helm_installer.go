@@ -137,10 +137,6 @@ func (h *CephInstaller) configureRookCephClusterViaHelm(upgrade bool) error {
 			},
 		},
 	}
-	if !utils.VersionAtLeast(h.settings.KubernetesVersion, "v1.17.0") {
-		values["cephFilesystems"] = map[string]interface{}{}
-		values["cephObjectStores"] = map[string]interface{}{}
-	}
 
 	if err := h.CreateBlockPoolConfiguration(values, BlockPoolName, BlockPoolSCName); err != nil {
 		return err

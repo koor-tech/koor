@@ -121,6 +121,9 @@ func (c *ClusterController) cleanUpJobContainer(cluster *cephv1.CephCluster, mon
 			{Name: sanitizeDataSource, Value: cluster.Spec.CleanupPolicy.SanitizeDisks.DataSource.String()},
 			{Name: sanitizeIteration, Value: strconv.Itoa(int(cluster.Spec.CleanupPolicy.SanitizeDisks.Iteration))},
 		}...)
+		if controller.LoopDevicesAllowed() {
+			envVars = append(envVars, v1.EnvVar{Name: "CEPH_VOLUME_ALLOW_LOOP_DEVICES", Value: "true"})
+		}
 	}
 
 	// Run a UID 0 since ceph-volume does not support running non-root
@@ -248,8 +251,8 @@ func (c *ClusterController) getCephHosts(namespace string) ([]string, error) {
 	return hostNameList, nil
 }
 
-func (c *ClusterController) getCleanUpDetails(namespace string) (string, string, error) {
-	clusterInfo, _, _, err := controller.LoadClusterInfo(c.context, c.OpManagerCtx, namespace)
+func (c *ClusterController) getCleanUpDetails(cephClusterSpec *cephv1.ClusterSpec, namespace string) (string, string, error) {
+	clusterInfo, _, _, err := controller.LoadClusterInfo(c.context, c.OpManagerCtx, namespace, cephClusterSpec)
 	if err != nil {
 		return "", "", errors.Wrap(err, "failed to get cluster info")
 	}
