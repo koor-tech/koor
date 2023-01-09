@@ -19,8 +19,8 @@ package client
 import (
 	"encoding/json"
 
-	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/pkg/errors"
+ 	"github.com/koor-tech/koor/pkg/clusterd"
 )
 
 // CrashList is go representation of the "ceph crash ls" command output

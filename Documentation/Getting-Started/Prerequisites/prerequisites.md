@@ -2,8 +2,8 @@
 title: Prerequisites
 ---
 
-Rook can be installed on any existing Kubernetes cluster as long as it meets the minimum version
-and Rook is granted the required privileges (see below for more information).
+Koor Storage Distribution can be installed on any existing Kubernetes cluster as long as it meets the minimum version
+and Koor Storage Distribution is granted the required privileges (see below for more information).
 
 ## Minimum Kubernetes Version
 

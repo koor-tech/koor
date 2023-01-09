@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/coreos/pkg/capnslog"
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	rookclient "github.com/koor-tech/koor/pkg/client/clientset/versioned/fake"
 	"github.com/koor-tech/koor/pkg/clusterd"
@@ -33,7 +34,6 @@ import (
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	testop "github.com/koor-tech/koor/pkg/operator/test"
 	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"

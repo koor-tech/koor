@@ -21,14 +21,14 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	"github.com/koor-tech/koor/pkg/operator/ceph/config"
 	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
-	"github.com/koor-tech/koor/pkg/operator/k8sutil/cmdreporter"
-	"github.com/pkg/errors"
+	"github.com/rook/rook/pkg/operator/k8sutil/cmdreporter"
 	"k8s.io/client-go/kubernetes"
 )
 

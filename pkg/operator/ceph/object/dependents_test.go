@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/ceph/go-ceph/rgw/admin"
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	rookclient "github.com/koor-tech/koor/pkg/client/clientset/versioned/fake"
 	"github.com/koor-tech/koor/pkg/clusterd"
@@ -34,7 +35,6 @@ import (
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	"github.com/koor-tech/koor/pkg/util/exec"
 	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

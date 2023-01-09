@@ -18,12 +18,12 @@ limitations under the License.
 package cluster
 
 import (
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	daemonclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mon"
 	"github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
-	"github.com/pkg/errors"
 )
 
 func (c *ClusterController) detectAndValidateCephVersion(cluster *cluster) (*cephver.CephVersion, bool, error) {

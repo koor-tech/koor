@@ -22,8 +22,8 @@ import (
 	"strings"
 	"text/template"
 
-	k8sutil "github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/pkg/errors"
+	k8sutil "github.com/koor-tech/koor/pkg/operator/k8sutil"
 	apps "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

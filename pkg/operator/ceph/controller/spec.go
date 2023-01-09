@@ -702,6 +702,8 @@ func LogCollectorContainer(daemonID, ns string, c cephv1.ClusterSpec) *v1.Contai
 		periodicity = c.LogCollector.Periodicity
 	} else {
 		periodicity = "daily"
+	} else if c.LogCollector.Periodicity != "" {
+		periodicity = c.LogCollector.Periodicity
 	}
 
 	logger.Debugf("setting periodicity to %q. Supported periodicity are hourly, daily, weekly and monthly", periodicity)

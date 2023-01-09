@@ -29,12 +29,12 @@ import (
 	"syscall"
 
 	"github.com/coreos/pkg/capnslog"
+	"github.com/pkg/errors"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	oposd "github.com/koor-tech/koor/pkg/operator/ceph/cluster/osd"
 	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/koor-tech/koor/pkg/util/sys"
-	"github.com/pkg/errors"
 )
 
 const (

@@ -28,6 +28,7 @@ import (
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/coreos/pkg/capnslog"
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	rookfake "github.com/koor-tech/koor/pkg/client/clientset/versioned/fake"
 	"github.com/koor-tech/koor/pkg/client/clientset/versioned/scheme"
@@ -38,7 +39,6 @@ import (
 	"github.com/koor-tech/koor/pkg/operator/test"
 	"github.com/koor-tech/koor/pkg/util/dependents"
 	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

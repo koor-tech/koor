@@ -21,12 +21,12 @@ import (
 	"fmt"
 	"path"
 
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	kms "github.com/koor-tech/koor/pkg/daemon/ceph/osd/kms"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/osd/config"
 	"github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
-	"github.com/pkg/errors"
 	batch "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

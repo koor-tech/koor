@@ -23,9 +23,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	cephconfig "github.com/koor-tech/koor/pkg/operator/ceph/config"
 	"github.com/koor-tech/koor/pkg/operator/ceph/config/keyring"
-	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 )
 

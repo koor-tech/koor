@@ -26,8 +26,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/pkg/errors"
+	"github.com/koor-tech/koor/pkg/clusterd"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
