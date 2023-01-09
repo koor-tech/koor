@@ -25,8 +25,8 @@ scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # run code deepcopy generation
 bash ${CODE_GENERATOR}/generate-groups.sh \
     deepcopy \
-    github.com/koor-tech/rook/pkg/client \
-    github.com/koor-tech/rook/pkg/apis \
+    github.com/koor-tech/koor/pkg/client \
+    github.com/koor-tech/koor/pkg/apis \
     "${GROUP_VERSIONS}" \
     --output-base "$(dirname "${BASH_SOURCE[0]}")/../../../../.." \
     --go-header-file "${scriptdir}/boilerplate.go.txt"
@@ -34,8 +34,8 @@ bash ${CODE_GENERATOR}/generate-groups.sh \
 # run code client,lister,informer generation
 bash ${CODE_GENERATOR}/generate-groups.sh \
     client,lister,informer \
-    github.com/koor-tech/rook/pkg/client \
-    github.com/koor-tech/rook/pkg/apis \
+    github.com/koor-tech/koor/pkg/client \
+    github.com/koor-tech/koor/pkg/apis \
     "${GROUP_VERSIONS}" \
     --output-base "$(dirname "${BASH_SOURCE[0]}")/../../../../.." \
     --go-header-file "${scriptdir}/boilerplate.go.txt" \

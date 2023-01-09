@@ -12,7 +12,7 @@ GitHub actions provide all the jobs to complete the release -- there is no need 
 
 ## Minor Release Criteria
 
-Before the process of releasing a new version of Rook can begin, all items in the below release criteria must be completed and verified.
+Before the process of releasing a new version of Koor Storage Distribution can begin, all items in the below release criteria must be completed and verified.
 The maintainers have the responsibility of ensuring this criteria is met.
 
 * Project Management

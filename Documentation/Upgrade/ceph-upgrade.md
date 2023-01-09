@@ -39,6 +39,10 @@ before upgrading to Rook v1.10.
 We recommend updating to v16.2.7 or newer. If you require updating **to v16.2.0-v16.2.6**,
 please see the [v1.0 upgrade guide for a special upgrade consideration](https://docs.koor.tech/docs/v1.0/ceph-upgrade.html#disable-bluestore_fsck_quick_fix_on_mount).
 
+!!! warning
+    Ceph v17.2.2 has a blocking issue when running with Rook. If you are running Ceph v17, we
+    recommend using v17.2.3 or newer.
+
 ### Quincy Consideration
 
 In Ceph Quincy (v17), the `device_health_metrics` pool was renamed to `.mgr`. Ceph will perform this
@@ -63,7 +67,7 @@ Official Ceph container images can be found on [Quay](https://quay.io/repository
 
 These images are tagged in a few ways:
 
-* The most explicit form of tags are full-ceph-version-and-build tags (e.g., `v17.2.3-20220805`).
+* The most explicit form of tags are full-ceph-version-and-build tags (e.g., `v17.2.5-20221017`).
   These tags are recommended for production clusters, as there is no possibility for the cluster to
   be heterogeneous with respect to the version of Ceph running in containers.
 * Ceph major version tags (e.g., `v17`) are useful for development and test clusters so that the
@@ -80,7 +84,7 @@ in the cluster CRD (`spec.cephVersion.image`).
 
 ```console
 ROOK_CLUSTER_NAMESPACE=rook-ceph
-NEW_CEPH_IMAGE='quay.io/ceph/ceph:v17.2.3-20220805'
+NEW_CEPH_IMAGE='quay.io/ceph/ceph:v17.2.5-20221017'
 kubectl -n $ROOK_CLUSTER_NAMESPACE patch CephCluster $ROOK_CLUSTER_NAMESPACE --type=merge -p "{\"spec\": {\"cephVersion\": {\"image\": \"$NEW_CEPH_IMAGE\"}}}"
 ```
 
@@ -99,9 +103,9 @@ Confirm the upgrade is completed when the versions are all on the desired Ceph v
 kubectl -n $ROOK_CLUSTER_NAMESPACE get deployment -l rook_cluster=$ROOK_CLUSTER_NAMESPACE -o jsonpath='{range .items[*]}{"ceph-version="}{.metadata.labels.ceph-version}{"\n"}{end}' | sort | uniq
 This cluster is not yet finished:
     ceph-version=15.2.13-0
-    ceph-version=v17.2.3-0
+    ceph-version=v17.2.5-0
 This cluster is finished:
-    ceph-version=v17.2.3-0
+    ceph-version=v17.2.5-0
 ```
 
 #### **3. Verify cluster health**

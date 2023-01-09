@@ -22,11 +22,11 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/koor-tech/koor/pkg/util/exec"
-	"github.com/pkg/errors"
 )
 
 type BootstrapPeerToken struct {

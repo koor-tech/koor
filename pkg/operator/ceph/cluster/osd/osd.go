@@ -29,6 +29,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/coreos/pkg/capnslog"
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
@@ -36,7 +37,6 @@ import (
 	"github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
-	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -65,6 +65,7 @@ const (
 	bluestorePVCMetadata           = "metadata"
 	bluestorePVCWal                = "wal"
 	bluestorePVCData               = "data"
+	deviceClass                    = "device-class"
 )
 
 // Cluster keeps track of the OSDs

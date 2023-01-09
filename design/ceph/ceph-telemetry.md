@@ -23,7 +23,7 @@ For example `rook/version` and `rook/kubernetes/version` would be put into a str
 ```
 
 ### Overall metrics
-- `rook/version` - Rook version.
+- `rook/version` - Koor Storage Distribution version.
 - `rook/kubernetes/...`
   - `rook/kubernetes/version` - Kubernetes version.
     - Ceph already collects os/kernel versions.
@@ -93,7 +93,7 @@ Future updates will follow a similar pattern where new telemetry is suggested by
 design doc in Rook, then batch-added by Ceph.
 
 Rook will define all telemetry config-keys in a common file to easily understand from code what
-telemetry is implemented by a given code version of Rook.
+telemetry is implemented by a given code version of Koor Storage Distribution.
 
 The below one-liner should list each individual metric in this design doc, which can help in
 creating Ceph issue trackers for adding Rook telemetry features.

@@ -26,9 +26,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	cephClient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
-	"github.com/pkg/errors"
 
 	"github.com/koor-tech/koor/pkg/operator/ceph/disruption/controllerconfig"
 	"github.com/koor-tech/koor/pkg/operator/ceph/disruption/machinelabel"

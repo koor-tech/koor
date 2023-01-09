@@ -18,12 +18,12 @@ limitations under the License.
 package cluster
 
 import (
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	daemonclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mon"
 	"github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
-	"github.com/pkg/errors"
 )
 
 func (c *ClusterController) detectAndValidateCephVersion(cluster *cluster) (*cephver.CephVersion, bool, error) {
@@ -143,7 +143,7 @@ func (c *cluster) validateCephVersion(version *cephver.CephVersion) error {
 	// state we are in and if we should upgrade or not
 
 	// Try to load clusterInfo so we can compare the running version with the one from the spec image
-	clusterInfo, _, _, err := controller.LoadClusterInfo(c.context, c.ClusterInfo.Context, c.Namespace)
+	clusterInfo, _, _, err := controller.LoadClusterInfo(c.context, c.ClusterInfo.Context, c.Namespace, c.Spec)
 	if err == nil {
 		clusterInfo.Context = c.ClusterInfo.Context
 		// Write connection info (ceph config file and keyring) for ceph commands

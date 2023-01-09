@@ -20,6 +20,7 @@ package object
 import (
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -27,6 +28,7 @@ import (
 	"syscall"
 
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
@@ -35,7 +37,6 @@ import (
 	"github.com/koor-tech/koor/pkg/operator/ceph/pool"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/koor-tech/koor/pkg/util/exec"
-	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -291,12 +292,12 @@ func (r *ReconcileCephObjectStore) validateStore(s *cephv1.CephObjectStore) erro
 
 	// Validate the pool settings, but allow for empty pools specs in case they have already been created
 	// such as by the ceph mgr
-	if !emptyPool(s.Spec.MetadataPool) {
+	if !EmptyPool(s.Spec.MetadataPool) {
 		if err := pool.ValidatePoolSpec(r.context, r.clusterInfo, r.clusterSpec, &s.Spec.MetadataPool); err != nil {
 			return errors.Wrap(err, "invalid metadata pool spec")
 		}
 	}
-	if !emptyPool(s.Spec.DataPool) {
+	if !EmptyPool(s.Spec.DataPool) {
 		if err := pool.ValidatePoolSpec(r.context, r.clusterInfo, r.clusterSpec, &s.Spec.DataPool); err != nil {
 			return errors.Wrap(err, "invalid data pool spec")
 		}
@@ -309,13 +310,57 @@ func (c *clusterConfig) generateSecretName(id string) string {
 	return fmt.Sprintf("%s-%s-%s-keyring", AppName, c.store.Name, id)
 }
 
-func emptyPool(pool cephv1.PoolSpec) bool {
+func EmptyPool(pool cephv1.PoolSpec) bool {
 	return reflect.DeepEqual(pool, cephv1.PoolSpec{})
 }
 
-// BuildDomainName build the dns name to reach out the service endpoint
-func BuildDomainName(name, namespace string) string {
-	return fmt.Sprintf("%s-%s.%s.%s", AppName, name, namespace, svcDNSSuffix)
+// GetDomainName build the dns name to reach out the service endpoint
+func GetDomainName(s *cephv1.CephObjectStore) string {
+	return getDomainName(s, true)
+}
+
+func GetStableDomainName(s *cephv1.CephObjectStore) string {
+	return getDomainName(s, false)
+}
+
+func getDomainName(s *cephv1.CephObjectStore, returnRandomDomainIfMultiple bool) string {
+	if s.Spec.IsExternal() {
+		// if the store is external, pick a random endpoint to use. if the endpoint is down, this
+		// reconcile may fail, but a future reconcile will eventually pick a different endpoint to try
+		endpoints := s.Spec.Gateway.ExternalRgwEndpoints
+		idx := 0
+		if returnRandomDomainIfMultiple {
+			idx = rand.Intn(len(endpoints)) //nolint:gosec // G404: cryptographically weak RNG is fine here
+		}
+		return endpoints[idx].String()
+	}
+
+	return domainNameOfService(s)
+}
+
+func domainNameOfService(s *cephv1.CephObjectStore) string {
+	return fmt.Sprintf("%s-%s.%s.%s", AppName, s.Name, s.Namespace, svcDNSSuffix)
+}
+
+func getAllDomainNames(s *cephv1.CephObjectStore) []string {
+	if s.Spec.IsExternal() {
+		domains := []string{}
+		for _, e := range s.Spec.Gateway.ExternalRgwEndpoints {
+			domains = append(domains, e.String())
+		}
+		logger.Debugf("domains: +%v", domains)
+		return domains
+	}
+
+	return []string{domainNameOfService(s)}
+}
+
+func getAllDNSEndpoints(s *cephv1.CephObjectStore, port int32, secure bool) []string {
+	endpoints := []string{}
+	for _, d := range getAllDomainNames(s) {
+		endpoints = append(endpoints, BuildDNSEndpoint(d, port, secure))
+	}
+	return endpoints
 }
 
 // ParseDomainName parse the name and namespace from the dns name

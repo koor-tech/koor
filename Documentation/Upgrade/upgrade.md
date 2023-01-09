@@ -3,7 +3,7 @@ title: Upgrades
 ---
 
 This guide will walk you through the steps to upgrade the software in a Rook cluster from one
-version to the next. This guide focuses on updating the Rook version for the management layer,
+version to the next. This guide focuses on updating the Koor Storage Distribution version for the management layer,
 while the [Ceph upgrade](ceph-upgrade.md) guide focuses on updating the data layer.
 
 Upgrades for both the operator and for Ceph are entirely automated except where Rook's
@@ -14,7 +14,7 @@ We welcome feedback and opening issues!
 
 ## Supported Versions
 
-This guide is for upgrading from **Rook v1.0.x to Rook v1.0.x**.
+This guide is for upgrading from **Koor v1.0.0 to Koor 1.0.0**.
 
 Please refer to the upgrade guides from previous releases for supported upgrade paths.
 Rook upgrades are only supported between official releases.

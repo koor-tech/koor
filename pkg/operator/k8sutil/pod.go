@@ -26,8 +26,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/pkg/errors"
+	"github.com/koor-tech/koor/pkg/clusterd"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -305,6 +305,9 @@ func ClusterDaemonEnvVars(image string) []v1.EnvVar {
 		// If request.cpu is not set in the pod definition, Kubernetes will use the formula "requests.cpu = limits.cpu" during pods's scheduling
 		// Kubernetes will set this variable to 0 or equal to limits.cpu if set
 		{Name: "POD_CPU_REQUEST", ValueFrom: &v1.EnvVarSource{ResourceFieldRef: &v1.ResourceFieldSelector{Resource: "requests.cpu"}}},
+
+		// All ceph daemons using msgr in a containerized environment expect to set a random nonce at startup
+		{Name: "CEPH_USE_RANDOM_NONCE", Value: "true"},
 	}
 }
 

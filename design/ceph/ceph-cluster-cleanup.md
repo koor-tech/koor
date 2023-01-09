@@ -34,7 +34,7 @@ metadata:
   namespace: rook-ceph
 spec:
   cephVersion:
-    image: quay.io/ceph/ceph:v17.2.3
+    image: quay.io/ceph/ceph:v17.2.5
   dataDirHostPath: /var/lib/rook
   mon:
     count: 3
@@ -61,7 +61,7 @@ spec:
 - Wait till all the ceph daemons are destroyed on each node. This is important because deleting the data (say dataDirHostPath) before the daemons would cause the daemons to panic.
 - Create a batch job that runs on each of the above nodes.
 - The job performs the following action on each node based on the user confirmation:
-  - cleanup the cluster namespace on the dataDirHostPath. For example `/var/lib/rook/rook-ceph`
+  - cleanup the cluster namespace on the dataDirHostPath. For example `/var/lib/koor-tech/koor-ceph`
   - Delete all the ceph monitor directories on the dataDirHostPath. For example `/var/lib/rook/mon-a`, `/var/lib/rook/mon-b`, etc.
   - Sanitize the local disks used by OSDs on each node.
 - Local disk sanitization can be further configured by the admin with following options:

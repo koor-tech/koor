@@ -8,12 +8,14 @@ See the **[example yaml files](https://github.com/koor-tech/koor/blob/master/dep
 
 ## Common Resources
 
-The first step to deploy Koor Storage Distribution is to create the CRDs and other common resources. The configuration for these resources will be the same for most deployments.
+The first step to deploy Rook is to create the CRDs and other common resources. The configuration for these resources will be the same for most deployments.
 The [crds.yaml](https://github.com/koor-tech/koor/blob/master/deploy/examples/crds.yaml) and
 [common.yaml](https://github.com/koor-tech/koor/blob/master/deploy/examples/common.yaml) sets these resources up.
+You may also need [psp.yaml](https://github.com/koor-tech/koor/blob/master/deploy/examples/psp.yaml) if
+your cluster is protected by Pod Security Policies.
 
 ```console
-kubectl create -f crds.yaml -f common.yaml
+kubectl create -f crds.yaml -f common.yaml # -f psp.yaml
 ```
 
 The examples all assume the operator and all Ceph daemons will be started in the same namespace. If you want to deploy the operator in a separate namespace, see the comments throughout `common.yaml`.

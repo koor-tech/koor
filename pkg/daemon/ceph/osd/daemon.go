@@ -17,7 +17,10 @@ limitations under the License.
 package osd
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -26,11 +29,12 @@ import (
 	"syscall"
 
 	"github.com/coreos/pkg/capnslog"
+	"github.com/pkg/errors"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	oposd "github.com/koor-tech/koor/pkg/operator/ceph/cluster/osd"
+	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/koor-tech/koor/pkg/util/sys"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -38,6 +42,7 @@ const (
 	pvcMetadataTypeDevice = "metadata"
 	pvcWalTypeDevice      = "wal"
 	lvmCommandToCheck     = "lvm"
+	bluestoreSignature    = "bluestore block device"
 )
 
 var (
@@ -287,6 +292,52 @@ func matchDevLinks(devLinks, deviceName string) bool {
 	return false
 }
 
+func getOsdUUIDImpl(device *sys.LocalDisk) (string, error) {
+	// Old lsblk can't detect an existing OSD.
+	// See: https://github.com/koor-tech/koor/issues/10665
+	logger.Infof("old lsblk can't detect bluestore signature, so try to detect here")
+
+	f, err := os.Open(device.RealPath)
+	if err != nil {
+		err := fmt.Errorf("failed to open %q. %v", device.Name, err)
+		return "", err
+	}
+	defer f.Close()
+
+	readBuffer := make([]byte, 128)
+	_, err = f.Read(readBuffer)
+	if err != nil {
+		err := fmt.Errorf("failed to read signature from %q. %v", device.Name, err)
+		return "", err
+	}
+
+	reader := bufio.NewReader(bytes.NewReader(readBuffer))
+
+	signature, err := reader.ReadString('\n')
+	if err != nil {
+		if err == io.EOF {
+			return "", nil
+		}
+
+		err := fmt.Errorf("failed to read signature from %q. %v", device.Name, err)
+		return "", err
+	}
+
+	if signature[:len(signature)-1] != bluestoreSignature {
+		return "", nil
+	}
+
+	uuid, err := reader.ReadString('\n')
+	if err != nil {
+		err := fmt.Errorf("failed to read OSD uuid from %q. %v", device.Name, err)
+		return "", err
+	}
+
+	return uuid[:len(uuid)-1], nil
+}
+
+var getOsdUUID func(device *sys.LocalDisk) (string, error) = getOsdUUIDImpl
+
 func getAvailableDevices(context *clusterd.Context, agent *OsdAgent) (*DeviceOsdMapping, error) {
 	desiredDevices := agent.devices
 	logger.Debugf("desiredDevices are %+v", desiredDevices)
@@ -324,12 +375,30 @@ func getAvailableDevices(context *clusterd.Context, agent *OsdAgent) (*DeviceOsd
 				logger.Infof("skipping device %q because it contains a filesystem %q", device.Name, device.Filesystem)
 				continue
 			}
+		} else {
+			uuid, err := getOsdUUID(device)
+			if err != nil {
+				logger.Errorf("skipping device %q, failed to get OSD information. %v", device.Name, err)
+				continue
+			}
+
+			if uuid != "" {
+				logger.Infof("skipping device %q, detected an existing OSD. UUID=%s", device.Name, uuid)
+				continue
+			}
 		}
 
 		if device.Type == sys.PartType {
 			device, err := clusterd.PopulateDeviceUdevInfo(device.Name, context.Executor, device)
 			if err != nil {
 				logger.Errorf("failed to get udev info of partition %q. %v", device.Name, err)
+				continue
+			}
+		}
+
+		if device.Type == sys.LoopType {
+			if !agent.clusterInfo.CephVersion.IsAtLeast(cephver.CephVersion{Major: 17, Minor: 2, Extra: 4}) {
+				logger.Infof("partition %q is not picked because loop devices are not allowed on Ceph clusters older than v17.2.4", device.Name)
 				continue
 			}
 		}
@@ -371,8 +440,12 @@ func getAvailableDevices(context *clusterd.Context, agent *OsdAgent) (*DeviceOsd
 		if !isAvailable {
 			logger.Infof("skipping device %q: %s.", device.Name, rejectedReason)
 			continue
-		} else {
-			logger.Infof("device %q is available.", device.Name)
+		}
+		logger.Infof("device %q is available.", device.Name)
+
+		if device.Type == sys.PartType && agent.storeConfig.EncryptedDevice {
+			logger.Infof("partition %q is not picked because encrypted OSD on partition is not allowed", device.Name)
+			continue
 		}
 
 		var deviceInfo *DeviceOsdIDEntry
@@ -382,7 +455,10 @@ func getAvailableDevices(context *clusterd.Context, agent *OsdAgent) (*DeviceOsd
 		} else if len(desiredDevices) == 1 && desiredDevices[0].Name == "all" {
 			// user has specified all devices, use the current one for data
 			if device.Type == sys.LVMType {
-				logger.Infof("logical volume %q is not picked by `useAllDevices: true`", device.Name)
+				logger.Infof("logical volume %q is not picked by `useAllDevices: true`. please specify the exact device name (e.g. /dev/vg/lv) in `devices` field instead", device.Name)
+				continue
+			} else if device.Type == sys.LoopType {
+				logger.Infof("loop device %q is not picked by `useAllDevices: true`. please specify the exact device name (e.g. /dev/loop0) in `devices` field  instead", device.Name)
 				continue
 			}
 			deviceInfo = &DeviceOsdIDEntry{Data: unassignedOSDID, DeviceInfo: device}
@@ -393,7 +469,10 @@ func getAvailableDevices(context *clusterd.Context, agent *OsdAgent) (*DeviceOsd
 				if desiredDevice.IsFilter {
 					// the desired devices is a regular expression
 					if device.Type == sys.LVMType {
-						logger.Infof("logical volume %q is not picked by `deviceFilter`", device.Name)
+						logger.Infof("logical volume %q is not picked by `deviceFilter`. please specify the exact device name (e.g. /dev/vg/lv) in `devices` field instead", device.Name)
+						continue
+					} else if device.Type == sys.LoopType {
+						logger.Infof("loop device %q is not picked by `deviceFilter`. please specify the exact device name (e.g. /dev/loop0) in `devices` field instead", device.Name)
 						continue
 					}
 					matched, err = regexp.Match(desiredDevice.Name, []byte(device.Name))
@@ -407,7 +486,10 @@ func getAvailableDevices(context *clusterd.Context, agent *OsdAgent) (*DeviceOsd
 					}
 				} else if desiredDevice.IsDevicePathFilter {
 					if device.Type == sys.LVMType {
-						logger.Infof("logical volume %q is not picked by `devicePathFilter`", device.Name)
+						logger.Infof("logical volume %q is not picked by `devicePathFilter`. please specify the exact device name (e.g. /dev/vg/lv) in `devices` field instead", device.Name)
+						continue
+					} else if device.Type == sys.LoopType {
+						logger.Infof("loop device %q is not picked by `devicePathFilter`. please specify the exact device name (e.g. /dev/loop0) in `devices` field instead", device.Name)
 						continue
 					}
 					pathnames := append(strings.Fields(device.DevLinks), filepath.Join("/dev", device.Name))
@@ -423,29 +505,43 @@ func getAvailableDevices(context *clusterd.Context, agent *OsdAgent) (*DeviceOsd
 							break
 						}
 					}
-				} else if device.Name == desiredDevice.Name || filepath.Join("/dev", device.Name) == desiredDevice.Name {
-					logger.Infof("%q found in the desired devices", device.Name)
-					matched = true
-				} else if strings.HasPrefix(desiredDevice.Name, "/dev/") {
-					matched = matchDevLinks(device.DevLinks, desiredDevice.Name)
-				}
-				matchedDevice = desiredDevice
-
-				if matchedDevice.DeviceClass == "" {
-					classNotSet := true
-					if agent.pvcBacked {
-						crushDeviceClass := os.Getenv(oposd.CrushDeviceClassVarName)
-						if crushDeviceClass != "" {
-							matchedDevice.DeviceClass = crushDeviceClass
-							classNotSet = false
-						}
+				} else {
+					// the desired device is a file
+					if device.Name == desiredDevice.Name || filepath.Join("/dev", device.Name) == desiredDevice.Name {
+						logger.Infof("%q found in the desired devices", device.Name)
+						matched = true
+					} else if strings.HasPrefix(desiredDevice.Name, "/dev/") {
+						matched = matchDevLinks(device.DevLinks, desiredDevice.Name)
 					}
-					if classNotSet {
-						matchedDevice.DeviceClass = sys.GetDiskDeviceClass(device)
+					if matched && device.Type == sys.LVMType {
+						if agent.storeConfig.EncryptedDevice {
+							logger.Infof("logical volume %q is not picked because encrypted OSD on LV is not allowed", device.Name)
+							matched = false
+							continue
+						}
+						if desiredDevice.MetadataDevice != "" {
+							logger.Infof("logical volume %q is not picked because OSD on LV with metadata device is not allowed", device.Name)
+							matched = false
+							continue
+						}
 					}
 				}
 
 				if matched {
+					matchedDevice = desiredDevice
+					if matchedDevice.DeviceClass == "" {
+						classNotSet := true
+						if agent.pvcBacked {
+							crushDeviceClass := os.Getenv(oposd.CrushDeviceClassVarName)
+							if crushDeviceClass != "" {
+								matchedDevice.DeviceClass = crushDeviceClass
+								classNotSet = false
+							}
+						}
+						if classNotSet {
+							matchedDevice.DeviceClass = sys.GetDiskDeviceClass(device)
+						}
+					}
 					break
 				}
 			}

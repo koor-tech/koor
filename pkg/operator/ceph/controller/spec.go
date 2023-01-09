@@ -26,6 +26,7 @@ import (
 
 	"github.com/coreos/pkg/capnslog"
 	"github.com/google/go-cmp/cmp"
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
@@ -33,11 +34,11 @@ import (
 	"github.com/koor-tech/koor/pkg/operator/ceph/config/keyring"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/koor-tech/koor/pkg/util/display"
-	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/utils/pointer"
 )
 
 const (
@@ -53,7 +54,8 @@ const (
 	daemonTypeLabel                         = "ceph_daemon_type"
 	ExternalMgrAppName                      = "rook-ceph-mgr-external"
 	ServiceExternalMetricName               = "http-external-metrics"
-	livenessProbeTimeoutSeconds       int32 = 2
+	CephUserID                              = 167
+	livenessProbeTimeoutSeconds       int32 = 5
 	livenessProbeInitialDelaySeconds  int32 = 10
 	startupProbeFailuresDaemonDefault int32 = 6 // multiply by 10 = effective startup timeout
 	// The OSD requires a long timeout in case the OSD is taking extra time to
@@ -86,7 +88,7 @@ sed -i "s|*.log|$CEPH_CLIENT_ID.log|" "$LOG_ROTATE_CEPH_FILE"
 # replace default daily with given user input
 sed --in-place "s/daily/$PERIODICITY/g" "$LOG_ROTATE_CEPH_FILE"
 
-if [ "$LOG_MAX_SIZE" -ne 0 ]; then
+if [ "$LOG_MAX_SIZE" != "0" ]; then
 	# adding maxsize $LOG_MAX_SIZE at the 4th line of the logrotate config file with 4 spaces to maintain indentation
 	sed --in-place "4i \ \ \ \ maxsize $LOG_MAX_SIZE" "$LOG_ROTATE_CEPH_FILE"
 fi
@@ -454,6 +456,7 @@ func CheckPodMemory(name string, resources v1.ResourceRequirements, cephPodMinim
 func ChownCephDataDirsInitContainer(
 	dpm config.DataPathMap,
 	containerImage string,
+	containerImagePullPolicy v1.PullPolicy,
 	volumeMounts []v1.VolumeMount,
 	resources v1.ResourceRequirements,
 	securityContext *v1.SecurityContext,
@@ -474,6 +477,7 @@ func ChownCephDataDirsInitContainer(
 		Command:         []string{"chown"},
 		Args:            args,
 		Image:           containerImage,
+		ImagePullPolicy: containerImagePullPolicy,
 		VolumeMounts:    volumeMounts,
 		Resources:       resources,
 		SecurityContext: securityContext,
@@ -489,6 +493,7 @@ func ChownCephDataDirsInitContainer(
 func GenerateMinimalCephConfInitContainer(
 	username, keyringPath string,
 	containerImage string,
+	containerImagePullPolicy v1.PullPolicy,
 	volumeMounts []v1.VolumeMount,
 	resources v1.ResourceRequirements,
 	securityContext *v1.SecurityContext,
@@ -516,6 +521,7 @@ cat ` + cfgPath + `
 		Command:         []string{"/bin/bash", "-c", confScript},
 		Args:            []string{},
 		Image:           containerImage,
+		ImagePullPolicy: containerImagePullPolicy,
 		VolumeMounts:    volumeMounts,
 		Env:             config.StoredMonHostEnvVars(),
 		Resources:       resources,
@@ -570,12 +576,23 @@ func GenerateLivenessProbeExecDaemon(daemonType, daemonID string) *v1.Probe {
 				//
 				// Example:
 				// env -i sh -c "ceph --admin-daemon /run/ceph/ceph-osd.0.asok status"
+				//
+				// Ceph gives pretty un-diagnostic error message when `ceph status` or `ceph mon_status` command fails.
+				// Add a clear message after Ceph's to help.
+				// ref: https://github.com/koor-tech/koor/issues/9846
 				Command: []string{
 					"env",
 					"-i",
 					"sh",
 					"-c",
-					fmt.Sprintf("ceph --admin-daemon %s %s", confDaemon.buildSocketPath(), confDaemon.buildAdminSocketCommand()),
+					fmt.Sprintf(`outp="$(ceph --admin-daemon %s %s 2>&1)"
+rc=$?
+if [ $rc -ne 0 ]; then
+  echo "ceph daemon health check failed with the following output:"
+  echo "$outp" | sed -e 's/^/> /g'
+  exit $rc
+fi`,
+						confDaemon.buildSocketPath(), confDaemon.buildAdminSocketCommand()),
 				},
 			},
 		},
@@ -641,6 +658,14 @@ func PodSecurityContext() *v1.SecurityContext {
 	}
 }
 
+// PodSecurityContext detects if the pod needs privileges to run
+func CephSecurityContext() *v1.SecurityContext {
+	context := PodSecurityContext()
+	context.RunAsUser = pointer.Int64(CephUserID)
+	context.RunAsGroup = pointer.Int64(CephUserID)
+	return context
+}
+
 // PrivilegedContext returns a privileged Pod security context
 func PrivilegedContext(runAsRoot bool) *v1.SecurityContext {
 	privileged := true
@@ -670,14 +695,18 @@ func LogCollectorContainer(daemonID, ns string, c cephv1.ClusterSpec) *v1.Contai
 		maxLogSize = resource.MustParse(fmt.Sprintf("%dM", size))
 	}
 
-	periodicity := "daily"
-	if c.LogCollector.Periodicity == "1h" {
+	var periodicity string
+	if c.LogCollector.Periodicity == "1h" || c.LogCollector.Periodicity == "hourly" {
 		periodicity = "hourly"
-	} else if strings.Contains(c.LogCollector.Periodicity, "h") || strings.Contains(c.LogCollector.Periodicity, "d") {
+	} else if c.LogCollector.Periodicity == "weekly" || c.LogCollector.Periodicity == "monthly" {
+		periodicity = c.LogCollector.Periodicity
+	} else {
 		periodicity = "daily"
 	} else if c.LogCollector.Periodicity != "" {
 		periodicity = c.LogCollector.Periodicity
 	}
+
+	logger.Debugf("setting periodicity to %q. Supported periodicity are hourly, daily, weekly and monthly", periodicity)
 
 	return &v1.Container{
 		Name: logCollector,
@@ -690,6 +719,7 @@ func LogCollectorContainer(daemonID, ns string, c cephv1.ClusterSpec) *v1.Contai
 			fmt.Sprintf(cronLogRotate, daemonID, periodicity, maxLogSize.String()),
 		},
 		Image:           c.CephVersion.Image,
+		ImagePullPolicy: GetContainerImagePullPolicy(c.CephVersion.ImagePullPolicy),
 		VolumeMounts:    DaemonVolumeMounts(config.NewDatalessDaemonDataPathMap(ns, c.DataDirHostPath), ""),
 		SecurityContext: PodSecurityContext(),
 		Resources:       cephv1.GetLogCollectorResources(c.Resources),
@@ -784,4 +814,12 @@ func ConfigureExternalMetricsEndpoint(ctx *clusterd.Context, monitoringSpec ceph
 
 func extractMgrIP(rawActiveAddr string) string {
 	return strings.Split(rawActiveAddr, ":")[0]
+}
+
+func GetContainerImagePullPolicy(containerImagePullPolicy v1.PullPolicy) v1.PullPolicy {
+	if containerImagePullPolicy == "" {
+		return v1.PullIfNotPresent
+	}
+
+	return containerImagePullPolicy
 }

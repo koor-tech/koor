@@ -23,13 +23,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	cephutil "github.com/koor-tech/koor/pkg/daemon/ceph/util"
 	"github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	"github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
-	"github.com/pkg/errors"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -243,6 +243,9 @@ func (c *Cluster) checkHealth(ctx context.Context) error {
 		}
 
 		if inQuorum {
+			if _, err := c.trackMonInOrOutOfQuorum(mon.Name, true); err != nil {
+				return errors.Wrapf(err, "failed to track out of quorum mon %q", mon.Name)
+			}
 			logger.Debugf("mon %q found in quorum", mon.Name)
 			// delete the "timeout" for a mon if the pod is in quorum again
 			if _, ok := c.monTimeoutList[mon.Name]; ok {
@@ -253,14 +256,16 @@ func (c *Cluster) checkHealth(ctx context.Context) error {
 		}
 
 		logger.Debugf("mon %q NOT found in quorum. Mon quorum status: %+v", mon.Name, quorumStatus)
+		allMonsInQuorum = false
+		if _, err := c.trackMonInOrOutOfQuorum(mon.Name, false); err != nil {
+			return errors.Wrapf(err, "failed to track out of quorum mon %q", mon.Name)
+		}
 
 		// if the time out is set to 0 this indicate that we don't want to trigger mon failover
 		if MonOutTimeout == timeZero {
 			logger.Warningf("mon %q NOT found in quorum and health timeout is 0, mon will never fail over", mon.Name)
-			return nil
+			continue
 		}
-
-		allMonsInQuorum = false
 
 		// If not yet set, add the current time, for the timeout
 		// calculation, to the list
@@ -299,6 +304,13 @@ func (c *Cluster) checkHealth(ctx context.Context) error {
 		return nil
 	}
 
+	if allMonsInQuorum {
+		// Make sure the mons out of quorum are cleared
+		if _, err := c.trackMonInOrOutOfQuorum("", true); err != nil {
+			return errors.Wrap(err, "failed to track all mons in quorum")
+		}
+	}
+
 	// after all unhealthy mons have been removed or failed over
 	// handle all mons that haven't been in the Ceph mon map
 	for mon := range monsNotFound {
@@ -320,7 +332,7 @@ func (c *Cluster) checkHealth(ctx context.Context) error {
 			logger.Warningf("cannot reduce mon quorum size from 2 to 1")
 		} else {
 			logger.Infof("removing an extra mon. currently %d are in quorum and only %d are desired", len(quorumStatus.MonMap.Mons), desiredMonCount)
-			return c.removeMon(quorumStatus.MonMap.Mons[0].Name)
+			return c.removeMon(c.determineExtraMonToRemove())
 		}
 	}
 
@@ -341,10 +353,138 @@ func (c *Cluster) checkHealth(ctx context.Context) error {
 	return nil
 }
 
+func (c *Cluster) trackMonInOrOutOfQuorum(monName string, inQuorum bool) (bool, error) {
+	updateNeeded := false
+	var monsOutOfQuorum []string
+	if monName == "" {
+		// All mons are in quorum, so make sure no mons are marked out of quorum
+		for monName, mon := range c.ClusterInfo.Monitors {
+			if mon.OutOfQuorum {
+				logger.Infof("resetting mon %q to be back in quorum", monName)
+				mon.OutOfQuorum = false
+				updateNeeded = true
+			}
+		}
+	} else {
+		mon, ok := c.ClusterInfo.Monitors[monName]
+		if !ok {
+			logger.Infof("mon %q not found to keep track of being out of quorum", monName)
+			return false, nil
+		}
+		// Mark the mon in quorum
+		if inQuorum && mon.OutOfQuorum {
+			logger.Infof("marking mon %q back in quorum", monName)
+			mon.OutOfQuorum = false
+			updateNeeded = true
+		}
+		// Mark the mon out of quorum
+		if !inQuorum && !mon.OutOfQuorum {
+			logger.Infof("marking mon %q out of quorum", monName)
+			mon.OutOfQuorum = true
+			updateNeeded = true
+		}
+		if mon.OutOfQuorum {
+			monsOutOfQuorum = append(monsOutOfQuorum, monName)
+		}
+	}
+	if updateNeeded {
+		// write the latest config to the config dir
+		if err := WriteConnectionConfig(c.context, c.ClusterInfo); err != nil {
+			return true, errors.Wrap(err, "failed to write connection config for new mons")
+		}
+		// Update the mon endpoints configmap
+		err := controller.UpdateMonsOutOfQuorum(c.context.Clientset, c.Namespace, monsOutOfQuorum)
+		if err != nil {
+			return true, errors.Wrap(err, "failed to update mon endpoints cm")
+		}
+	}
+
+	return updateNeeded, nil
+}
+
+// determineExtraMonToRemove assumes all mons are in quorum and that there are more mons
+// that required for desired state. One mon will be picked for removal in this priority:
+// 1. If a stretch cluster, remove the extra mon according to the stretch topology
+// 2. If more than one mon on a node, remove one of them
+// 3. If no criteria require for 1 or 2, pick an arbitrary mon
+func (c *Cluster) determineExtraMonToRemove() string {
+	mons := c.clusterInfoToMonConfig()
+	if c.spec.IsStretchCluster() {
+		stretchMonToRemove := c.findExtraMonToRemoveFromStretchCluster(mons)
+		if stretchMonToRemove != "" {
+			return stretchMonToRemove
+		}
+		logger.Infof("did not find an extra mon to remove from the stretch cluster")
+		return ""
+	}
+
+	nodesWithMons := map[string]string{}
+	arbitraryMon := ""
+	for _, mon := range mons {
+		if mon.NodeName == "" {
+			logger.Debugf("mon %q is not scheduled to a specific host", mon.DaemonName)
+			continue
+		}
+		// Check if there are multiple mons on the node
+		if existingMon, ok := nodesWithMons[mon.NodeName]; ok {
+			logger.Infof("found mons %q and %q on node %s, removing mon %q", existingMon, mon.DaemonName, mon.NodeName, mon.DaemonName)
+			return mon.DaemonName
+		}
+		nodesWithMons[mon.NodeName] = mon.DaemonName
+
+		// assign the current mon as the fallback mon
+		arbitraryMon = mon.DaemonName
+	}
+
+	logger.Infof("removing arbitrary extra mon %q", arbitraryMon)
+	return arbitraryMon
+}
+
+func (c *Cluster) findExtraMonToRemoveFromStretchCluster(mons []*monConfig) string {
+	// Build the count of current mons per zone
+	zoneCount := map[string]int{}
+	monInZones := map[string]string{}
+	for _, m := range mons {
+		if m.Zone == "" {
+			logger.Warningf("zone not found on mon %q", m.DaemonName)
+			continue
+		}
+		zoneCount[m.Zone]++
+		// We just need the name of one of the mons in the zone in case there are extra
+		monInZones[m.Zone] = m.DaemonName
+	}
+
+	// Find a zone that has too many mons
+	for _, zone := range c.spec.Mon.StretchCluster.Zones {
+		count, ok := zoneCount[zone.Name]
+		if !ok {
+			// The zone isn't currently assigned to any mon, so skip it
+			continue
+		}
+		if zone.Arbiter {
+			if count > 1 {
+				logger.Infof("removing extra mon %q in arbiter zone %q", monInZones[zone.Name], zone.Name)
+				return monInZones[zone.Name]
+			}
+		} else {
+			if count > 2 {
+				logger.Infof("removing extra mon %q in zone %q", monInZones[zone.Name], zone.Name)
+				return monInZones[zone.Name]
+			}
+		}
+	}
+	return ""
+}
+
 // failMon compares the monCount against desiredMonCount
 // Returns whether the failover request was attempted. If false,
 // the operator should check for other mons to failover.
 func (c *Cluster) failMon(monCount, desiredMonCount int, name string) bool {
+	// make sure the failed mon is marked out of quorum
+	if _, err := c.trackMonInOrOutOfQuorum(name, false); err != nil {
+		logger.Errorf("failed to track failed mon %q. %v", name, err)
+	}
+
 	if monCount > desiredMonCount {
 		// no need to create a new mon since we have an extra
 		if err := c.removeMon(name); err != nil {
@@ -459,25 +599,8 @@ func (c *Cluster) updateMonDeploymentReplica(name string, enabled bool) error {
 func (c *Cluster) failoverMon(name string) error {
 	logger.Infof("Failing over monitor %q", name)
 
-	// Scale down the failed mon to allow a new one to start
-	if err := c.updateMonDeploymentReplica(name, false); err != nil {
-		// attempt to continue with the failover even if the bad mon could not be stopped
-		logger.Warningf("failed to stop mon %q for failover. %v", name, err)
-	}
-	newMonSucceeded := false
-	defer func() {
-		if newMonSucceeded {
-			// do nothing if the new mon was started successfully, the deployment will anyway be deleted
-			return
-		}
-		if err := c.updateMonDeploymentReplica(name, true); err != nil {
-			// attempt to continue even if the bad mon could not be restarted
-			logger.Warningf("failed to restart failed mon %q after new mon wouldn't start. %v", name, err)
-		}
-	}()
-
 	// remove the failed mon from a local list of the existing mons for finding a stretch zone
-	existingMons := c.clusterInfoToMonConfig(name)
+	existingMons := c.clusterInfoToMonConfigWithExclude(name)
 
 	zone, err := c.findAvailableZoneIfStretched(existingMons)
 	if err != nil {
@@ -488,9 +611,40 @@ func (c *Cluster) failoverMon(name string) error {
 	m := c.newMonConfig(c.maxMonID+1, zone)
 	logger.Infof("starting new mon: %+v", m)
 
-	mConf := []*monConfig{m}
+	// Scale down the failed mon to allow a new one to start
+	if err := c.updateMonDeploymentReplica(name, false); err != nil {
+		// attempt to continue with the failover even if the bad mon could not be stopped
+		logger.Warningf("failed to stop mon %q for failover. %v", name, err)
+	}
+
+	// If the mon failover is not successful, revert the failover
+	newMonSucceeded := false
+	newMonMightBeInQuorum := false
+	defer func() {
+		if newMonSucceeded {
+			// do nothing if the new mon was started successfully, the deployment will anyway be deleted
+			return
+		}
+		logger.Warningf("failover of mon %q unsuccessful, cleaning up replacement mon %q", name, m.DaemonName)
+		if err := c.updateMonDeploymentReplica(name, true); err != nil {
+			// attempt to continue even if the bad mon could not be restarted
+			logger.Warningf("failed to restart failed mon %q after new mon wouldn't start. %v", name, err)
+		}
+		if err := c.removeMonWithOptionalQuorum(m.DaemonName, newMonMightBeInQuorum); err != nil {
+			logger.Infof("failed to remove mon %q from quorum. %v", m.DaemonName, err)
+		}
+
+		// Make sure the maxMonID is reverted to its previous value
+		// The maxMonId is committed to a configmap immediately after the mon deployment
+		// is started, even though c.maxMonID is not incremented until the mon failover is successful
+		logger.Infof("reverting maxMonId to %d", c.maxMonID)
+		if err := c.commitMaxMonIDRequireIncrementing(c.maxMonID, false); err != nil {
+			logger.Errorf("failed to revert maxMonId after starting mon %q", m.DaemonName)
+		}
+	}()
 
 	// Assign the pod to a node
+	mConf := []*monConfig{m}
 	if err := c.assignMons(mConf); err != nil {
 		return errors.Wrap(err, "failed to place new mon on a node")
 	}
@@ -501,6 +655,7 @@ func (c *Cluster) failoverMon(name string) error {
 			return errors.Errorf("mon %s doesn't exist in assignment map", m.DaemonName)
 		}
 		m.PublicIP = schedule.Address
+		m.UseHostNetwork = true
 	} else {
 		// Create the service endpoint
 		serviceIP, err := c.createService(m)
@@ -512,6 +667,7 @@ func (c *Cluster) failoverMon(name string) error {
 	c.ClusterInfo.Monitors[m.DaemonName] = cephclient.NewMonInfo(m.DaemonName, m.PublicIP, m.Port)
 
 	// Start the deployment
+	newMonMightBeInQuorum = true
 	if err := c.startDeployments(mConf, true); err != nil {
 		return errors.Wrapf(err, "failed to start new mon %s", m.DaemonName)
 	}
@@ -533,6 +689,15 @@ func (c *Cluster) failoverMon(name string) error {
 
 // make a best effort to remove the mon and all its resources
 func (c *Cluster) removeMon(daemonName string) error {
+	return c.removeMonWithOptionalQuorum(daemonName, true)
+}
+
+// make a best effort to remove the mon and all its resources
+func (c *Cluster) removeMonWithOptionalQuorum(daemonName string, shouldRemoveFromQuorum bool) error {
+	if daemonName == "" {
+		logger.Info("did not identify a mon to remove")
+		return nil
+	}
 	logger.Infof("ensuring removal of unhealthy monitor %s", daemonName)
 
 	resourceName := resourceName(daemonName)
@@ -550,8 +715,10 @@ func (c *Cluster) removeMon(daemonName string) error {
 	}
 
 	// Remove the bad monitor from quorum
-	if err := c.removeMonitorFromQuorum(daemonName); err != nil {
-		logger.Errorf("failed to remove mon %q from quorum. %v", daemonName, err)
+	if shouldRemoveFromQuorum {
+		if err := c.removeMonitorFromQuorum(daemonName); err != nil {
+			logger.Errorf("failed to remove mon %q from quorum. %v", daemonName, err)
+		}
 	}
 	delete(c.ClusterInfo.Monitors, daemonName)
 

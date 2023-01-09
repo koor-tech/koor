@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
@@ -30,7 +31,6 @@ import (
 	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/koor-tech/koor/pkg/operator/test"
 	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -161,7 +161,7 @@ func TestSSLPodSpec(t *testing.T) {
 		context:     context,
 		rookVersion: "koorinc/ceph:myversion",
 		clusterSpec: &cephv1.ClusterSpec{
-			CephVersion: cephv1.CephVersionSpec{Image: "quay.io/ceph/ceph:v17.2.3"},
+			CephVersion: cephv1.CephVersionSpec{Image: "quay.io/ceph/ceph:v17.2.5"},
 			Network: cephv1.NetworkSpec{
 				HostNetwork: true,
 			},
@@ -316,7 +316,7 @@ func TestValidateSpec(t *testing.T) {
 	assert.Nil(t, err)
 
 	// external with endpoints, success
-	s.Spec.Gateway.ExternalRgwEndpoints = []v1.EndpointAddress{
+	s.Spec.Gateway.ExternalRgwEndpoints = []cephv1.EndpointAddress{
 		{
 			IP: "192.168.0.1",
 		},
@@ -590,7 +590,7 @@ func TestCheckRGWSSES3Enabled(t *testing.T) {
 			store:       store,
 			clusterInfo: &client.ClusterInfo{Context: ctx, CephVersion: cephver.CephVersion{Major: 17, Minor: 2, Extra: 3}},
 			clusterSpec: &cephv1.ClusterSpec{
-				CephVersion: cephv1.CephVersionSpec{Image: "quay.io/ceph/ceph:v17.2.3"},
+				CephVersion: cephv1.CephVersionSpec{Image: "quay.io/ceph/ceph:v17.2.5"},
 			},
 		}
 	}
@@ -753,15 +753,15 @@ func TestMakeRGWPodSpec(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.isSet {
 				if tt.enabled {
-					c.store.Spec.HostNetwork = func(hostNetwork bool) *bool { return &hostNetwork }(true)
+					c.store.Spec.Gateway.HostNetwork = func(hostNetwork bool) *bool { return &hostNetwork }(true)
 				} else {
-					c.store.Spec.HostNetwork = new(bool)
+					c.store.Spec.Gateway.HostNetwork = new(bool)
 				}
 			}
 			podTemplateSpec, _ := c.makeRGWPodSpec(rgwConfig)
 
 			if tt.isSet {
-				assert.Equal(t, *c.store.Spec.HostNetwork, podTemplateSpec.Spec.HostNetwork)
+				assert.Equal(t, *c.store.Spec.Gateway.HostNetwork, podTemplateSpec.Spec.HostNetwork)
 			} else {
 				assert.Equal(t, c.clusterSpec.Network.IsHost(), podTemplateSpec.Spec.HostNetwork)
 			}

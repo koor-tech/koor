@@ -17,8 +17,6 @@ limitations under the License.
 package rbd
 
 import (
-	"fmt"
-
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/operator/ceph/config"
 	"github.com/koor-tech/koor/pkg/operator/ceph/controller"
@@ -52,7 +50,12 @@ func (r *ReconcileCephRBDMirror) makeDeployment(daemonConfig *daemonConfig, rbdM
 	if r.cephClusterSpec.LogCollector.Enabled {
 		shareProcessNamespace := true
 		podSpec.Spec.ShareProcessNamespace = &shareProcessNamespace
-		podSpec.Spec.Containers = append(podSpec.Spec.Containers, *controller.LogCollectorContainer(fmt.Sprintf("ceph-client.rbd-mirror.%s", daemonConfig.DaemonID), r.clusterInfo.Namespace, *r.cephClusterSpec))
+
+		// The rbd mirror daemon logs to multiple logs, so we need a more generous log rotation filter for files:
+		// ceph-client.rbd-mirror.a.log
+		// <CLUSTER_FSID>-client.rbd-mirror-peer.log
+		logRotationFilter := "*-client.rbd-mirror*"
+		podSpec.Spec.Containers = append(podSpec.Spec.Containers, *controller.LogCollectorContainer(logRotationFilter, r.clusterInfo.Namespace, *r.cephClusterSpec))
 	}
 
 	// Replace default unreachable node toleration
@@ -97,6 +100,7 @@ func (r *ReconcileCephRBDMirror) makeChownInitContainer(daemonConfig *daemonConf
 	return controller.ChownCephDataDirsInitContainer(
 		*daemonConfig.DataPathMap,
 		r.cephClusterSpec.CephVersion.Image,
+		controller.GetContainerImagePullPolicy(r.cephClusterSpec.CephVersion.ImagePullPolicy),
 		controller.DaemonVolumeMounts(daemonConfig.DataPathMap, daemonConfig.ResourceName),
 		rbdMirror.Spec.Resources,
 		controller.PodSecurityContext(),
@@ -115,6 +119,7 @@ func (r *ReconcileCephRBDMirror) makeMirroringDaemonContainer(daemonConfig *daem
 			"--name="+fullDaemonName(daemonConfig.DaemonID),
 		),
 		Image:           r.cephClusterSpec.CephVersion.Image,
+		ImagePullPolicy: controller.GetContainerImagePullPolicy(r.cephClusterSpec.CephVersion.ImagePullPolicy),
 		VolumeMounts:    controller.DaemonVolumeMounts(daemonConfig.DataPathMap, daemonConfig.ResourceName),
 		Env:             controller.DaemonEnvVars(r.cephClusterSpec.CephVersion.Image),
 		Resources:       rbdMirror.Spec.Resources,

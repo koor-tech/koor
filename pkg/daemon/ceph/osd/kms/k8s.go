@@ -19,9 +19,9 @@ package kms
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
-	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -52,6 +52,17 @@ func (c *Config) storeSecretInKubernetes(pvcName, key string) error {
 	}
 
 	return nil
+}
+
+// getKubernetesSecret returns key value from secret.
+func (c *Config) getKubernetesSecret(pvcName string) (string, error) {
+	secretName := GenerateOSDEncryptionSecretName(pvcName)
+	secret, err := c.context.Clientset.CoreV1().Secrets(c.ClusterInfo.Namespace).Get(c.ClusterInfo.Context, secretName, metav1.GetOptions{})
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to get secret %q", secretName)
+	}
+
+	return string(secret.Data[OsdEncryptionSecretNameKeyName]), nil
 }
 
 func generateOSDEncryptedKeySecret(pvcName, key string, clusterInfo *cephclient.ClusterInfo) (*v1.Secret, error) {

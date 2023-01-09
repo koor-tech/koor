@@ -16,20 +16,20 @@ concurrency:
 
 jobs:
   TestCephMgrSuite:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "contains(github.event.pull_request.labels.*.name, 'run-mgr-suite')"
     strategy:
       fail-fast: false
       matrix:
-        kubernetes-versions: ["v1.24.1"]
+        kubernetes-versions : ['v1.25.0']
     steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: setup cluster resources
-        uses: ./.github/workflows/integration-test-config
+        uses: ./.github/workflows/integration-test-config-latest-k8s
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           kubernetes-version: ${{ matrix.kubernetes-versions }}
@@ -49,7 +49,7 @@ jobs:
           tests/scripts/collect-logs.sh
 
       - name: Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: ceph-mgr-suite-artifact-${{ matrix.kubernetes-versions }}

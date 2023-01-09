@@ -36,10 +36,13 @@ spec:
             - "--leader-election-retry-period=26s"
             - "--default-fstype=ext4"
             - "--extra-create-metadata=true"
+            {{- if .EnableCSITopology }}
+            - "--feature-gates=Topology=true"
+            {{- end }}
           env:
             - name: ADDRESS
               value: unix:///csi/csi-provisioner.sock
-          imagePullPolicy: "IfNotPresent"
+          imagePullPolicy: {{ .ImagePullPolicy }}
           volumeMounts:
             - name: socket-dir
               mountPath: /csi
@@ -58,7 +61,7 @@ spec:
           env:
             - name: ADDRESS
               value: unix:///csi/csi-provisioner.sock
-          imagePullPolicy: "IfNotPresent"
+          imagePullPolicy: {{ .ImagePullPolicy }}
           volumeMounts:
             - name: socket-dir
               mountPath: /csi
@@ -73,10 +76,11 @@ spec:
             - "--leader-election-lease-duration=137s"
             - "--leader-election-renew-deadline=107s"
             - "--leader-election-retry-period=26s"
+            - "--default-fstype=ext4"
           env:
             - name: ADDRESS
               value: /csi/csi-provisioner.sock
-          imagePullPolicy: "IfNotPresent"
+          imagePullPolicy: {{ .ImagePullPolicy }}
           volumeMounts:
             - name: socket-dir
               mountPath: /csi
@@ -96,7 +100,7 @@ spec:
           env:
             - name: ADDRESS
               value: unix:///csi/csi-provisioner.sock
-          imagePullPolicy: "IfNotPresent"
+          imagePullPolicy: {{ .ImagePullPolicy }}
           volumeMounts:
             - name: socket-dir
               mountPath: /csi
@@ -109,36 +113,23 @@ spec:
             - "--drivernamespace=$(DRIVER_NAMESPACE)"
             - "--v={{ .LogLevel }}"
             - "--drivername={{ .DriverNamePrefix }}rbd.csi.ceph.com"
+            {{ if .CSIEnableMetadata }}
+            - "--setmetadata={{ .CSIEnableMetadata }}"
+            {{ end }}
+            {{ if .CSIClusterName }}
+            - "--clustername={{ .CSIClusterName }}"
+            {{ end }}
           env:
             - name: DRIVER_NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-          imagePullPolicy: "IfNotPresent"
+          imagePullPolicy: {{ .ImagePullPolicy }}
           volumeMounts:
             - name: ceph-csi-configs
               mountPath: /etc/ceph-csi-config/
             - name: keys-tmp-dir
               mountPath: /tmp/csi/keys
-        {{ end }}
-        {{ if .EnableVolumeReplicationSideCar }}
-        - name: volume-replication
-          image: {{ .VolumeReplicationImage }}
-          args :
-            - "--metrics-bind-address=0"
-            - "--leader-election-namespace={{ .Namespace }}"
-            - "--driver-name={{ .DriverNamePrefix }}rbd.csi.ceph.com"
-            - "--csi-address=$(ADDRESS)"
-            - "--rpc-timeout={{ .GRPCTimeout }}"
-            - "--health-probe-bind-address=:9998"
-            - "--leader-elect=true"
-          env:
-            - name: ADDRESS
-              value: unix:///csi/csi-provisioner.sock
-          imagePullPolicy: "IfNotPresent"
-          volumeMounts:
-            - name: socket-dir
-              mountPath: /csi
         {{ end }}
         {{ if .EnableCSIAddonsSideCar }}
         - name: csi-addons
@@ -147,7 +138,6 @@ spec:
             - "--node-id=$(NODE_ID)"
             - "--v={{ .LogLevel }}"
             - "--csi-addons-address=$(CSIADDONS_ENDPOINT)"
-            - "--controller-ip=$(POD_IP)"
             - "--controller-port={{ .CSIAddonsPort }}"
             - "--pod=$(POD_NAME)"
             - "--namespace=$(POD_NAMESPACE)"
@@ -156,10 +146,6 @@ spec:
           ports:
             - containerPort: {{ .CSIAddonsPort }}
           env:
-            - name: POD_IP
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.podIP
             - name: NODE_ID
               valueFrom:
                 fieldRef:
@@ -178,7 +164,7 @@ spec:
                   fieldPath: metadata.namespace
             - name: CSIADDONS_ENDPOINT
               value: unix:///csi/csi-addons.sock
-          imagePullPolicy: "IfNotPresent"
+          imagePullPolicy: {{ .ImagePullPolicy }}
           volumeMounts:
             - name: socket-dir
               mountPath: /csi
@@ -199,6 +185,12 @@ spec:
             {{ if .EnableCSIAddonsSideCar }}
             - "--csi-addons-endpoint=$(CSIADDONS_ENDPOINT)"
             {{ end }}
+            {{ if .CSIEnableMetadata }}
+            - "--setmetadata={{ .CSIEnableMetadata }}"
+            {{ end }}
+            {{ if .CSIClusterName }}
+            - "--clustername={{ .CSIClusterName }}"
+            {{ end }}
           env:
             - name: POD_IP
               valueFrom:
@@ -218,7 +210,7 @@ spec:
             - name: CSIADDONS_ENDPOINT
               value: unix:///csi/csi-addons.sock
             {{ end }}
-          imagePullPolicy: "IfNotPresent"
+          imagePullPolicy: {{ .ImagePullPolicy }}
           volumeMounts:
             - name: socket-dir
               mountPath: /csi
@@ -267,7 +259,7 @@ spec:
           volumeMounts:
             - name: socket-dir
               mountPath: /csi
-          imagePullPolicy: "IfNotPresent"
+          imagePullPolicy: {{ .ImagePullPolicy }}
         {{ end }}
       volumes:
         - name: host-dev

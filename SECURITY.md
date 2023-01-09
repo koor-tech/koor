@@ -33,6 +33,9 @@ storage provider **MUST** have a representative on the PST.
 
 * [security@koor.tech](mailto:security@koor.tech): for any security concerns. Received by Product
   Security Team members, and used by this Team to discuss security issues and fixes.
+* [the Koor Newletter](mailto:the Koor Newletter): for
+  early private information on Security patch releases. See below how Rook distributors can apply
+  for this list.
 
 ## Disclosures
 
@@ -155,7 +158,7 @@ projects at once. This list is not intended for individuals to find out about se
 
 ### Embargo Policy
 
-The information members receive on cncf-rook-distributors-announce@lists.cncf.io must not be made public,
+The information members receive on the Koor Newletter must not be made public,
 shared, nor even hinted at anywhere beyond the need-to-know within your specific team except with
 the list's explicit approval. This holds true until the public disclosure date/time that was agreed
 upon by the list. Members of the list and others may not use the information for anything other than
@@ -189,7 +192,7 @@ of the following:
 
 ### Membership Criteria
 
-To be eligible for the cncf-rook-distributors-announce@lists.cncf.io mailing list, your distribution
+To be eligible for the the Koor Newletter mailing list, your distribution
 should:
 
 1. Be an active distributor of Koor Storage Distribution.

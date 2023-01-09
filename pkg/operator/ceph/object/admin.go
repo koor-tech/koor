@@ -27,11 +27,11 @@ import (
 	"github.com/ceph/go-ceph/rgw/admin"
 	"github.com/coreos/pkg/capnslog"
 	"github.com/google/go-cmp/cmp"
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	"github.com/koor-tech/koor/pkg/util/exec"
-	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 )
@@ -117,7 +117,7 @@ func NewMultisiteContext(context *clusterd.Context, clusterInfo *cephclient.Clus
 	objContext := NewContext(context, clusterInfo, store.Name)
 	objContext.UID = string(store.UID)
 
-	if err := UpdateEndpoint(objContext, &store.Spec); err != nil {
+	if err := UpdateEndpoint(objContext, store); err != nil {
 		return nil, err
 	}
 
@@ -133,14 +133,14 @@ func NewMultisiteContext(context *clusterd.Context, clusterInfo *cephclient.Clus
 }
 
 // UpdateEndpoint updates an object.Context using the latest info from the CephObjectStore spec
-func UpdateEndpoint(objContext *Context, spec *cephv1.ObjectStoreSpec) error {
+func UpdateEndpoint(objContext *Context, store *cephv1.CephObjectStore) error {
 	nsName := fmt.Sprintf("%s/%s", objContext.clusterInfo.Namespace, objContext.Name)
 
-	port, err := spec.GetPort()
+	port, err := store.Spec.GetPort()
 	if err != nil {
 		return errors.Wrapf(err, "failed to get port for object store %q", nsName)
 	}
-	objContext.Endpoint = BuildDNSEndpoint(BuildDomainName(objContext.Name, objContext.clusterInfo.Namespace), port, spec.IsTLSEnabled())
+	objContext.Endpoint = BuildDNSEndpoint(GetDomainName(store), port, store.Spec.IsTLSEnabled())
 
 	return nil
 }
@@ -250,7 +250,6 @@ func runAdminCommand(c *Context, expectJSON bool, args ...string) (string, error
 			fmt.Sprintf("--rgw-zonegroup=%s", c.ZoneGroup),
 			fmt.Sprintf("--rgw-zone=%s", c.Zone),
 		}
-
 		args = append(args, options...)
 	}
 
@@ -381,20 +380,18 @@ func periodWillChange(current, staged string) (bool, error) {
 	// different in the staged period, even when no updates are needed. Sometimes, the values are
 	// reported as different in the staging output but aren't actually changed upon commit.
 	ignorePaths := cmp.FilterPath(func(path cmp.Path) bool {
-		// path.String() outputs nothing for the crude map[string]interface{} JSON struct
-		// Example of path.GoString() output for a long path in the period JSON:
-		// root["period_map"].(map[string]interface {})["short_zone_ids"].([]interface {})[0].(map[string]interface {})["val"].(float64)
-		switch path.GoString() {
-		case `root["id"]`:
-			// "id" is always changed in the staged period, but it doesn't always update.
+		j := toJsonPath(path)
+		switch j {
+		case ".id": // {"epoch"}
+			// "id" always changes in staged period, but not always when committed
 			return true
-		case `root["predecessor_uuid"]`:
-			// "predecessor_uuid" is always changed in the staged period, but it doesn't always update.
+		case ".predecessor_uuid":
+			// "predecessor_uuid" always changes in staged period, but not always when committed
 			return true
-		case `root["realm_epoch"]`:
-			// "realm_epoch" is always incremented in the staged period, but it doesn't always increment.
+		case ".realm_epoch":
+			// "realm_epoch" always increments in staged period, but not always when committed
 			return true
-		case `root["epoch"]`:
+		case ".epoch":
 			// Strangely, "epoch" is not incremented in the staged period even though it is always
 			// incremented upon an actual commit. It could be argued that this behavior is a bug.
 			// Ignore this value to handle the possibility that the behavior changes in the future.
@@ -409,6 +406,22 @@ func periodWillChange(current, staged string) (bool, error) {
 	logger.Debugf("RGW config period diff:\n%s", diff)
 
 	return (diff != ""), nil
+}
+
+// convert a cmp.Path to a path in json format like might be used with jq to query the item
+// e.g., {"a": {"b": "c"}} returns .a.b
+func toJsonPath(path cmp.Path) string {
+	out := ""
+	for _, step := range path {
+		mi, ok := step.(cmp.MapIndex)
+		if !ok {
+			// because we use a dumb map[string]interface{}, we only need to process map indexes,
+			// but the path has other node types because of how the json gets processed
+			continue
+		}
+		out = out + "." + mi.Key().String()
+	}
+	return out
 }
 
 func GetAdminOPSUserCredentials(objContext *Context, spec *cephv1.ObjectStoreSpec) (string, string, error) {

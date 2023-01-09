@@ -187,7 +187,7 @@ func (c *ClusterController) initializeCluster(cluster *cluster) error {
 			return errors.Wrap(err, "failed to configure external ceph cluster")
 		}
 	} else {
-		clusterInfo, _, _, err := controller.LoadClusterInfo(c.context, c.OpManagerCtx, cluster.Namespace)
+		clusterInfo, _, _, err := controller.LoadClusterInfo(c.context, c.OpManagerCtx, cluster.Namespace, cluster.Spec)
 		if err != nil {
 			if errors.Is(err, controller.ClusterInfoNoClusterNoSecret) {
 				logger.Info("clusterInfo not yet found, must be a new cluster.")
@@ -546,7 +546,7 @@ func (c *cluster) reportTelemetry() {
 	telemetryMutex.Lock()
 	defer telemetryMutex.Unlock()
 
-	// Identify this as a rook cluster for Ceph telemetry by setting the Rook version.
+	// Identify this as a rook cluster for Ceph telemetry by setting the Koor Storage Distribution version.
 	logger.Info("reporting cluster telemetry")
 	telemetry.ReportKeyValue(c.context, c.ClusterInfo, telemetry.RookVersionKey, rookversion.Version)
 
@@ -607,16 +607,16 @@ func (c *cluster) configureMsgr2() error {
 		if c.Spec.Network.Connections.Encryption.Enabled {
 			encryptionSetting = "secure"
 		}
-		logger.Infof("setting msgr2 encryption mode to %q", encryptionSetting)
 
-		if err := monStore.Set("global", "ms_cluster_mode", encryptionSetting); err != nil {
-			return errors.Wrapf(err, "failed to set ms_cluster_mode to %q", encryptionSetting)
+		globalConfigSettings := map[string]string{
+			"ms_cluster_mode": encryptionSetting,
+			"ms_service_mode": encryptionSetting,
+			"ms_client_mode":  encryptionSetting,
 		}
-		if err := monStore.Set("global", "ms_service_mode", encryptionSetting); err != nil {
-			return errors.Wrapf(err, "failed to set ms_service_mode to %q", encryptionSetting)
-		}
-		if err := monStore.Set("global", "ms_client_mode", encryptionSetting); err != nil {
-			return errors.Wrapf(err, "failed to set ms_client_mode to %q", encryptionSetting)
+
+		logger.Infof("setting msgr2 encryption mode to %q", encryptionSetting)
+		if err := monStore.SetAll("global", globalConfigSettings); err != nil {
+			return err
 		}
 	}
 
@@ -627,9 +627,12 @@ func (c *cluster) configureMsgr2() error {
 			if c.Spec.Network.Connections.Compression.Enabled {
 				compressionSetting = "force"
 			}
+			globalConfigSettings := map[string]string{
+				"ms_osd_compress_mode": compressionSetting,
+			}
 			logger.Infof("setting msgr2 compression mode to %q", compressionSetting)
-			if err := monStore.Set("global", "ms_osd_compress_mode", compressionSetting); err != nil {
-				return errors.Wrapf(err, "failed to set ms_osd_compress_mode to %q", compressionSetting)
+			if err := monStore.SetAll("global", globalConfigSettings); err != nil {
+				return err
 			}
 		} else {
 			logger.Warningf("network compression requires Ceph Quincy (v17) or newer, skipping for current ceph %q", c.ClusterInfo.CephVersion.String())

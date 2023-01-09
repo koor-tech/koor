@@ -21,10 +21,10 @@ import (
 	"fmt"
 	"path"
 
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mgr"
 	opconfig "github.com/koor-tech/koor/pkg/operator/ceph/config"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -46,12 +46,12 @@ func encryptionKeyPath() string {
 	return path.Join(opconfig.EtcCephDir, encryptionKeyFileName)
 }
 
-func encryptionDMName(pvcName, blockType string) string {
+func EncryptionDMName(pvcName, blockType string) string {
 	return fmt.Sprintf("%s-%s", pvcName, blockType)
 }
 
-func encryptionDMPath(pvcName, blockType string) string {
-	return path.Join("/dev/mapper", encryptionDMName(pvcName, blockType))
+func EncryptionDMPath(pvcName, blockType string) string {
+	return path.Join("/dev/mapper", EncryptionDMName(pvcName, blockType))
 }
 
 func encryptionBlockDestinationCopy(mountPath, blockType string) string {

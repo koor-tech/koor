@@ -25,13 +25,12 @@ import (
 	"time"
 
 	"github.com/coreos/pkg/capnslog"
+	bktv1alpha1 "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	rookclient "github.com/koor-tech/koor/pkg/client/clientset/versioned/fake"
 	"github.com/koor-tech/koor/pkg/operator/test"
-	bktv1alpha1 "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1"
 
 	"github.com/koor-tech/koor/pkg/clusterd"
-	"github.com/koor-tech/koor/pkg/operator/ceph/object"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
 	"github.com/stretchr/testify/assert"
@@ -151,7 +150,7 @@ func mockSetup(t *testing.T) {
 		}
 		return nil, nil
 	}
-	deleteNotification = func(p provisioner, bucket *bktv1alpha1.ObjectBucket, notificationId string) error {
+	deleteNotificationFunc = func(p provisioner, bucket *bktv1alpha1.ObjectBucket, notificationId string) error {
 		deletedNotifications = append(deletedNotifications, notificationId)
 		return nil
 	}
@@ -427,7 +426,7 @@ func TestCephBucketNotificationControllerWithOBC(t *testing.T) {
 				StorageClassName: testSCName,
 				Connection: &bktv1alpha1.Connection{
 					Endpoint: &bktv1alpha1.Endpoint{
-						BucketHost: object.BuildDomainName(testStoreName, testNamespace),
+						BucketHost: "rook-ceph-rgw-test-store.rook-ceph.svc",
 					},
 				},
 			},

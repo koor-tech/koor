@@ -29,13 +29,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/koor-tech/koor/pkg/util/exec"
 	"github.com/koor-tech/koor/pkg/util/sys"
-	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -56,6 +56,8 @@ const (
 	EndpointConfigMapName = "rook-ceph-mon-endpoints"
 	// EndpointDataKey is the name of the key inside the mon configmap to get the endpoints
 	EndpointDataKey = "data"
+	// OutOfQuorumKey is the name of the key for tracking mons detected out of quorum
+	OutOfQuorumKey = "outOfQuorum"
 	// MaxMonIDKey is the name of the max mon id used
 	MaxMonIDKey = "maxMonId"
 	// MappingKey is the name of the mapping for the mon->node and node->port
@@ -86,12 +88,12 @@ type MonScheduleInfo struct {
 }
 
 // LoadClusterInfo constructs or loads a clusterinfo and returns it along with the maxMonID
-func LoadClusterInfo(ctx *clusterd.Context, context context.Context, namespace string) (*cephclient.ClusterInfo, int, *Mapping, error) {
-	return CreateOrLoadClusterInfo(ctx, context, namespace, nil)
+func LoadClusterInfo(ctx *clusterd.Context, context context.Context, namespace string, cephClusterSpec *cephv1.ClusterSpec) (*cephclient.ClusterInfo, int, *Mapping, error) {
+	return CreateOrLoadClusterInfo(ctx, context, namespace, nil, cephClusterSpec)
 }
 
 // CreateOrLoadClusterInfo constructs or loads a clusterinfo and returns it along with the maxMonID
-func CreateOrLoadClusterInfo(clusterdContext *clusterd.Context, context context.Context, namespace string, ownerInfo *k8sutil.OwnerInfo) (*cephclient.ClusterInfo, int, *Mapping, error) {
+func CreateOrLoadClusterInfo(clusterdContext *clusterd.Context, context context.Context, namespace string, ownerInfo *k8sutil.OwnerInfo, cephClusterSpec *cephv1.ClusterSpec) (*cephclient.ClusterInfo, int, *Mapping, error) {
 	var clusterInfo *cephclient.ClusterInfo
 	maxMonID := -1
 	monMapping := &Mapping{
@@ -147,6 +149,11 @@ func CreateOrLoadClusterInfo(clusterdContext *clusterd.Context, context context.
 	if err != nil {
 		return nil, maxMonID, monMapping, errors.Wrap(err, "failed to get mon config")
 	}
+
+	// update clusterInfo with cephCLusterSpec Network info
+	// it will also update if Multus is enabled, so ceph cmds
+	// can run on remote executor
+	clusterInfo.NetworkSpec = cephClusterSpec.Network
 
 	// If an admin key was provided we don't need to load the other resources
 	// Some people might want to give the admin key
@@ -244,6 +251,21 @@ func ExtractKey(contents string) (string, error) {
 	return secret, nil
 }
 
+func UpdateMonsOutOfQuorum(clientset kubernetes.Interface, namespace string, monsOutOfQuorum []string) error {
+	ctx := context.TODO()
+	cm, err := clientset.CoreV1().ConfigMaps(namespace).Get(ctx, EndpointConfigMapName, metav1.GetOptions{})
+	if err != nil {
+		return errors.Wrap(err, "failed to get mon endpoints configmap")
+	}
+
+	cm.Data[OutOfQuorumKey] = strings.Join(monsOutOfQuorum, ",")
+	_, err = clientset.CoreV1().ConfigMaps(namespace).Update(ctx, cm, metav1.UpdateOptions{})
+	if err != nil {
+		return errors.Wrap(err, "failed to update mon endpoints configmap with mon(s) out of quorum")
+	}
+	return nil
+}
+
 // loadMonConfig returns the monitor endpoints and maxMonID
 func loadMonConfig(clientset kubernetes.Interface, namespace string) (map[string]*cephclient.MonInfo, int, *Mapping, error) {
 	ctx := context.TODO()
@@ -265,6 +287,18 @@ func loadMonConfig(clientset kubernetes.Interface, namespace string) (map[string
 	// Parse the monitor List
 	if info, ok := cm.Data[EndpointDataKey]; ok {
 		monEndpointMap = ParseMonEndpoints(info)
+	}
+
+	// Parse the mons that were detected out of quorum
+	if outOfQuorum, ok := cm.Data[OutOfQuorumKey]; ok && len(outOfQuorum) > 0 {
+		monNames := strings.Split(outOfQuorum, ",")
+		for _, monName := range monNames {
+			if monInfo, ok := monEndpointMap[monName]; ok {
+				monInfo.OutOfQuorum = true
+			} else {
+				logger.Warningf("did not find mon %q to set it out of quorum in the cluster info", monName)
+			}
+		}
 	}
 
 	// Parse the max monitor id
@@ -357,13 +391,13 @@ func ParseMonEndpoints(input string) map[string]*cephclient.MonInfo {
 
 // PopulateExternalClusterInfo Add validation in the code to fail if the external cluster has no
 // OSDs keep waiting
-func PopulateExternalClusterInfo(context *clusterd.Context, ctx context.Context, namespace string, ownerInfo *k8sutil.OwnerInfo) (*cephclient.ClusterInfo, error) {
+func PopulateExternalClusterInfo(cephClusterSpec *cephv1.ClusterSpec, context *clusterd.Context, ctx context.Context, namespace string, ownerInfo *k8sutil.OwnerInfo) (*cephclient.ClusterInfo, error) {
 	for {
 		// Checking for the context makes sure we don't loop forever with a canceled context
 		if ctx.Err() != nil {
 			return nil, ctx.Err()
 		}
-		clusterInfo, _, _, err := CreateOrLoadClusterInfo(context, ctx, namespace, nil)
+		clusterInfo, _, _, err := CreateOrLoadClusterInfo(context, ctx, namespace, nil, cephClusterSpec)
 		if err != nil {
 			logger.Warningf("waiting for connection info of the external cluster. retrying in %s.", externalConnectionRetry.String())
 			logger.Debugf("%v", err)
