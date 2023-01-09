@@ -13,7 +13,7 @@ from other pods running in your cluster.
 
 ## Minimum Version
 
-Kubernetes **v1.17** or higher is supported by Rook.
+Kubernetes **v1.19** or higher is supported by Rook.
 
 ## CPU Architecture
 
@@ -29,6 +29,7 @@ In order to configure the Ceph storage cluster, at least one of these local stor
   * This requires `lvm2` to be installed on the host.
     To avoid this dependency, you can create a single full-disk partition on the disk (see below)
 * Raw partitions (no formatted filesystem)
+* LVM Logical Volumes (no formatted filesystem)
 * Persistent Volumes available from a storage class in `block` mode
 
 ## TL;DR
@@ -50,6 +51,7 @@ The first step is to deploy the Rook operator. Check that you are using the [exa
 
 ```console
 cd deploy/examples
+# kubectl create -f psp.yaml # if your cluster is protected by pod security policies
 kubectl create -f crds.yaml -f common.yaml -f operator.yaml
 
 # verify the rook-ceph-operator is in the `Running` state before proceeding

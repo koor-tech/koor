@@ -20,11 +20,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pkg/errors"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephconfig "github.com/koor-tech/koor/pkg/operator/ceph/config"
 	"github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
-	"github.com/pkg/errors"
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -119,6 +119,7 @@ func (c *Cluster) makeChownInitContainer(mdsConfig *mdsConfig) v1.Container {
 	return controller.ChownCephDataDirsInitContainer(
 		*mdsConfig.DataPathMap,
 		c.clusterSpec.CephVersion.Image,
+		controller.GetContainerImagePullPolicy(c.clusterSpec.CephVersion.ImagePullPolicy),
 		controller.DaemonVolumeMounts(mdsConfig.DataPathMap, mdsConfig.ResourceName),
 		c.fs.Spec.MetadataServer.Resources,
 		controller.PodSecurityContext(),
@@ -143,6 +144,7 @@ func (c *Cluster) makeMdsDaemonContainer(mdsConfig *mdsConfig) v1.Container {
 		},
 		Args:            args,
 		Image:           c.clusterSpec.CephVersion.Image,
+		ImagePullPolicy: controller.GetContainerImagePullPolicy(c.clusterSpec.CephVersion.ImagePullPolicy),
 		VolumeMounts:    controller.DaemonVolumeMounts(mdsConfig.DataPathMap, mdsConfig.ResourceName),
 		Env:             append(controller.DaemonEnvVars(c.clusterSpec.CephVersion.Image), k8sutil.PodIPEnvVar(podIPEnvVar)),
 		Resources:       c.fs.Spec.MetadataServer.Resources,

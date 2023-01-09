@@ -17,27 +17,28 @@ limitations under the License.
 package bucket
 
 import (
-	"crypto/rand"
+	"fmt"
 
 	"github.com/coreos/pkg/capnslog"
-	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
-	cephObject "github.com/koor-tech/koor/pkg/operator/ceph/object"
+	"github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1"
 	bktv1alpha1 "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1"
 	"github.com/kube-object-storage/lib-bucket-provisioner/pkg/provisioner"
 	"github.com/pkg/errors"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	cephObject "github.com/koor-tech/koor/pkg/operator/ceph/object"
 	storagev1 "k8s.io/api/storage/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/rest"
 )
 
 var logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "op-bucket-prov")
 
 const (
-	genUserLen           = 8
 	CephUser             = "cephUser"
-	objectStoreName      = "objectStoreName"
-	objectStoreNamespace = "objectStoreNamespace"
+	ObjectStoreName      = "objectStoreName"
+	ObjectStoreNamespace = "objectStoreNamespace"
 	objectStoreEndpoint  = "endpoint"
 )
 
@@ -50,11 +51,7 @@ func NewBucketController(cfg *rest.Config, p *Provisioner, data map[string]strin
 }
 
 func getObjectStoreName(sc *storagev1.StorageClass) string {
-	return sc.Parameters[objectStoreName]
-}
-
-func getObjectStoreNameSpace(sc *storagev1.StorageClass) string {
-	return sc.Parameters[objectStoreNamespace]
+	return sc.Parameters[ObjectStoreName]
 }
 
 func getObjectStoreEndpoint(sc *storagev1.StorageClass) string {
@@ -101,23 +98,44 @@ func (p *Provisioner) getCephCluster() (*cephv1.CephCluster, error) {
 	return &cephCluster.Items[0], err
 }
 
-func randomString(n int) string {
-
-	var letterRunes = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	b := make([]byte, n)
-	if _, err := rand.Read(b); err != nil {
-		return ""
-	}
-	for k, v := range b {
-		b[k] = letterRunes[v%byte(len(letterRunes))]
-	}
-	return string(b)
-}
-
 func MaxObjectQuota(AdditionalConfig map[string]string) string {
 	return AdditionalConfig["maxObjects"]
 }
 
 func MaxSizeQuota(AdditionalConfig map[string]string) string {
 	return AdditionalConfig["maxSize"]
+}
+
+func GetObjectStoreNameFromBucket(ob *v1alpha1.ObjectBucket) (types.NamespacedName, error) {
+	// Rook v1.11 OBCs have additional state labels that tell the object store namespace and name.
+	// This is critical for CephObjectStores in external mode that connect to RGW endpoints directly
+	// which don't have a deterministic domain structure.
+	nsName, err := getNSNameFromAdditionalState(ob.Spec.AdditionalState)
+	if err == nil {
+		return nsName, nil
+	}
+
+	// TODO: remove after Rook v1.12
+	// Older OBCs don't have the additional state labels, but they will always be configured to use
+	// the legacy CephObjectStore Service which has a deterministic domain structure.
+	logger.Debugf("falling back to legacy method for determining OBC \"%s/%s\"'s CephObjectStore from endpoint %q",
+		ob.Namespace, ob.Name, ob.Spec.Connection.Endpoint.BucketHost)
+	nsName, err = cephObject.ParseDomainName(ob.Spec.Connection.Endpoint.BucketHost)
+	if err != nil {
+		return types.NamespacedName{}, errors.Wrapf(err, "malformed BucketHost %q", ob.Spec.Endpoint.BucketHost)
+	}
+
+	return nsName, nil
+}
+
+func getNSNameFromAdditionalState(state map[string]string) (types.NamespacedName, error) {
+	name, ok := state[ObjectStoreName]
+	if !ok {
+		return types.NamespacedName{}, fmt.Errorf("failed to get %q from OB additional state: %v", ObjectStoreName, state)
+	}
+	namespace, ok := state[ObjectStoreNamespace]
+	if !ok {
+		return types.NamespacedName{}, fmt.Errorf("failed to get %q from OB additional state: %v", ObjectStoreNamespace, state)
+	}
+	return types.NamespacedName{Name: name, Namespace: namespace}, nil
 }

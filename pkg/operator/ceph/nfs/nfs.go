@@ -21,13 +21,14 @@ import (
 	"fmt"
 
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	opmon "github.com/koor-tech/koor/pkg/operator/ceph/cluster/mon"
 	"github.com/koor-tech/koor/pkg/operator/ceph/config"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
-	"github.com/pkg/errors"
+	"github.com/koor-tech/koor/pkg/util/exec"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -35,7 +36,6 @@ import (
 )
 
 const (
-	ganeshaRadosGraceCmd = "ganesha-rados-grace"
 	// Default RADOS pool name after the NFS changes in Ceph
 	postNFSChangeDefaultPoolName = ".nfs"
 	// Default RADOS pool name before the NFS changes in Ceph
@@ -64,9 +64,13 @@ func (r *ReconcileCephNFS) upCephNFS(n *cephv1.CephNFS) error {
 			return errors.Wrap(err, "failed to create config")
 		}
 
-		err = r.addRADOSConfigFile(n, id)
+		err = r.addRADOSConfigFile(n)
 		if err != nil {
 			return errors.Wrap(err, "failed to create RADOS config object")
+		}
+
+		if err := r.setRadosConfig(n); err != nil {
+			return errors.Wrap(err, "failed to set RADOS config options")
 		}
 
 		cfg := daemonConfig{
@@ -133,22 +137,28 @@ func (r *ReconcileCephNFS) upCephNFS(n *cephv1.CephNFS) error {
 }
 
 // Create empty config file for new ganesha server
-func (r *ReconcileCephNFS) addRADOSConfigFile(n *cephv1.CephNFS, name string) error {
-	config := getGaneshaConfigObject(n, r.clusterInfo.CephVersion, name)
-	cmd := "rados"
-	args := []string{
+func (r *ReconcileCephNFS) addRADOSConfigFile(n *cephv1.CephNFS) error {
+	config := getGaneshaConfigObject(n)
+
+	flags := []string{
 		"--pool", n.Spec.RADOS.Pool,
 		"--namespace", n.Spec.RADOS.Namespace,
-		"--conf", cephclient.CephConfFilePath(r.context.ConfigDir, n.Namespace),
 	}
-	err := r.context.Executor.ExecuteCommand(cmd, append(args, "stat", config)...)
+
+	cmd := cephclient.NewRadosCommand(r.context, r.clusterInfo, append(flags, "stat", config))
+	_, err := cmd.RunWithTimeout(exec.CephCommandsTimeout)
 	if err == nil {
 		// If stat works then we assume it's present already
 		return nil
 	}
 
 	// try to create it
-	return r.context.Executor.ExecuteCommand(cmd, append(args, "create", config)...)
+	cmd = cephclient.NewRadosCommand(r.context, r.clusterInfo, append(flags, "create", config))
+	_, err = cmd.RunWithTimeout(exec.CephCommandsTimeout)
+	if err != nil {
+		return errors.Wrap(err, "failed to create initial rados config object")
+	}
+	return nil
 }
 
 func (r *ReconcileCephNFS) addServerToDatabase(nfs *cephv1.CephNFS, name string) error {
@@ -171,11 +181,10 @@ func (r *ReconcileCephNFS) removeServerFromDatabase(nfs *cephv1.CephNFS, name st
 
 func (r *ReconcileCephNFS) runGaneshaRadosGrace(nfs *cephv1.CephNFS, name, action string) error {
 	nodeID := getNFSNodeID(nfs, name)
-	cmd := ganeshaRadosGraceCmd
 	args := []string{"--pool", nfs.Spec.RADOS.Pool, "--ns", nfs.Spec.RADOS.Namespace, action, nodeID}
-	env := []string{fmt.Sprintf("CEPH_CONF=%s", cephclient.CephConfFilePath(r.context.ConfigDir, nfs.Namespace))}
-
-	return r.context.Executor.ExecuteCommandWithEnv(env, cmd, args...)
+	cmd := cephclient.NewGaneshaRadosGraceCommand(r.context, r.clusterInfo, args)
+	_, err := cmd.RunWithTimeout(exec.CephCommandsTimeout)
+	return err
 }
 
 func (r *ReconcileCephNFS) generateConfigMap(n *cephv1.CephNFS, name string) *v1.ConfigMap {

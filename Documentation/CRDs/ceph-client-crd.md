@@ -1,18 +1,22 @@
 ---
-title: Client CRD
+title: CephClient CRD
 ---
 
 Koor Storage Distribution allows creation and updating clients through the custom resource definitions (CRDs).
 For more information about user management and capabilities see the [Ceph docs](https://docs.ceph.com/docs/master/rados/operations/user-management/).
 
-## Use Case
+## Use Case: Connecting to Ceph
 
-Use Client CRD in case you want to integrate Koor Storage Distribution with applications that are using LibRBD directly.
+Use Client CRD in case you want to integrate Rook with applications that are using LibRBD directly.
 For example for OpenStack deployment with Ceph backend use Client CRD to create OpenStack services users.
 
 The Client CRD is not needed for Flex or CSI driver users. The drivers create the needed users automatically.
 
-## Creating Ceph User
+### Prerequisites
+
+This guide assumes you have created a Rook cluster as explained in the main [Quickstart guide](../Getting-Started/quickstart.md).
+
+### 1. Creating Ceph User
 
 To get you started, here is a simple example of a CRD to configure a Ceph client with capabilities.
 
@@ -30,11 +34,11 @@ spec:
 apiVersion: ceph.rook.io/v1
 kind: CephClient
 metadata:
-  name: cinder
+  name: example
   namespace: rook-ceph
 spec:
   caps:
-    mon: 'profile rbd'
+    mon: 'profile rbd, allow r'
     osd: 'profile rbd pool=volumes, profile rbd pool=vms, profile rbd-read-only pool=images'
 ```
 

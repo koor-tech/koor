@@ -53,7 +53,7 @@ func TestPodSpec(t *testing.T) {
 		},
 		},
 	}
-	c := New(&clusterd.Context{Clientset: clientset}, clusterInfo, clusterSpec, "koorinc/ceph:myversion")
+	c := New(&clusterd.Context{Clientset: clientset}, clusterInfo, clusterSpec, "koor-tech/koor:myversion")
 
 	mgrTestConfig := mgrConfig{
 		DaemonID:     "a",

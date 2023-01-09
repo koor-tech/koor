@@ -6,7 +6,7 @@ quickly spin up a Kubernetes cluster. The Test framework is designed to install 
 
 ## Install Kubernetes
 
-To install Kubernetes follow Rook's [developer guide](https://docs.koor.tech/docs/latest/Contributing/development-environment).
+To install Kubernetes follow Rook's [developer guide](https://docs.koor.tech/docs/latest/Contributing/development-environment/).
 
 ## Run Tests
 

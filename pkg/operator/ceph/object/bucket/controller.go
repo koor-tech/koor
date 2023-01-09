@@ -27,10 +27,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
+	"github.com/pkg/errors"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
-	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -147,7 +147,7 @@ func (r *ReconcileBucket) reconcile(request reconcile.Request) (reconcile.Result
 	}
 
 	// Populate clusterInfo during each reconcile
-	clusterInfo, _, _, err := opcontroller.LoadClusterInfo(r.context, r.opManagerContext, cephCluster.Namespace)
+	clusterInfo, _, _, err := opcontroller.LoadClusterInfo(r.context, r.opManagerContext, cephCluster.Namespace, &cephCluster.Spec)
 	if err != nil {
 		// This avoids a requeue with exponential backoff and allows the controller to reconcile
 		// more quickly when the cluster is ready.

@@ -37,6 +37,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	"github.com/coreos/pkg/capnslog"
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
@@ -44,7 +45,6 @@ import (
 	"github.com/koor-tech/koor/pkg/operator/ceph/object"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/koor-tech/koor/pkg/util/exec"
-	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -148,7 +148,7 @@ func (r *ReconcileObjectRealm) reconcile(request reconcile.Request) (reconcile.R
 	}
 
 	// Make sure a CephCluster is present otherwise do nothing
-	_, isReadyToReconcile, cephClusterExists, reconcileResponse := opcontroller.IsReadyToReconcile(r.opManagerContext, r.client, request.NamespacedName, controllerName)
+	cephCluster, isReadyToReconcile, cephClusterExists, reconcileResponse := opcontroller.IsReadyToReconcile(r.opManagerContext, r.client, request.NamespacedName, controllerName)
 	if !isReadyToReconcile {
 		// This handles the case where the Ceph Cluster is gone and we want to delete that CR
 		if !cephObjectRealm.GetDeletionTimestamp().IsZero() && !cephClusterExists {
@@ -168,7 +168,7 @@ func (r *ReconcileObjectRealm) reconcile(request reconcile.Request) (reconcile.R
 	}
 
 	// Populate clusterInfo during each reconcile
-	r.clusterInfo, _, _, err = opcontroller.LoadClusterInfo(r.context, r.opManagerContext, request.NamespacedName.Namespace)
+	r.clusterInfo, _, _, err = opcontroller.LoadClusterInfo(r.context, r.opManagerContext, request.NamespacedName.Namespace, &cephCluster.Spec)
 	if err != nil {
 		return reconcile.Result{}, *cephObjectRealm, errors.Wrap(err, "failed to populate cluster info")
 	}

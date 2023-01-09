@@ -22,8 +22,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/pkg/errors"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/version"
 )
@@ -143,32 +143,30 @@ func (r *ReconcileCSI) setParams(ver *version.Info) error {
 	// critical pods in cluster but less priority than plugin pods
 	CSIParam.ProvisionerPriorityClassName = k8sutil.GetValue(r.opConfig.Parameters, "CSI_PROVISIONER_PRIORITY_CLASSNAME", "")
 
+	CSIParam.EnableOMAPGenerator = false
 	if strings.EqualFold(k8sutil.GetValue(r.opConfig.Parameters, "CSI_ENABLE_OMAP_GENERATOR", "false"), "true") {
 		CSIParam.EnableOMAPGenerator = true
 	}
 
 	// SA token projection is stable only from kubernetes version 1.20.
+	CSIParam.EnableOIDCTokenProjection = false
 	if ver.Major == KubeMinMajor && ver.Minor >= KubeMinVerForOIDCTokenProjection {
 		CSIParam.EnableOIDCTokenProjection = true
 	}
 
-	// if k8s >= v1.17 enable RBD and CephFS snapshotter by default
-	if ver.Major == KubeMinMajor && ver.Minor >= kubeMinVerForSnapshot {
-		CSIParam.EnableRBDSnapshotter = true
-		CSIParam.EnableCephFSSnapshotter = true
-	}
-
+	CSIParam.EnableRBDSnapshotter = true
 	if strings.EqualFold(k8sutil.GetValue(r.opConfig.Parameters, "CSI_ENABLE_RBD_SNAPSHOTTER", "true"), "false") {
 		CSIParam.EnableRBDSnapshotter = false
 	}
 
+	CSIParam.EnableCephFSSnapshotter = true
 	if strings.EqualFold(k8sutil.GetValue(r.opConfig.Parameters, "CSI_ENABLE_CEPHFS_SNAPSHOTTER", "true"), "false") {
 		CSIParam.EnableCephFSSnapshotter = false
 	}
 
-	CSIParam.EnableVolumeReplicationSideCar = false
-	if strings.EqualFold(k8sutil.GetValue(r.opConfig.Parameters, "CSI_ENABLE_VOLUME_REPLICATION", "false"), "true") {
-		CSIParam.EnableVolumeReplicationSideCar = true
+	CSIParam.EnableNFSSnapshotter = true
+	if strings.EqualFold(k8sutil.GetValue(r.opConfig.Parameters, "CSI_ENABLE_NFS_SNAPSHOTTER", "true"), "false") {
+		CSIParam.EnableNFSSnapshotter = false
 	}
 
 	CSIParam.EnableCSIAddonsSideCar = false
@@ -176,8 +174,19 @@ func (r *ReconcileCSI) setParams(ver *version.Info) error {
 		CSIParam.EnableCSIAddonsSideCar = true
 	}
 
+	CSIParam.EnableCSITopology = false
+	if strings.EqualFold(k8sutil.GetValue(r.opConfig.Parameters, "CSI_ENABLE_TOPOLOGY", "false"), "true") {
+		CSIParam.EnableCSITopology = true
+	}
+
+	CSIParam.EnableCSIEncryption = false
 	if strings.EqualFold(k8sutil.GetValue(r.opConfig.Parameters, "CSI_ENABLE_ENCRYPTION", "false"), "true") {
 		CSIParam.EnableCSIEncryption = true
+	}
+
+	CSIParam.CSIEnableMetadata = false
+	if strings.EqualFold(k8sutil.GetValue(r.opConfig.Parameters, "CSI_ENABLE_METADATA", "false"), "true") {
+		CSIParam.CSIEnableMetadata = true
 	}
 
 	if strings.EqualFold(k8sutil.GetValue(r.opConfig.Parameters, "CSI_CEPHFS_PLUGIN_UPDATE_STRATEGY", rollingUpdate), onDelete) {
@@ -192,12 +201,16 @@ func (r *ReconcileCSI) setParams(ver *version.Info) error {
 		CSIParam.NFSPluginUpdateStrategy = rollingUpdate
 	}
 
+	// Default values are based on Kubernetes official documentation.
+	// https://kubernetes.io/docs/tasks/manage-daemon/update-daemon-set/#daemonset-update-strategy
 	if strings.EqualFold(k8sutil.GetValue(r.opConfig.Parameters, "CSI_RBD_PLUGIN_UPDATE_STRATEGY", rollingUpdate), onDelete) {
 		CSIParam.RBDPluginUpdateStrategy = onDelete
 	} else {
 		CSIParam.RBDPluginUpdateStrategy = rollingUpdate
+		CSIParam.RBDPluginUpdateStrategyMaxUnavailable = k8sutil.GetValue(r.opConfig.Parameters, "CSI_RBD_PLUGIN_UPDATE_STRATEGY_MAX_UNAVAILABLE", "1")
 	}
 
+	CSIParam.EnablePluginSelinuxHostMount = false
 	if strings.EqualFold(k8sutil.GetValue(r.opConfig.Parameters, "CSI_PLUGIN_ENABLE_SELINUX_HOST_MOUNT", "false"), "true") {
 		CSIParam.EnablePluginSelinuxHostMount = true
 	}
@@ -247,20 +260,21 @@ func (r *ReconcileCSI) setParams(ver *version.Info) error {
 	}
 
 	CSIParam.CSIPluginImage = k8sutil.GetValue(r.opConfig.Parameters, "ROOK_CSI_CEPH_IMAGE", DefaultCSIPluginImage)
-	CSIParam.NFSPluginImage = k8sutil.GetValue(r.opConfig.Parameters, "ROOK_CSI_NFS_IMAGE", DefaultNFSPluginImage)
 	CSIParam.RegistrarImage = k8sutil.GetValue(r.opConfig.Parameters, "ROOK_CSI_REGISTRAR_IMAGE", DefaultRegistrarImage)
 	CSIParam.ProvisionerImage = k8sutil.GetValue(r.opConfig.Parameters, "ROOK_CSI_PROVISIONER_IMAGE", DefaultProvisionerImage)
 	CSIParam.AttacherImage = k8sutil.GetValue(r.opConfig.Parameters, "ROOK_CSI_ATTACHER_IMAGE", DefaultAttacherImage)
 	CSIParam.SnapshotterImage = k8sutil.GetValue(r.opConfig.Parameters, "ROOK_CSI_SNAPSHOTTER_IMAGE", DefaultSnapshotterImage)
 	CSIParam.KubeletDirPath = k8sutil.GetValue(r.opConfig.Parameters, "ROOK_CSI_KUBELET_DIR_PATH", DefaultKubeletDirPath)
-	CSIParam.VolumeReplicationImage = k8sutil.GetValue(r.opConfig.Parameters, "CSI_VOLUME_REPLICATION_IMAGE", DefaultVolumeReplicationImage)
 	CSIParam.CSIAddonsImage = k8sutil.GetValue(r.opConfig.Parameters, "ROOK_CSIADDONS_IMAGE", DefaultCSIAddonsImage)
+	CSIParam.CSIDomainLabels = k8sutil.GetValue(r.opConfig.Parameters, "CSI_TOPOLOGY_DOMAIN_LABELS", "")
 	csiCephFSPodLabels := k8sutil.GetValue(r.opConfig.Parameters, "ROOK_CSI_CEPHFS_POD_LABELS", "")
 	CSIParam.CSICephFSPodLabels = k8sutil.ParseStringToLabels(csiCephFSPodLabels)
 	csiNFSPodLabels := k8sutil.GetValue(r.opConfig.Parameters, "ROOK_CSI_NFS_POD_LABELS", "")
 	CSIParam.CSINFSPodLabels = k8sutil.ParseStringToLabels(csiNFSPodLabels)
 	csiRBDPodLabels := k8sutil.GetValue(r.opConfig.Parameters, "ROOK_CSI_RBD_POD_LABELS", "")
 	CSIParam.CSIRBDPodLabels = k8sutil.ParseStringToLabels(csiRBDPodLabels)
+	CSIParam.CSIClusterName = k8sutil.GetValue(r.opConfig.Parameters, "CSI_CLUSTER_NAME", "")
+	CSIParam.ImagePullPolicy = k8sutil.GetValue(r.opConfig.Parameters, "ROOK_CSI_IMAGE_PULL_POLICY", DefaultCSIImagePullPolicy)
 
 	return nil
 }

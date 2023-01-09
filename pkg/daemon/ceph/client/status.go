@@ -19,8 +19,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/pkg/errors"
+	"github.com/koor-tech/koor/pkg/clusterd"
 )
 
 const (
@@ -48,12 +48,10 @@ type CephStatus struct {
 	Quorum        []int        `json:"quorum"`
 	QuorumNames   []string     `json:"quorum_names"`
 	MonMap        MonMap       `json:"monmap"`
-	OsdMap        struct {
-		OsdMap OsdMap `json:"osdmap"`
-	} `json:"osdmap"`
-	PgMap  PgMap  `json:"pgmap"`
-	MgrMap MgrMap `json:"mgrmap"`
-	Fsmap  Fsmap  `json:"fsmap"`
+	OsdMap        OsdMap       `json:"osdmap"`
+	PgMap         PgMap        `json:"pgmap"`
+	MgrMap        MgrMap       `json:"mgrmap"`
+	Fsmap         Fsmap        `json:"fsmap"`
 }
 
 type HealthStatus struct {

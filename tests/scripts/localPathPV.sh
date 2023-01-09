@@ -35,8 +35,8 @@ sudo test ! -b "${test_scratch_device}" && echo "invalid scratch device, not a b
 #############
 
 function prepare_node() {
-  sudo rm -rf /var/lib/rook/rook-integration-test
-  sudo mkdir -p /var/lib/rook/rook-integration-test/mon1 /var/lib/rook/rook-integration-test/mon2 /var/lib/rook/rook-integration-test/mon3
+  sudo rm -rf /var/lib/koor-tech/koor-integration-test
+  sudo mkdir -p /var/lib/koor-tech/koor-integration-test/mon1 /var/lib/koor-tech/koor-integration-test/mon2 /var/lib/koor-tech/koor-integration-test/mon3
   node_name=$(kubectl get nodes -o jsonpath='{.items[*].metadata.name}')
   kubectl label nodes "${node_name}" rook.io/has-disk=true
   kubectl delete pv -l type=local
@@ -59,7 +59,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   volumeMode: Filesystem
   local:
-    path: "/var/lib/rook/rook-integration-test/mon1"
+    path: "/var/lib/koor-tech/koor-integration-test/mon1"
   nodeAffinity:
       required:
         nodeSelectorTerms:
@@ -84,7 +84,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   volumeMode: Filesystem
   local:
-    path: "/var/lib/rook/rook-integration-test/mon2"
+    path: "/var/lib/koor-tech/koor-integration-test/mon2"
   nodeAffinity:
       required:
         nodeSelectorTerms:
@@ -109,7 +109,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   volumeMode: Filesystem
   local:
-    path: "/var/lib/rook/rook-integration-test/mon3"
+    path: "/var/lib/koor-tech/koor-integration-test/mon3"
   nodeAffinity:
       required:
         nodeSelectorTerms:

@@ -26,6 +26,7 @@ import (
 
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/coreos/pkg/capnslog"
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
@@ -35,7 +36,6 @@ import (
 	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/koor-tech/koor/pkg/util/exec"
-	"github.com/pkg/errors"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

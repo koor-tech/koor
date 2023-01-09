@@ -38,6 +38,7 @@ type CephManifests interface {
 	GetBlockStorageClass(poolName, storageClassName, reclaimPolicy string) string
 	GetFileStorageClass(fsName, storageClassName string) string
 	GetNFSStorageClass(fsName, nfsClusterName, server, storageClassName string) string
+	GetNFSSnapshotClass(fsName, snapshotClassName string) string
 	GetBlockSnapshotClass(snapshotClassName, reclaimPolicy string) string
 	GetFileStorageSnapshotClass(snapshotClassName, reclaimPolicy string) string
 	GetFilesystem(name string, activeCount int) string
@@ -60,12 +61,12 @@ type CephManifestsMaster struct {
 	settings *TestCephSettings
 }
 
-// NewCephManifests gets the manifest type depending on the Rook version desired
+// NewCephManifests gets the manifest type depending on the Koor Storage Distribution version desired
 func NewCephManifests(settings *TestCephSettings) CephManifests {
 	switch settings.RookVersion {
 	case LocalBuildTag:
 		return &CephManifestsMaster{settings}
-	case Version1_0:
+	case Version1_9:
 		return &CephManifestsPreviousVersion{settings, &CephManifestsMaster{settings}}
 	}
 	panic(fmt.Errorf("unrecognized ceph manifest version: %s", settings.RookVersion))
@@ -153,8 +154,6 @@ spec:
     modules:
     - name: pg_autoscaler
       enabled: true
-    - name: rook
-      enabled: true
   dashboard:
     enabled: true
   network:
@@ -167,6 +166,10 @@ spec:
   crashCollector:
     disable: false
     ` + pruner + `
+  logCollector:
+    enabled: true
+    periodicity: daily
+    maxLogSize: 500M
   disruptionManagement:
     managePodBudgets: true
     osdMaintenanceTimeout: 30
@@ -229,23 +232,12 @@ spec:
       journalSizeMB: "1024"
 `
 	}
-	return clusterSpec + m.getClusterPriorityClasses()
-}
-
-func (m *CephManifestsMaster) getClusterPriorityClasses() string {
-	priorityClasses := `
+	return clusterSpec + `
   priorityClassNames:
-`
-	// Priority classes are only supported on pods outside the kube-system namespace
-	// in versions of at least v1.17
-	if utils.VersionAtLeast(m.Settings().KubernetesVersion, "v1.17.0") {
-		priorityClasses += `
     mon: system-node-critical
     osd: system-node-critical
     mgr: system-cluster-critical
 `
-	}
-	return priorityClasses
 }
 
 func (m *CephManifestsMaster) GetBlockSnapshotClass(snapshotClassName, reclaimPolicy string) string {
@@ -391,6 +383,22 @@ mountOptions:
 	return sc
 }
 
+func (m *CephManifestsMaster) GetNFSSnapshotClass(snapshotClassName, reclaimPolicy string) string {
+	// return NFS CSI snapshotclass object.
+	return `
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotClass
+metadata:
+  name: ` + snapshotClassName + `
+driver: ` + m.settings.OperatorNamespace + `.nfs.csi.ceph.com
+deletionPolicy: ` + reclaimPolicy + `
+parameters:
+  clusterID: ` + m.settings.Namespace + `
+  csi.storage.k8s.io/snapshotter-secret-name: rook-csi-cephfs-provisioner
+  csi.storage.k8s.io/snapshotter-secret-namespace: ` + m.settings.Namespace + `
+`
+}
+
 // GetFilesystem returns the manifest to create a Rook filesystem resource with the given config.
 func (m *CephManifestsMaster) GetFilesystem(name string, activeCount int) string {
 	return `apiVersion: ceph.rook.io/v1
@@ -462,14 +470,9 @@ spec:
       requireSafeReplicaSize: false
   gateway:
     resources: null
-    type: s3
     securePort: ` + strconv.Itoa(port) + `
     instances: ` + strconv.Itoa(replicaCount) + `
     sslCertificateRef: ` + name + `
-  healthCheck:
-    bucket:
-      disabled: false
-      interval: 10s
 `
 	}
 	return `apiVersion: ceph.rook.io/v1
@@ -491,10 +494,6 @@ spec:
     resources: null
     port: ` + strconv.Itoa(port) + `
     instances: ` + strconv.Itoa(replicaCount) + `
-  healthCheck:
-    bucket:
-      disabled: false
-      interval: 5s
 `
 }
 

@@ -51,7 +51,7 @@ func mockReconcile() *ReconcileCephNFS {
 		},
 		cephClusterSpec: &cephv1.ClusterSpec{
 			CephVersion: cephv1.CephVersionSpec{
-				Image: "quay.io/ceph/ceph:v17.2.4",
+				Image: "quay.io/ceph/ceph:v17",
 			},
 		},
 	}
@@ -127,22 +127,6 @@ func TestReconcileCephNFS_addSecurityConfigsToPod(t *testing.T) {
 		assert.Empty(t, pod)
 	})
 
-	t.Run("security.sssd empty should error", func(t *testing.T) {
-		nfs := baseCephNFS(name, namespace)
-		nfs.Spec.Security = &cephv1.NFSSecuritySpec{
-			SSSD: &cephv1.SSSDSpec{},
-		}
-
-		pod := &v1.PodSpec{}
-		err := mockReconcile().addSecurityConfigsToPod(nfs, pod)
-
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "failed to set up security for CephNFS")
-		assert.Contains(t, err.Error(), // verify the security spec calls the Validate() method
-			"System Security Services Daemon (SSSD) is enabled, but no runtime option is specified")
-		assert.Empty(t, pod)
-	})
-
 	t.Run("security.sssd.sidecar with configMap", func(t *testing.T) {
 		// this test is long but essentially makes sure that the sssd sidecar is added, including
 		// any additional init containers needed, verifies that the right container images are used
@@ -207,7 +191,7 @@ func TestReconcileCephNFS_addSecurityConfigsToPod(t *testing.T) {
 		nss := containerByName(pod.InitContainers, "generate-nsswitch-conf")
 		assert.NotEmpty(t, nss)
 		// container should have CLUSTER image and resources from SERVER spec
-		assert.Equal(t, "quay.io/ceph/ceph:v17.2.4", nss.Image)
+		assert.Equal(t, "quay.io/ceph/ceph:v17", nss.Image)
 		nssTester := optest.NewContainersSpecTester(t, []v1.Container{nss})
 		nssTester.AssertResourceSpec(optest.ResourceLimitExpectations{
 			CPUResourceLimit:      "3000",
@@ -324,7 +308,7 @@ func TestReconcileCephNFS_addSecurityConfigsToPod(t *testing.T) {
 		nss := containerByName(pod.InitContainers, "generate-nsswitch-conf")
 		assert.NotEmpty(t, nss)
 		// container should have CLUSTER image and resources from SERVER spec
-		assert.Equal(t, "quay.io/ceph/ceph:v17.2.4", nss.Image)
+		assert.Equal(t, "quay.io/ceph/ceph:v17", nss.Image)
 		nssTester := optest.NewContainersSpecTester(t, []v1.Container{nss})
 		nssTester.AssertResourceSpec(optest.ResourceLimitExpectations{
 			CPUResourceLimit:      "3000",

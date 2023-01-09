@@ -144,7 +144,7 @@ The Prometheus alerts can be customized with a post-processor using tools such a
 For example, first extract the helm chart:
 
 ```console
-helm template -f values.yaml koor-release/rook-ceph-cluster > cluster-chart.yaml
+helm template -f values.yaml rook-release/rook-ceph-cluster > cluster-chart.yaml
 ```
 
 Now create the desired customization configuration files. This simple example will show how to

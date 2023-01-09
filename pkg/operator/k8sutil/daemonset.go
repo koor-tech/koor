@@ -55,7 +55,7 @@ func DeleteDaemonset(ctx context.Context, clientset kubernetes.Interface, namesp
 	return deleteResourceAndWait(namespace, name, "daemonset", deleteAction, getAction)
 }
 
-// AddRookVersionLabelToDaemonSet adds or updates a label reporting the Rook version which last
+// AddRookVersionLabelToDaemonSet adds or updates a label reporting the Koor Storage Distribution version which last
 // modified a DaemonSet.
 func AddRookVersionLabelToDaemonSet(d *appsv1.DaemonSet) {
 	if d == nil {

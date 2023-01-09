@@ -25,7 +25,9 @@ import (
 
 	"github.com/coreos/pkg/capnslog"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/util/exec"
 
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mon"
@@ -34,7 +36,6 @@ import (
 	"github.com/koor-tech/koor/pkg/operator/ceph/csi/peermap"
 	"github.com/koor-tech/koor/pkg/operator/ceph/reporting"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
-	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -202,12 +203,11 @@ func (r *ReconcileCephBlockPool) reconcile(request reconcile.Request) (reconcile
 	}
 
 	// Populate clusterInfo during each reconcile
-	clusterInfo, _, _, err := opcontroller.LoadClusterInfo(r.context, r.opManagerContext, request.NamespacedName.Namespace)
+	clusterInfo, _, _, err := opcontroller.LoadClusterInfo(r.context, r.opManagerContext, request.NamespacedName.Namespace, &cephCluster.Spec)
 	if err != nil {
 		return opcontroller.ImmediateRetryResult, *cephBlockPool, errors.Wrap(err, "failed to populate cluster info")
 	}
 	r.clusterInfo = clusterInfo
-	r.clusterInfo.NetworkSpec = cephCluster.Spec.Network
 
 	// Initialize the channel for this pool
 	// This allows us to track multiple CephBlockPool in the same namespace
@@ -246,7 +246,7 @@ func (r *ReconcileCephBlockPool) reconcile(request reconcile.Request) (reconcile
 		}
 
 		// disable RBD stats collection if cephBlockPool was deleted
-		if err := configureRBDStats(r.context, clusterInfo); err != nil {
+		if err := configureRBDStats(r.context, clusterInfo, cephBlockPool.Name); err != nil {
 			logger.Errorf("failed to disable stats collection for pool(s). %v", err)
 		}
 
@@ -291,7 +291,7 @@ func (r *ReconcileCephBlockPool) reconcile(request reconcile.Request) (reconcile
 	}
 
 	// enable/disable RBD stats collection based on cephBlockPool spec
-	if err := configureRBDStats(r.context, clusterInfo); err != nil {
+	if err := configureRBDStats(r.context, clusterInfo, ""); err != nil {
 		return reconcile.Result{}, *cephBlockPool, errors.Wrap(err, "failed to enable/disable stats collection for pool(s)")
 	}
 
@@ -385,13 +385,16 @@ func createPool(context *clusterd.Context, clusterInfo *cephclient.ClusterInfo, 
 		return errors.Wrapf(err, "failed to create pool %q", p.Name)
 	}
 
-	logger.Infof("initializing pool %q", p.Name)
-	args := []string{"pool", "init", p.Name}
-	output, err := cephclient.NewRBDCommand(context, clusterInfo, args).Run()
-	if err != nil {
-		return errors.Wrapf(err, "failed to initialize pool %q. %s", p.Name, string(output))
+	if appName != poolApplicationNameRBD {
+		return nil
 	}
-	logger.Infof("successfully initialized pool %q", p.Name)
+	logger.Infof("initializing pool %q for RBD use", p.Name)
+	args := []string{"pool", "init", p.Name}
+	output, err := cephclient.NewRBDCommand(context, clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
+	if err != nil {
+		return errors.Wrapf(err, "failed to initialize pool %q for RBD use. %s", p.Name, string(output))
+	}
+	logger.Infof("successfully initialized pool %q for RBD use", p.Name)
 
 	return nil
 }
@@ -416,11 +419,35 @@ func deletePool(context *clusterd.Context, clusterInfo *cephclient.ClusterInfo, 
 	return nil
 }
 
-func configureRBDStats(clusterContext *clusterd.Context, clusterInfo *cephclient.ClusterInfo) error {
+// remove removes any element from a list
+func remove(list []string, s string) []string {
+	for i, v := range list {
+		if v == s {
+			list = append(list[:i], list[i+1:]...)
+		}
+	}
+
+	return list
+}
+
+// Remove duplicate entries from slice
+func removeDuplicates(slice []string) []string {
+	inResult := make(map[string]bool)
+	var result []string
+	for _, str := range slice {
+		if _, ok := inResult[str]; !ok {
+			inResult[str] = true
+			result = append(result, str)
+		}
+	}
+	return result
+}
+
+func configureRBDStats(clusterContext *clusterd.Context, clusterInfo *cephclient.ClusterInfo, deletedPool string) error {
 	logger.Debug("configuring RBD per-image IO statistics collection")
 	namespaceListOpt := client.InNamespace(clusterInfo.Namespace)
 	cephBlockPoolList := &cephv1.CephBlockPoolList{}
-	var enableStatsForPools []string
+	var enableStatsForCephBlockPools []string
 	err := clusterContext.Client.List(clusterInfo.Context, cephBlockPoolList, namespaceListOpt)
 	if err != nil {
 		return errors.Wrap(err, "failed to retrieve list of CephBlockPool")
@@ -428,15 +455,28 @@ func configureRBDStats(clusterContext *clusterd.Context, clusterInfo *cephclient
 	for _, cephBlockPool := range cephBlockPoolList.Items {
 		if cephBlockPool.GetDeletionTimestamp() == nil && cephBlockPool.Spec.EnableRBDStats {
 			// add to list of CephBlockPool with enableRBDStats set to true and not marked for deletion
-			enableStatsForPools = append(enableStatsForPools, cephBlockPool.ToNamedPoolSpec().Name)
+			enableStatsForCephBlockPools = append(enableStatsForCephBlockPools, cephBlockPool.ToNamedPoolSpec().Name)
 		}
 	}
-	logger.Debugf("RBD per-image IO statistics will be collected for pools: %v", enableStatsForPools)
+	enableStatsForCephBlockPools = remove(enableStatsForCephBlockPools, deletedPool)
 	monStore := config.GetMonStore(clusterContext, clusterInfo)
+	// Check for existing rbd stats pools
+	existingRBDStatsPools, e := monStore.Get("mgr", "mgr/prometheus/rbd_stats_pools")
+	if e != nil {
+		return errors.Wrapf(e, "failed to get rbd_stats_pools")
+	}
+
+	existingRBDStatsPoolsList := strings.Split(existingRBDStatsPools, ",")
+	enableStatsForPools := append(enableStatsForCephBlockPools, existingRBDStatsPoolsList...)
+	enableStatsForPools = removeDuplicates(enableStatsForPools)
+
+	logger.Debugf("RBD per-image IO statistics will be collected for pools: %v", enableStatsForPools)
+
 	if len(enableStatsForPools) == 0 {
 		err = monStore.Delete("mgr", "mgr/prometheus/rbd_stats_pools")
 	} else {
-		err = monStore.Set("mgr", "mgr/prometheus/rbd_stats_pools", strings.Join(enableStatsForPools, ","))
+		// appending existing rbd stats pools if any
+		err = monStore.Set("mgr", "mgr/prometheus/rbd_stats_pools", strings.Trim(strings.Join(enableStatsForPools, ","), ","))
 	}
 	if err != nil {
 		return errors.Wrapf(err, "failed to enable rbd_stats_pools")

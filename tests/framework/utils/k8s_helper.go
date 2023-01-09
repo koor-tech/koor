@@ -30,13 +30,13 @@ import (
 	"time"
 
 	"github.com/coreos/pkg/capnslog"
+	bktclient "github.com/kube-object-storage/lib-bucket-provisioner/pkg/client/clientset/versioned"
+	"github.com/pkg/errors"
 	rookclient "github.com/koor-tech/koor/pkg/client/clientset/versioned"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/crash"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/koor-tech/koor/pkg/util/exec"
-	bktclient "github.com/kube-object-storage/lib-bucket-provisioner/pkg/client/clientset/versioned"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
@@ -258,7 +258,7 @@ func (k8sh *K8sHelper) DeleteResource(args ...string) error {
 func (k8sh *K8sHelper) WaitForCustomResourceDeletion(namespace, name string, checkerFunc func() error) error {
 
 	// wait for the operator to finalize and delete the CRD
-	for i := 0; i < 60; i++ {
+	for i := 0; i < 90; i++ {
 		err := checkerFunc()
 		if err == nil {
 			logger.Infof("custom resource %q in namespace %q still exists", name, namespace)
@@ -272,7 +272,7 @@ func (k8sh *K8sHelper) WaitForCustomResourceDeletion(namespace, name string, che
 		return err
 	}
 	logger.Errorf("gave up deleting custom resource %q ", name)
-	return nil
+	return fmt.Errorf("Timed out waiting for deletion of custom resource %q", name)
 }
 
 // DeleteResource performs a kubectl delete on give args.
@@ -866,8 +866,8 @@ func (k8sh *K8sHelper) IsPodInError(podNamePattern, namespace, reason, containin
 	return false
 }
 
-// GetPodHostID returns HostIP address of a pod
-func (k8sh *K8sHelper) GetPodHostID(podNamePattern string, namespace string) (string, error) {
+// GetPodHostIP returns HostIP address of a pod
+func (k8sh *K8sHelper) GetPodHostIP(podNamePattern string, namespace string) (string, error) {
 	ctx := context.TODO()
 	listOpts := metav1.ListOptions{LabelSelector: "app=" + podNamePattern}
 	podList, err := k8sh.Clientset.CoreV1().Pods(namespace).List(ctx, listOpts)
@@ -1181,6 +1181,24 @@ func (k8sh *K8sHelper) WaitUntilPVCIsDeleted(namespace string, pvcname string) b
 	return false
 }
 
+func (k8sh *K8sHelper) WaitUntilZeroPVs() bool {
+	ListOpts := metav1.ListOptions{}
+	ctx := context.TODO()
+	for i := 0; i < RetryLoop; i++ {
+		pvList, err := k8sh.Clientset.CoreV1().PersistentVolumes().List(ctx, ListOpts)
+		if err != nil && kerrors.IsNotFound(err) {
+			return true
+		}
+		if len(pvList.Items) == 0 {
+			return true
+		}
+		logger.Infof("waiting for PV count to be zero.")
+
+		time.Sleep(RetryInterval * time.Second)
+	}
+	return false
+}
+
 func (k8sh *K8sHelper) DeletePvcWithLabel(namespace string, podName string) bool {
 	delOpts := metav1.DeleteOptions{}
 	listOpts := metav1.ListOptions{LabelSelector: "app=" + podName}
@@ -1275,7 +1293,7 @@ func (k8sh *K8sHelper) getInternalRGWServiceURL(storeName string, namespace stri
 
 // GetRGWServiceURL returns URL of ceph RGW service in the cluster
 func (k8sh *K8sHelper) getExternalRGWServiceURL(storeName string, namespace string) (string, error) {
-	hostip, err := k8sh.GetPodHostID("rook-ceph-rgw", namespace)
+	hostip, err := k8sh.GetPodHostIP("rook-ceph-rgw", namespace)
 	if err != nil {
 		return "", fmt.Errorf("RGW pods not found. %+v", err)
 	}

@@ -23,13 +23,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -211,7 +211,7 @@ func deleteStore(t *testing.T, name string, existingStores string, expectedDelet
 	}
 	err = deleteRealmAndPools(context, spec)
 	assert.Nil(t, err)
-	expectedPoolsDeleted = 6
+	expectedPoolsDeleted = 7
 	if expectedDeleteRootPool {
 		expectedPoolsDeleted++
 	}

@@ -1,12 +1,13 @@
-# Koor Storage Distribution
+<img alt="Koor Storage Distribution" src="Documentation/media/logo.svg" width="50%" height="50%">
+
 
 [![GitHub release](https://img.shields.io/github/release/koor-tech/koor/all.svg)](https://github.com/koor-tech/koor/releases)
-[![Docker Pulls](https://img.shields.io/docker/pulls/koor-tech/ceph)](https://hub.docker.com/u/koorinc)
+[![Docker Pulls](https://img.shields.io/docker/pulls/koorinc/ceph)](https://hub.docker.com/u/rook)
 [![Go Report Card](https://goreportcard.com/badge/github.com/koor-tech/koor)](https://goreportcard.com/report/github.com/koor-tech/koor)
 [![Security scanning](https://github.com/koor-tech/koor/actions/workflows/synk.yaml/badge.svg)](https://github.com/koor-tech/koor/actions/workflows/synk.yaml)
 [![Twitter Follow](https://img.shields.io/twitter/follow/koor_tech.svg?style=social&label=Follow)](https://twitter.com/intent/follow?screen_name=koor_tech&user_id=1509666502714265604)
 
-## What is Koor Storage Distribution?
+# What is Koor Storage Distribution?
 
 The Koor Storage Distribution is an open source **cloud-native storage orchestrator** for Ceph on Kubernetes, forked from the [Rook open source project](https://github.com/rook/rook).
 
@@ -41,6 +42,7 @@ For further details, please see the complete [security release process](SECURITY
 
 Please use the following to reach members of the community:
 
+- Slack: Join our [slack channel]([the GitHub Discussions](https://github.com/koor-tech/koor/discussions)
 - GitHub: Start a [discussion](https://github.com/koor-tech/koor/discussions) or open an [issue](https://github.com/koor-tech/koor/issues)
 - Twitter: [@koor_tech](https://twitter.com/koor_tech)
 - Security topics: [security@koor.tech](#reporting-security-vulnerabilities)

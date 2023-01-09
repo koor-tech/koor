@@ -23,13 +23,13 @@ import (
 	"strings"
 
 	"github.com/coreos/pkg/capnslog"
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	"github.com/koor-tech/koor/pkg/operator/ceph/reporting"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
-	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -177,7 +177,7 @@ func (r *ReconcileFilesystemMirror) reconcile(request reconcile.Request) (reconc
 	r.cephClusterSpec = &cephCluster.Spec
 
 	// Populate clusterInfo
-	r.clusterInfo, _, _, err = opcontroller.LoadClusterInfo(r.context, r.opManagerContext, request.NamespacedName.Namespace)
+	r.clusterInfo, _, _, err = opcontroller.LoadClusterInfo(r.context, r.opManagerContext, request.NamespacedName.Namespace, r.cephClusterSpec)
 	if err != nil {
 		return opcontroller.ImmediateRetryResult, *filesystemMirror, errors.Wrap(err, "failed to populate cluster info")
 	}

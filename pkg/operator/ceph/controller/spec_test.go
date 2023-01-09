@@ -153,8 +153,13 @@ func TestGenerateLivenessProbeExecDaemon(t *testing.T) {
 		"-i",
 		"sh",
 		"-c",
-		"ceph --admin-daemon /run/ceph/ceph-osd.0.asok status",
-	}
+		`outp="$(ceph --admin-daemon /run/ceph/ceph-osd.0.asok status 2>&1)"
+rc=$?
+if [ $rc -ne 0 ]; then
+  echo "ceph daemon health check failed with the following output:"
+  echo "$outp" | sed -e 's/^/> /g'
+  exit $rc
+fi`}
 
 	assert.Equal(t, expectedCommand, probe.ProbeHandler.Exec.Command)
 	assert.Equal(t, livenessProbeInitialDelaySeconds, probe.InitialDelaySeconds)
@@ -435,5 +440,20 @@ func TestLogCollectorContainer(t *testing.T) {
 		got := LogCollectorContainer(daemonId, ns, c)
 		want := fmt.Sprintf(cronLogRotate, daemonId, "daily", "1M")
 		assert.Equal(t, want, got.Command[5])
+	})
+}
+
+func TestGetContainerImagePullPolicy(t *testing.T) {
+	t.Run("containerImagePullPolicy is set in cluster CR", func(t *testing.T) {
+		containerImagePullPolicy := v1.PullAlways
+
+		imagePullPolicy := GetContainerImagePullPolicy(containerImagePullPolicy)
+		assert.Equal(t, containerImagePullPolicy, imagePullPolicy)
+	})
+
+	t.Run("containerImagePullPolicy is empty", func(t *testing.T) {
+		exepctedImagePullPolicy := v1.PullIfNotPresent
+		imagePullPolicy := GetContainerImagePullPolicy(v1.PullPolicy(""))
+		assert.Equal(t, exepctedImagePullPolicy, imagePullPolicy)
 	})
 }

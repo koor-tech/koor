@@ -1,5 +1,5 @@
 ---
-title: Object Store CRD
+title: CephObjectStore CRD
 ---
 
 Rook allows creation and customization of object stores through the custom resource definitions (CRDs). The following settings are available for Ceph object stores.
@@ -76,7 +76,7 @@ spec:
 
 ### Pools
 
-The pools allow all of the settings defined in the Pool CRD spec. For more details, see the [Pool CRD](../Block-Storage/ceph-block-pool-crd.md) settings. In the example above, there must be at least three hosts (size 3) and at least three devices (2 data + 1 coding chunks) in the cluster.
+The pools allow all of the settings defined in the Block Pool CRD spec. For more details, see the [Block Pool CRD](../Block-Storage/ceph-block-pool-crd.md) settings. In the example above, there must be at least three hosts (size 3) and at least three devices (2 data + 1 coding chunks) in the cluster.
 
 When the `zone` section is set pools with the object stores name will not be created since the object-store will the using the pools created by the ceph-object-zone.
 
@@ -108,7 +108,12 @@ The gateway settings correspond to the RGW daemon settings.
 * `port`: The port on which the Object service will be reachable. If host networking is enabled, the RGW daemons will also listen on that port. If running on SDN, the RGW daemon listening port will be 8080 internally.
 * `securePort`: The secure port on which RGW pods will be listening. A TLS certificate must be specified either via `sslCerticateRef` or `service.annotations`
 * `instances`: The number of pods that will be started to load balance this object store.
-* `externalRgwEndpoints`: A list of IP addresses to connect to external existing Rados Gateways (works with external mode). This setting will be ignored if the `CephCluster` does not have `external` spec enabled. Refer to the [external cluster section](../Cluster/ceph-cluster-crd.md#external-cluster) for more details.
+* `externalRgwEndpoints`: A list of IP addresses to connect to external existing Rados Gateways
+  (works with external mode). This setting will be ignored if the `CephCluster` does not have
+  `external` spec enabled. Refer to the [external cluster section](../Cluster/ceph-cluster-crd.md#external-cluster)
+  for more details. Multiple endpoints can be given, but for stability of ObjectBucketClaims, we
+	highly recommend that users give only a single external RGW endpoint that is a load balancer that
+	sends requests to the multiple RGWs.
 * `annotations`: Key value pair list of annotations to add.
 * `labels`: Key value pair list of labels to add.
 * `placement`: The Kubernetes placement settings to determine where the RGW pods should be started in the cluster.
@@ -137,7 +142,7 @@ All the other settings from the gateway section will be ignored, except for `sec
 
 ## Zone Settings
 
-The [zone](../../Storage-Configuration/Object-Storage-RGW/ceph-object-multisite.md) settings allow the object store to join custom created [ceph-object-zone](ceph-object-multisite-crd.md).
+The [zone](../../Storage-Configuration/Object-Storage-RGW/ceph-object-multisite.md) settings allow the object store to join custom created [ceph-object-zone](ceph-object-zone-crd.md).
 
 * `name`: the name of the ceph-object-zone the object store will be in.
 
@@ -162,9 +167,6 @@ Rook will be default monitor the state of the object store endpoints.
 The following CRD settings are available:
 
 * `healthCheck`: main object store health monitoring section
-  * `bucket`: Rook checks that the object store is usable regularly. This is explained in more
-    detail below. Use this config to disable or change the interval at which Rook verifies the
-    object store connectivity.
   * `startupProbe`: Disable, or override timing and threshold values of the object gateway startup probe.
   * `livenessProbe`: Disable, or override timing and threshold values of the object gateway liveness probe.
   * `readinessProbe`: Disable, or override timing and threshold values of the object gateway readiness probe.
@@ -173,31 +175,21 @@ Here is a complete example:
 
 ```yaml
 healthCheck:
-  bucket:
-    disabled: false
-    interval: 60s
   startupProbe:
     disabled: false
   livenessProbe:
     disabled: false
-    periodSeconds: 5
-    failureThreshold: 4
+    periodSeconds: 30
+    failureThreshold: 13
   readinessProbe:
     disabled: false
     periodSeconds: 5
     failureThreshold: 2
 ```
 
-The endpoint health check procedure is the following:
-
-1. Create an S3 user
-2. Create a bucket with that user
-3. PUT the file in the object store
-4. GET the file from the object store
-5. Verify object consistency
-6. Update CR health status check
-
-The Rook Ceph operator always keeps the bucket and the user for the health check, it just does a PUT and GET of an s3 object since creating a bucket is an expensive operation.
+You can monitor the health of a CephObjectStore by monitoring the gateway deployments it creates.
+The primary deployment created is named `rook-ceph-rgw-<store-name>-a` where `store-name` is the
+name of the CephObjectStore (don't forget the `-a` at the end).
 
 ## Security settings
 
@@ -259,4 +251,8 @@ Rook will warn about which buckets are blocking deletion in three ways:
 
 1. An event will be registered on the CephObjectStore resource
 1. A status condition will be added to the CephObjectStore resource
-1. An error will be added to the Rook Ceph Operator log
+1. An error will be added to the Koor Operator log
+
+If the CephObjectStore is configured in a [multisite setup](../../Storage-Configuration/Object-Storage-RGW/ceph-object-multisite.md) the above conditions are applicable only to stores that belong to a single master zone.
+Otherwise the conditions are ignored. Even if the store is removed the user can access the
+data from a peer object store.

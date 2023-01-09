@@ -22,14 +22,14 @@ import (
 	"strings"
 
 	"github.com/hashicorp/vault/api"
+	"github.com/libopenstorage/secrets/vault"
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/osd/kms"
 	cephconfig "github.com/koor-tech/koor/pkg/operator/ceph/config"
 	"github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
-	"github.com/libopenstorage/secrets/vault"
-	"github.com/pkg/errors"
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -210,7 +210,7 @@ func (c *clusterConfig) makeRGWPodSpec(rgwConfig *rgwConfig) (v1.PodTemplateSpec
 
 	// If host networking is not enabled, preferred pod anti-affinity is added to the rgw daemons
 	labels := getLabels(c.store.Name, c.store.Namespace, false)
-	k8sutil.SetNodeAntiAffinityForPod(&podSpec, c.clusterSpec.Network.IsHost(), v1.LabelHostname, labels, nil)
+	k8sutil.SetNodeAntiAffinityForPod(&podSpec, c.store.Spec.IsHostNetwork(c.clusterSpec), v1.LabelHostname, labels, nil)
 
 	podTemplateSpec := v1.PodTemplateSpec{
 		ObjectMeta: metav1.ObjectMeta{
@@ -247,6 +247,7 @@ func (c *clusterConfig) createCaBundleUpdateInitContainer(rgwConfig *rgwConfig) 
 			fmt.Sprintf("/usr/bin/update-ca-trust extract; cp -rf %s/* %s", caBundleExtractedDir, updatedCaBundleDir),
 		},
 		Image:           c.clusterSpec.CephVersion.Image,
+		ImagePullPolicy: controller.GetContainerImagePullPolicy(c.clusterSpec.CephVersion.ImagePullPolicy),
 		VolumeMounts:    volumeMounts,
 		Resources:       c.store.Spec.Gateway.Resources,
 		SecurityContext: controller.PodSecurityContext(),
@@ -281,7 +282,8 @@ func (c *clusterConfig) vaultTokenInitContainer(rgwConfig *rgwConfig, kmsEnabled
 			fmt.Sprintf(setupVaultTokenFile,
 				kms.EtcVaultDir, rgwVaultDirName),
 		},
-		Image: c.clusterSpec.CephVersion.Image,
+		Image:           c.clusterSpec.CephVersion.Image,
+		ImagePullPolicy: controller.GetContainerImagePullPolicy(c.clusterSpec.CephVersion.ImagePullPolicy),
 		VolumeMounts: append(
 			controller.DaemonVolumeMounts(c.DataPathMap, rgwConfig.ResourceName), vaultVolMounts...),
 		Resources:       c.store.Spec.Gateway.Resources,
@@ -293,6 +295,7 @@ func (c *clusterConfig) makeChownInitContainer(rgwConfig *rgwConfig) v1.Containe
 	return controller.ChownCephDataDirsInitContainer(
 		*c.DataPathMap,
 		c.clusterSpec.CephVersion.Image,
+		controller.GetContainerImagePullPolicy(c.clusterSpec.CephVersion.ImagePullPolicy),
 		controller.DaemonVolumeMounts(c.DataPathMap, rgwConfig.ResourceName),
 		c.store.Spec.Gateway.Resources,
 		controller.PodSecurityContext(),
@@ -302,8 +305,9 @@ func (c *clusterConfig) makeChownInitContainer(rgwConfig *rgwConfig) v1.Containe
 func (c *clusterConfig) makeDaemonContainer(rgwConfig *rgwConfig) (v1.Container, error) {
 	// start the rgw daemon in the foreground
 	container := v1.Container{
-		Name:  "rgw",
-		Image: c.clusterSpec.CephVersion.Image,
+		Name:            "rgw",
+		Image:           c.clusterSpec.CephVersion.Image,
+		ImagePullPolicy: controller.GetContainerImagePullPolicy(c.clusterSpec.CephVersion.ImagePullPolicy),
 		Command: []string{
 			"radosgw",
 		},
@@ -387,7 +391,7 @@ func (c *clusterConfig) makeDaemonContainer(rgwConfig *rgwConfig) (v1.Container,
 }
 
 // configureReadinessProbe returns the desired readiness probe for a given daemon
-func configureReadinessProbe(container *v1.Container, healthCheck cephv1.BucketHealthCheckSpec) {
+func configureReadinessProbe(container *v1.Container, healthCheck cephv1.ObjectHealthCheckSpec) {
 	if ok := healthCheck.ReadinessProbe; ok != nil {
 		if !healthCheck.ReadinessProbe.Disabled {
 			probe := healthCheck.ReadinessProbe.Probe
@@ -452,7 +456,7 @@ func (c *clusterConfig) generateProbePort() intstr.IntOrString {
 	port := intstr.FromInt(int(rgwPortInternalPort))
 
 	// If Host Networking is enabled, the port from the spec must be reflected
-	if c.clusterSpec.Network.IsHost() {
+	if c.store.Spec.IsHostNetwork(c.clusterSpec) {
 		port = intstr.FromInt(int(c.store.Spec.Gateway.Port))
 	}
 
@@ -474,7 +478,7 @@ func (c *clusterConfig) generateService(cephObjectStore *cephv1.CephObjectStore)
 	if c.store.Spec.Gateway.Service != nil {
 		c.store.Spec.Gateway.Service.Annotations.ApplyToObjectMeta(&svc.ObjectMeta)
 	}
-	if c.clusterSpec.Network.IsHost() {
+	if c.store.Spec.IsHostNetwork(c.clusterSpec) {
 		svc.Spec.ClusterIP = v1.ClusterIPNone
 	}
 
@@ -499,6 +503,15 @@ func (c *clusterConfig) generateService(cephObjectStore *cephv1.CephObjectStore)
 func (c *clusterConfig) generateEndpoint(cephObjectStore *cephv1.CephObjectStore) *v1.Endpoints {
 	labels := getLabels(cephObjectStore.Name, cephObjectStore.Namespace, true)
 
+	k8sEndpointAddrs := []v1.EndpointAddress{}
+	for _, rookEndpoint := range cephObjectStore.Spec.Gateway.ExternalRgwEndpoints {
+		k8sEndpointAddr := v1.EndpointAddress{
+			IP:       rookEndpoint.IP,
+			Hostname: rookEndpoint.Hostname,
+		}
+		k8sEndpointAddrs = append(k8sEndpointAddrs, k8sEndpointAddr)
+	}
+
 	endpoints := &v1.Endpoints{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      instanceName(cephObjectStore.Name),
@@ -507,7 +520,7 @@ func (c *clusterConfig) generateEndpoint(cephObjectStore *cephv1.CephObjectStore
 		},
 		Subsets: []v1.EndpointSubset{
 			{
-				Addresses: cephObjectStore.Spec.Gateway.ExternalRgwEndpoints,
+				Addresses: k8sEndpointAddrs,
 			},
 		},
 	}
@@ -536,17 +549,17 @@ func (c *clusterConfig) reconcileExternalEndpoint(cephObjectStore *cephv1.CephOb
 	return nil
 }
 
-func (c *clusterConfig) reconcileService(cephObjectStore *cephv1.CephObjectStore) error {
-	service := c.generateService(cephObjectStore)
+func (c *clusterConfig) reconcileService(store *cephv1.CephObjectStore) error {
+	service := c.generateService(store)
 	// Set owner ref to the parent object
 	err := c.ownerInfo.SetControllerReference(service)
 	if err != nil {
 		return errors.Wrapf(err, "failed to set owner reference to ceph object store service %q", service.Name)
 	}
 
-	svc, err := k8sutil.CreateOrUpdateService(c.clusterInfo.Context, c.context.Clientset, cephObjectStore.Namespace, service)
+	svc, err := k8sutil.CreateOrUpdateService(c.clusterInfo.Context, c.context.Clientset, store.Namespace, service)
 	if err != nil {
-		return errors.Wrapf(err, "failed to create or update object store %q service", cephObjectStore.Name)
+		return errors.Wrapf(err, "failed to create or update object store %q service", store.Name)
 	}
 
 	logger.Infof("ceph object store gateway service running at %s", svc.Spec.ClusterIP)

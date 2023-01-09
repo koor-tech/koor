@@ -21,6 +21,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mon"
@@ -28,10 +29,10 @@ import (
 	"github.com/koor-tech/koor/pkg/operator/ceph/config/keyring"
 	"github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
-	"github.com/pkg/errors"
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 const (
@@ -138,6 +139,7 @@ func (c *Cluster) makeChownInitContainer(mgrConfig *mgrConfig) v1.Container {
 	return controller.ChownCephDataDirsInitContainer(
 		*mgrConfig.DataPathMap,
 		c.spec.CephVersion.Image,
+		controller.GetContainerImagePullPolicy(c.spec.CephVersion.ImagePullPolicy),
 		controller.DaemonVolumeMounts(mgrConfig.DataPathMap, mgrConfig.ResourceName),
 		cephv1.GetMgrResources(c.spec.Resources),
 		controller.PodSecurityContext(),
@@ -159,8 +161,9 @@ func (c *Cluster) makeMgrDaemonContainer(mgrConfig *mgrConfig) v1.Container {
 			config.NewFlag("client-mount-gid", "0"),
 			"--foreground",
 		),
-		Image:        c.spec.CephVersion.Image,
-		VolumeMounts: controller.DaemonVolumeMounts(mgrConfig.DataPathMap, mgrConfig.ResourceName),
+		Image:           c.spec.CephVersion.Image,
+		ImagePullPolicy: controller.GetContainerImagePullPolicy(c.spec.CephVersion.ImagePullPolicy),
+		VolumeMounts:    controller.DaemonVolumeMounts(mgrConfig.DataPathMap, mgrConfig.ResourceName),
 		Ports: []v1.ContainerPort{
 			{
 				Name:          "mgr",
@@ -174,7 +177,7 @@ func (c *Cluster) makeMgrDaemonContainer(mgrConfig *mgrConfig) v1.Container {
 			},
 			{
 				Name:          "dashboard",
-				ContainerPort: int32(c.dashboardPort()),
+				ContainerPort: int32(c.dashboardInternalPort()),
 				Protocol:      v1.ProtocolTCP,
 			},
 		},
@@ -211,16 +214,9 @@ func (c *Cluster) makeMgrSidecarContainer(mgrConfig *mgrConfig) v1.Container {
 		k8sutil.PodIPEnvVar(k8sutil.PublicIPEnvVar),
 		mon.PodNamespaceEnvVar(c.clusterInfo.Namespace),
 		mon.EndpointEnvVar(),
-		mon.SecretEnvVar(),
 		mon.CephUsernameEnvVar(),
 		mon.CephSecretEnvVar(),
 		k8sutil.ConfigOverrideEnvVar(),
-		{Name: "ROOK_FSID", ValueFrom: &v1.EnvVarSource{
-			SecretKeyRef: &v1.SecretKeySelector{
-				LocalObjectReference: v1.LocalObjectReference{Name: "rook-ceph-mon"},
-				Key:                  "fsid",
-			},
-		}},
 		{Name: "ROOK_DASHBOARD_ENABLED", Value: strconv.FormatBool(c.spec.Dashboard.Enabled)},
 		{Name: "ROOK_MONITORING_ENABLED", Value: strconv.FormatBool(c.spec.Monitoring.Enabled)},
 		{Name: "ROOK_UPDATE_INTERVAL", Value: "15s"},
@@ -232,6 +228,7 @@ func (c *Cluster) makeMgrSidecarContainer(mgrConfig *mgrConfig) v1.Container {
 		Args:            []string{"ceph", "mgr", "watch-active"},
 		Name:            "watch-active",
 		Image:           c.rookVersion,
+		ImagePullPolicy: controller.GetContainerImagePullPolicy(c.spec.CephVersion.ImagePullPolicy),
 		Env:             envVars,
 		Resources:       cephv1.GetMgrSidecarResources(c.spec.Resources),
 		SecurityContext: controller.PrivilegedContext(true),
@@ -245,6 +242,7 @@ func (c *Cluster) makeCmdProxySidecarContainer(mgrConfig *mgrConfig) v1.Containe
 		Command:         []string{"sleep"},
 		Args:            []string{"infinity"},
 		Image:           c.spec.CephVersion.Image,
+		ImagePullPolicy: controller.GetContainerImagePullPolicy(c.spec.CephVersion.ImagePullPolicy),
 		VolumeMounts:    append(controller.DaemonVolumeMounts(mgrConfig.DataPathMap, mgrConfig.ResourceName), adminKeyringVolMount),
 		Env:             append(controller.DaemonEnvVars(c.spec.CephVersion.Image), v1.EnvVar{Name: "CEPH_ARGS", Value: fmt.Sprintf("-m $(ROOK_CEPH_MON_HOST) -k %s", keyring.VolumeMount().AdminKeyringFilePath())}),
 		Resources:       cephv1.GetMgrResources(c.spec.Resources),
@@ -306,8 +304,11 @@ func (c *Cluster) makeDashboardService(name, activeDaemon string) (*v1.Service, 
 			Type:     v1.ServiceTypeClusterIP,
 			Ports: []v1.ServicePort{
 				{
-					Name:     portName,
-					Port:     int32(c.dashboardPort()),
+					Name: portName,
+					Port: int32(c.dashboardPublicPort()),
+					TargetPort: intstr.IntOrString{
+						IntVal: int32(c.dashboardInternalPort()),
+					},
 					Protocol: v1.ProtocolTCP,
 				},
 			},

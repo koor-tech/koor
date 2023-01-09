@@ -9,9 +9,9 @@ title: Snapshots
 - Install the snapshot controller and snapshot v1 CRD as required. More info can be found [here](https://github.com/kubernetes-csi/external-snapshotter/tree/v6.0.1#usage).
 
 !!! note
-    If only Alpha snapshots are available, enable snapshotter in `rook-ceph-operator-config` or helm chart `values.yaml`, change the external-snapshotter image to `registry.k8s.io/sig-storage/csi-snapshotter:v1.2.2` and refer to the [alpha snapshots documentation](ceph-csi-drivers.md#rbd-snapshots)
+    If only Alpha snapshots are available, enable snapshotter in `rook-ceph-operator-config` or helm chart `values.yaml`, change the external-snapshotter image to `registry.k8s.io/sig-storage/csi-snapshotter:v1.2.2` and refer to the [alpha snapshots documentation](https://github.com/koor-tech/koor/blob/release-1.3/Documentation/ceph-csi-drivers.md#rbd-snapshots)
 
-    VolumeSnapshot betav1 is deprecated in Kubernetes 1.20+ and removed in 1.24.0. If you still require betav1 snapshots, change the external-snapshotter image to `registry.k8s.io/sig-storage/csi-snapshotter:v5.0.1` and refer to the [betav1 snapshots documentation](https://docs.koor.tech/docs/v1.0/ceph-csi-snapshot.html#rbd-snapshots)
+    VolumeSnapshot betav1 is deprecated in Kubernetes 1.20+ and removed in 1.24.0. If you still require betav1 snapshots, change the external-snapshotter image to `registry.k8s.io/sig-storage/csi-snapshotter:v5.0.1` and refer to the [betav1 snapshots documentation](https://rook.github.io/docs/rook/v1.8/ceph-csi-snapshot.html#rbd-snapshots)
 
 - We also need a `VolumeSnapshotClass` for volume snapshot to work. The purpose of a `VolumeSnapshotClass` is
 defined in [the kubernetes
@@ -36,7 +36,7 @@ In [VolumeSnapshotClass](https://github.com/koor-tech/koor/tree/master/deploy/ex
 the `csi.storage.k8s.io/snapshotter-secret-name` parameter should reference the
 name of the secret created for the rbdplugin and `pool` to reflect the Ceph pool name.
 
-Update the value of the `clusterID` field to match the namespace that Koor Storage Distribution is
+Update the value of the `clusterID` field to match the namespace that Rook is
 running in. When Ceph CSI is deployed by Rook, the operator will automatically
 maintain a configmap whose contents will match this key. By default this is
 "rook-ceph".
@@ -112,7 +112,7 @@ In [VolumeSnapshotClass](https://github.com/koor-tech/koor/tree/master/deploy/ex
 the `csi.storage.k8s.io/snapshotter-secret-name` parameter should reference the
 name of the secret created for the cephfsplugin.
 
-In the volumesnapshotclass, update the value of the `clusterID` field to match the namespace that Koor Storage Distribution is
+In the volumesnapshotclass, update the value of the `clusterID` field to match the namespace that Rook is
 running in. When Ceph CSI is deployed by Rook, the operator will automatically
 maintain a configmap whose contents will match this key. By default this is
 "rook-ceph".

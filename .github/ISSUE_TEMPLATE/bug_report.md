@@ -5,7 +5,7 @@ labels: bug
 ---
 <!-- **Are you in the right place?**
 1. For issues or feature requests, please create an issue in this repository.
-2. For general technical and non-technical questions, we are happy to help you in [the GitHub Discussions](https://github.com/koor-tech/koor/discussions).
+2. For general technical and non-technical questions, we are happy to help you in [the Github Discussions](https://github.com/koor-tech/koor/discussions).
 3. Did you already search the existing open issues for anything similar? -->
 
 **Is this a bug report or feature request?**
@@ -21,19 +21,30 @@ labels: bug
 **File(s) to submit**:
 
 * Cluster CR (custom resource), typically called `cluster.yaml`, if necessary
+
+**Logs to submit**:
+
 * Operator's logs, if necessary
 * Crashing pod(s) logs, if necessary
 
- To get logs, use `kubectl -n <namespace> logs <pod name>`
-When pasting logs, always surround them with backticks or use the `insert code` button from the Github UI.
-Read [GitHub documentation if you need help](https://help.github.com/en/articles/creating-and-highlighting-code-blocks).
+  To get logs, use `kubectl -n <namespace> logs <pod name>`
+  When pasting logs, always surround them with backticks or use the `insert code` button from the Github UI.
+  Read [GitHub documentation if you need help](https://help.github.com/en/articles/creating-and-highlighting-code-blocks).
+
+**Cluster Status to submit**:
+
+* Output of krew commands, if necessary
+
+  To get the health of the cluster, use `kubectl rook-ceph health`
+  To get the status of the cluster, use `kubectl rook-ceph ceph status`
+  For more details, see the [Koor Storage Distribution Krew Plugin](https://docs.koor.tech/docs/latest-release/Troubleshooting/krew-plugin)
 
 **Environment**:
 * OS (e.g. from /etc/os-release):
 * Kernel (e.g. `uname -a`):
 * Cloud provider or hardware configuration:
-* Koor Storage Distribution version (use `rook version` inside of a Rook Pod):
+* Koor Storage Distribution version (use `rook version` inside of a Koor Storage Distribution Pod):
 * Storage backend version (e.g. for ceph do `ceph -v`):
 * Kubernetes version (use `kubectl version`):
 * Kubernetes cluster type (e.g. Tectonic, GKE, OpenShift):
-* Storage backend status (e.g. for Ceph use `ceph health` in the [Koor toolbox](https://docs.koor.tech/docs/latest/Troubleshooting/ceph-toolbox/#interactive-toolbox)):
+* Storage backend status (e.g. for Ceph use `ceph health` in the [Koor toolbox](https://docs.koor.tech/docs/latest-release/Troubleshooting/ceph-toolbox/#interactive-toolbox)):

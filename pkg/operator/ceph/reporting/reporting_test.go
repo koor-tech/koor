@@ -24,8 +24,8 @@ import (
 	"time"
 
 	"github.com/coreos/pkg/capnslog"
-	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/pkg/errors"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/stretchr/testify/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -68,7 +68,7 @@ func TestReportReconcileResult(t *testing.T) {
 		logBuf := bytes.NewBuffer([]byte{})
 		logFmt := capnslog.NewLogFormatter(logBuf, "", 0)
 		capnslog.SetFormatter(logFmt)
-		logger := capnslog.NewPackageLogger("github.com/koor-tech/koor", "")
+		logger := capnslog.NewPackageLogger("github.com/rook/rook", "")
 		capnslog.SetGlobalLogLevel(capnslog.TRACE)
 
 		recorder := record.NewFakeRecorder(3)

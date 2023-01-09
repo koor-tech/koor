@@ -143,22 +143,26 @@ func TestGenerateSecretName(t *testing.T) {
 }
 
 func TestEmptyPoolSpec(t *testing.T) {
-	assert.True(t, emptyPool(cephv1.PoolSpec{}))
+	assert.True(t, EmptyPool(cephv1.PoolSpec{}))
 
 	p := cephv1.PoolSpec{FailureDomain: "foo"}
-	assert.False(t, emptyPool(p))
+	assert.False(t, EmptyPool(p))
 
 	p = cephv1.PoolSpec{Replicated: cephv1.ReplicatedSpec{Size: 1}}
-	assert.False(t, emptyPool(p))
+	assert.False(t, EmptyPool(p))
 
 	p = cephv1.PoolSpec{ErasureCoded: cephv1.ErasureCodedSpec{CodingChunks: 1}}
-	assert.False(t, emptyPool(p))
+	assert.False(t, EmptyPool(p))
 }
 
 func TestBuildDomainNameAndEndpoint(t *testing.T) {
-	name := "my-store"
-	ns := "rook-ceph"
-	dns := BuildDomainName(name, ns)
+	s := &cephv1.CephObjectStore{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "my-store",
+			Namespace: "rook-ceph",
+		},
+	}
+	dns := GetDomainName(s)
 	assert.Equal(t, "rook-ceph-rgw-my-store.rook-ceph.svc", dns)
 
 	// non-secure endpoint

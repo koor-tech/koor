@@ -18,30 +18,32 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/operator/test"
 	"github.com/koor-tech/koor/pkg/util/exec"
 	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestFinalizeCephCommandArgs(t *testing.T) {
 	RunAllCephCommandsInToolboxPod = ""
-	configDir := "/var/lib/rook/rook-ceph"
+	configDir := "/var/lib/koor-tech/koor-ceph"
 	expectedCommand := "ceph"
 	args := []string{"quorum_status"}
 	expectedArgs := []string{
 		"quorum_status",
 		"--connect-timeout=" + strconv.Itoa(int(exec.CephCommandsTimeout.Seconds())),
 		"--cluster=rook",
-		"--conf=/var/lib/rook/rook-ceph/rook/rook.config",
+		"--conf=/var/lib/koor-tech/koor-ceph/koor-tech/koor.config",
 		"--name=client.admin",
-		"--keyring=/var/lib/rook/rook-ceph/rook/client.admin.keyring",
+		"--keyring=/var/lib/koor-tech/koor-ceph/rook/client.admin.keyring",
 	}
 
 	clusterInfo := AdminTestClusterInfo("rook")
@@ -52,7 +54,7 @@ func TestFinalizeCephCommandArgs(t *testing.T) {
 
 func TestFinalizeRadosGWAdminCommandArgs(t *testing.T) {
 	RunAllCephCommandsInToolboxPod = ""
-	configDir := "/var/lib/rook/rook-ceph"
+	configDir := "/var/lib/koor-tech/koor-ceph"
 	expectedCommand := "radosgw-admin"
 	args := []string{
 		"realm",
@@ -69,9 +71,9 @@ func TestFinalizeRadosGWAdminCommandArgs(t *testing.T) {
 		"--rgw-realm=default-rook",
 		"--rgw-zonegroup=default-rook",
 		"--cluster=rook",
-		"--conf=/var/lib/rook/rook-ceph/rook/rook.config",
+		"--conf=/var/lib/koor-tech/koor-ceph/koor-tech/koor.config",
 		"--name=client.admin",
-		"--keyring=/var/lib/rook/rook-ceph/rook/client.admin.keyring",
+		"--keyring=/var/lib/koor-tech/koor-ceph/rook/client.admin.keyring",
 	}
 
 	clusterInfo := AdminTestClusterInfo("rook")
@@ -82,7 +84,7 @@ func TestFinalizeRadosGWAdminCommandArgs(t *testing.T) {
 
 func TestFinalizeCephCommandArgsToolBox(t *testing.T) {
 	RunAllCephCommandsInToolboxPod = "rook-ceph-tools"
-	configDir := "/var/lib/rook/rook-ceph"
+	configDir := "/var/lib/koor-tech/koor-ceph"
 	expectedCommand := "ceph"
 	args := []string{"health"}
 	expectedArgs := []string{
@@ -157,4 +159,72 @@ func TestNewRBDCommand(t *testing.T) {
 		assert.EqualError(t, err, "context canceled")
 	})
 
+}
+
+func TestNewGaneshaRadosGraceCommand(t *testing.T) {
+	anyArgContains := func(substr string, args []string) bool {
+		for _, arg := range args {
+			if strings.Contains(arg, substr) {
+				return true
+			}
+		}
+		return false
+	}
+
+	args := []string{"--pool", ".nfs", "--ns", "my-nfs", "add", "node"}
+
+	timeout := time.Second
+
+	ctx := func() *clusterd.Context {
+		return &clusterd.Context{
+			Executor: &exectest.MockExecutor{
+				MockExecuteCommandWithTimeout: func(timeout time.Duration, command string, arg ...string) (string, error) {
+					t.Logf("command: %s %v", command, arg)
+					assert.Equal(t, time.Second, timeout)
+
+					assert.Equal(t, "ganesha-rados-grace", command)
+					assert.Equal(t, []string{"--pool", ".nfs", "--ns", "my-nfs", "add", "node"}, arg[0:6])
+
+					// ganesha-rados-grace's conf flag is --cephconf
+					assert.True(t, anyArgContains("--cephconf=", arg))
+					// ganesha-rados-grace accepts NO standard flags
+					assert.False(t, anyArgContains("--cluster", arg))
+					assert.False(t, anyArgContains("--conf", arg))
+					assert.False(t, anyArgContains("--name", arg))
+					assert.False(t, anyArgContains("--keyring", arg))
+					assert.False(t, anyArgContains("--format", arg))
+
+					return "", nil
+				},
+			},
+		}
+	}
+
+	clusterInfo := func() *ClusterInfo {
+		return &ClusterInfo{
+			Namespace: "rook-ceph",
+			Context:   context.Background(),
+		}
+	}
+
+	t.Run("normal call", func(t *testing.T) {
+		cmd := NewGaneshaRadosGraceCommand(ctx(), clusterInfo(), args)
+		assert.Equal(t, false, cmd.JsonOutput)
+
+		_, err := cmd.RunWithTimeout(timeout)
+		assert.NoError(t, err)
+	})
+
+	t.Run("error call", func(t *testing.T) {
+		ctx := ctx()
+		ctx.Executor = &exectest.MockExecutor{
+			MockExecuteCommandWithTimeout: func(timeout time.Duration, command string, arg ...string) (string, error) {
+				return "", fmt.Errorf("induced error")
+			},
+		}
+
+		cmd := NewGaneshaRadosGraceCommand(ctx, clusterInfo(), args)
+		_, err := cmd.RunWithTimeout(timeout)
+		assert.Error(t, err)
+	})
 }

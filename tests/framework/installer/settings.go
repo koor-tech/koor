@@ -21,8 +21,8 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/koor-tech/koor/tests/framework/utils"
 	"github.com/pkg/errors"
+	"github.com/koor-tech/koor/tests/framework/utils"
 )
 
 var imageMatch = regexp.MustCompile(`image: rook\/ceph:[a-z0-9.-]+`)

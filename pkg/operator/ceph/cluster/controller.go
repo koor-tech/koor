@@ -23,6 +23,7 @@ import (
 	"os"
 
 	"github.com/coreos/pkg/capnslog"
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
@@ -33,7 +34,6 @@ import (
 	"github.com/koor-tech/koor/pkg/operator/ceph/csi"
 	"github.com/koor-tech/koor/pkg/operator/ceph/reporting"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
-	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -299,7 +299,7 @@ func (r *ReconcileCephCluster) reconcileDelete(cephCluster *cephv1.CephCluster) 
 	// Start cluster clean up only if cleanupPolicy is applied to the ceph cluster
 	internalCtx := context.Context(r.opManagerContext)
 	if cephCluster.Spec.CleanupPolicy.HasDataDirCleanPolicy() && !cephCluster.Spec.External.Enable {
-		monSecret, clusterFSID, err := r.clusterController.getCleanUpDetails(cephCluster.Namespace)
+		monSecret, clusterFSID, err := r.clusterController.getCleanUpDetails(&cephCluster.Spec, cephCluster.Namespace)
 		if err != nil {
 			logger.Warningf("failed to get mon secret. skip cluster cleanup. remove finalizer. %v", err)
 			doCleanup = false
@@ -478,26 +478,28 @@ func (c *ClusterController) checkPVPresentInCluster(drivers []string, clusterID 
 	return false, nil
 }
 
-func (r *ReconcileCephCluster) removeFinalizers(client client.Client, name types.NamespacedName) error {
-	// Remove cephcluster finalizer
-	err := r.removeFinalizer(client, name, &cephv1.CephCluster{}, "")
-	if err != nil {
-		return errors.Wrap(err, "failed to remove cephcluster finalizer")
-	}
+func (r *ReconcileCephCluster) removeFinalizers(client client.Client, clusterName types.NamespacedName) error {
 
 	// Remove finalizer for rook-ceph-mon secret
-	name = types.NamespacedName{Name: mon.AppName, Namespace: name.Namespace}
-	err = r.removeFinalizer(client, name, &corev1.Secret{}, mon.DisasterProtectionFinalizerName)
+	name := types.NamespacedName{Name: mon.AppName, Namespace: clusterName.Namespace}
+	err := r.removeFinalizer(client, name, &corev1.Secret{}, mon.DisasterProtectionFinalizerName)
 	if err != nil {
 		return errors.Wrapf(err, "failed to remove finalizer for the secret %q", name.Name)
 	}
 
 	// Remove finalizer for rook-ceph-mon-endpoints configmap
-	name = types.NamespacedName{Name: mon.EndpointConfigMapName, Namespace: name.Namespace}
+	name = types.NamespacedName{Name: mon.EndpointConfigMapName, Namespace: clusterName.Namespace}
 	err = r.removeFinalizer(client, name, &corev1.ConfigMap{}, mon.DisasterProtectionFinalizerName)
 	if err != nil {
 		return errors.Wrapf(err, "failed to remove finalizer for the configmap %q", name.Name)
 	}
+
+	// Remove cephcluster finalizer
+	err = r.removeFinalizer(client, clusterName, &cephv1.CephCluster{}, "")
+	if err != nil {
+		return errors.Wrap(err, "failed to remove cephcluster finalizer")
+	}
+
 	return nil
 }
 
@@ -543,6 +545,7 @@ func (c *ClusterController) deleteOSDEncryptionKeyFromKMS(currentCluster *cephv1
 
 	// Initialize the KMS code
 	kmsConfig := kms.NewConfig(c.context, &currentCluster.Spec, c.clusterMap[currentCluster.Namespace].ClusterInfo)
+	kmsConfig.ClusterInfo.Context = ctx
 
 	// If token auth is used by the KMS we set it as an env variable
 	if currentCluster.Spec.Security.KeyManagementService.IsTokenAuthEnabled() && currentCluster.Spec.Security.KeyManagementService.IsVaultKMS() {
@@ -552,9 +555,10 @@ func (c *ClusterController) deleteOSDEncryptionKeyFromKMS(currentCluster *cephv1
 		}
 	}
 
-	// We need to fetch the IBM_KP_SERVICE_API_KEY value
-	if currentCluster.Spec.Security.KeyManagementService.IsIBMKeyProtectKMS() {
-		// This will validate the connection details again and will add the IBM_KP_SERVICE_API_KEY to the spec
+	// We need to fetch the IBM_KP_SERVICE_API_KEY value and KMIP kms related values too.
+	if currentCluster.Spec.Security.KeyManagementService.IsIBMKeyProtectKMS() || currentCluster.Spec.Security.KeyManagementService.IsKMIPKMS() {
+		// This will validate the connection details again and will add the IBM_KP_SERVICE_API_KEY to the spec and
+		// token details required for KMIP kms is added too.
 		err = kms.ValidateConnectionDetails(ctx, c.context, &currentCluster.Spec.Security.KeyManagementService, currentCluster.Namespace)
 		if err != nil {
 			return errors.Wrap(err, "failed to validate kms connection details to delete the secret")

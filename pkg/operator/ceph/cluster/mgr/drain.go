@@ -17,8 +17,8 @@ limitations under the License.
 package mgr
 
 import (
-	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/pkg/errors"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	policyv1 "k8s.io/api/policy/v1"
 	policyv1beta1 "k8s.io/api/policy/v1beta1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"

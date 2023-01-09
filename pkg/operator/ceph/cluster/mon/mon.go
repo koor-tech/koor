@@ -31,6 +31,7 @@ import (
 
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
 	"github.com/coreos/pkg/capnslog"
+	"github.com/pkg/errors"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
@@ -41,7 +42,6 @@ import (
 	"github.com/koor-tech/koor/pkg/operator/ceph/csi"
 	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
-	"github.com/pkg/errors"
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -127,9 +127,15 @@ type monConfig struct {
 	Port int32
 	// The zone used for a stretch cluster
 	Zone string
+	// The node where the mon is assigned
+	NodeName string
 	// DataPathMap is the mapping relationship between mon data stored on the host and mon data
 	// stored in containers.
 	DataPathMap *config.DataPathMap
+	// Whether the mon is running with host networking. Must be detected separately
+	// from the cephcluster host network setting. If the cluster setting changes,
+	// each individual mon must keep running with the same network settings.
+	UseHostNetwork bool
 }
 
 type SchedulingResult struct {
@@ -478,7 +484,7 @@ func (c *Cluster) initClusterInfo(cephVersion cephver.CephVersion, clusterName s
 
 	context := c.ClusterInfo.Context
 	// get the cluster info from secret
-	c.ClusterInfo, c.maxMonID, c.mapping, err = controller.CreateOrLoadClusterInfo(c.context, context, c.Namespace, c.ownerInfo)
+	c.ClusterInfo, c.maxMonID, c.mapping, err = controller.CreateOrLoadClusterInfo(c.context, context, c.Namespace, c.ownerInfo, &c.spec)
 	if err != nil {
 		return errors.Wrap(err, "failed to get cluster info")
 	}
@@ -515,7 +521,7 @@ func (c *Cluster) initClusterInfo(cephVersion cephver.CephVersion, clusterName s
 func (c *Cluster) initMonConfig(size int) (int, []*monConfig, error) {
 
 	// initialize the mon pod info for mons that have been previously created
-	mons := c.clusterInfoToMonConfig("")
+	mons := c.clusterInfoToMonConfig()
 
 	// initialize mon info if we don't have enough mons (at first startup)
 	existingCount := len(c.ClusterInfo.Monitors)
@@ -531,7 +537,11 @@ func (c *Cluster) initMonConfig(size int) (int, []*monConfig, error) {
 	return existingCount, mons, nil
 }
 
-func (c *Cluster) clusterInfoToMonConfig(excludedMon string) []*monConfig {
+func (c *Cluster) clusterInfoToMonConfig() []*monConfig {
+	return c.clusterInfoToMonConfigWithExclude("")
+}
+
+func (c *Cluster) clusterInfoToMonConfigWithExclude(excludedMon string) []*monConfig {
 	mons := []*monConfig{}
 	for _, monitor := range c.ClusterInfo.Monitors {
 		if monitor.Name == excludedMon {
@@ -539,17 +549,28 @@ func (c *Cluster) clusterInfoToMonConfig(excludedMon string) []*monConfig {
 			continue
 		}
 		var zone string
+		var nodeName string
+		isHostNetwork := false
+		monPublicIP := cephutil.GetIPFromEndpoint(monitor.Endpoint)
 		schedule := c.mapping.Schedule[monitor.Name]
 		if schedule != nil {
 			zone = schedule.Zone
+			nodeName = schedule.Name
+			if schedule.Address == monPublicIP {
+				isHostNetwork = true
+			}
 		}
+		logger.Debugf("Host network for mon %q is %t", monitor.Name, isHostNetwork)
+
 		mons = append(mons, &monConfig{
-			ResourceName: resourceName(monitor.Name),
-			DaemonName:   monitor.Name,
-			Port:         cephutil.GetPortFromEndpoint(monitor.Endpoint),
-			PublicIP:     cephutil.GetIPFromEndpoint(monitor.Endpoint),
-			Zone:         zone,
-			DataPathMap:  config.NewStatefulDaemonDataPathMap(c.spec.DataDirHostPath, dataDirRelativeHostPath(monitor.Name), config.MonType, monitor.Name, c.Namespace),
+			ResourceName:   resourceName(monitor.Name),
+			DaemonName:     monitor.Name,
+			Port:           cephutil.GetPortFromEndpoint(monitor.Endpoint),
+			PublicIP:       monPublicIP,
+			Zone:           zone,
+			NodeName:       nodeName,
+			DataPathMap:    config.NewStatefulDaemonDataPathMap(c.spec.DataDirHostPath, dataDirRelativeHostPath(monitor.Name), config.MonType, monitor.Name, c.Namespace),
+			UseHostNetwork: isHostNetwork,
 		})
 	}
 	return mons
@@ -563,10 +584,11 @@ func (c *Cluster) newMonConfig(monID int, zone string) *monConfig {
 	}
 
 	return &monConfig{
-		ResourceName: resourceName(daemonName),
-		DaemonName:   daemonName,
-		Port:         defaultPort,
-		Zone:         zone,
+		ResourceName:   resourceName(daemonName),
+		DaemonName:     daemonName,
+		Port:           defaultPort,
+		Zone:           zone,
+		UseHostNetwork: c.spec.Network.IsHost(),
 		DataPathMap: config.NewStatefulDaemonDataPathMap(
 			c.spec.DataDirHostPath, dataDirRelativeHostPath(daemonName), config.MonType, daemonName, c.Namespace),
 	}
@@ -767,11 +789,11 @@ func (c *Cluster) initMonIPs(mons []*monConfig) error {
 		if c.ClusterInfo.Context.Err() != nil {
 			return c.ClusterInfo.Context.Err()
 		}
-		if c.spec.Network.IsHost() {
-			logger.Infof("setting mon endpoints for hostnetwork mode")
+		if m.UseHostNetwork {
+			logger.Infof("setting mon %q endpoints for hostnetwork mode", m.DaemonName)
 			node, ok := c.mapping.Schedule[m.DaemonName]
 			if !ok || node == nil {
-				return errors.Errorf("failed to found node for mon %q in assignment map", m.DaemonName)
+				return errors.Errorf("failed to find node for mon %q in assignment map", m.DaemonName)
 			}
 			m.PublicIP = node.Address
 		} else {
@@ -1075,6 +1097,14 @@ func (c *Cluster) persistExpectedMonDaemons() error {
 		return errors.Wrap(err, "failed to save maxMonID")
 	}
 
+	// preserve the mons detected out of quorum
+	var monsOutOfQuorum []string
+	for monName, mon := range c.ClusterInfo.Monitors {
+		if mon.OutOfQuorum {
+			monsOutOfQuorum = append(monsOutOfQuorum, monName)
+		}
+	}
+
 	configMap.Data = map[string]string{
 		EndpointDataKey: FlattenMonEndpoints(c.ClusterInfo.Monitors),
 		// persist the maxMonID that was previously stored in the configmap. We are likely saving info
@@ -1082,9 +1112,10 @@ func (c *Cluster) persistExpectedMonDaemons() error {
 		// actually been started. If the operator is restarted or the reconcile is otherwise restarted,
 		// we want to calculate the mon scheduling next time based on the committed maxMonID, rather
 		// than only a mon scheduling, which may not have completed.
-		controller.MaxMonIDKey: maxMonID,
-		controller.MappingKey:  string(monMapping),
-		csi.ConfigKey:          csiConfigValue,
+		controller.MaxMonIDKey:    maxMonID,
+		controller.MappingKey:     string(monMapping),
+		controller.OutOfQuorumKey: strings.Join(monsOutOfQuorum, ","),
+		csi.ConfigKey:             csiConfigValue,
 	}
 
 	if _, err := c.context.Clientset.CoreV1().ConfigMaps(c.Namespace).Create(c.ClusterInfo.Context, configMap, metav1.CreateOptions{}); err != nil {
@@ -1125,6 +1156,10 @@ func (c *Cluster) commitMaxMonID(monName string) error {
 		return errors.Wrapf(err, "invalid mon name %q", monName)
 	}
 
+	return c.commitMaxMonIDRequireIncrementing(committedMonID, true)
+}
+
+func (c *Cluster) commitMaxMonIDRequireIncrementing(desiredMaxMonID int, requireIncrementing bool) error {
 	configmap, err := c.context.Clientset.CoreV1().ConfigMaps(c.Namespace).Get(c.ClusterInfo.Context, EndpointConfigMapName, metav1.GetOptions{})
 	if err != nil {
 		return errors.Wrap(err, "failed to find existing mon endpoint config map")
@@ -1136,13 +1171,13 @@ func (c *Cluster) commitMaxMonID(monName string) error {
 		return errors.Wrap(err, "failed to read existing maxMonId")
 	}
 
-	if existingMax >= committedMonID {
-		logger.Infof("no need to commit maxMonID %d since it is not greater than existing maxMonID %d", committedMonID, existingMax)
+	if requireIncrementing && existingMax >= desiredMaxMonID {
+		logger.Infof("no need to commit maxMonID %d since it is not greater than existing maxMonID %d", desiredMaxMonID, existingMax)
 		return nil
 	}
 
-	logger.Infof("updating maxMonID from %d to %d after committing mon %q", existingMax, committedMonID, monName)
-	configmap.Data[controller.MaxMonIDKey] = strconv.Itoa(committedMonID)
+	logger.Infof("updating maxMonID from %d to %d", existingMax, desiredMaxMonID)
+	configmap.Data[controller.MaxMonIDKey] = strconv.Itoa(desiredMaxMonID)
 
 	if _, err = c.context.Clientset.CoreV1().ConfigMaps(c.Namespace).Update(c.ClusterInfo.Context, configmap, metav1.UpdateOptions{}); err != nil {
 		return errors.Wrap(err, "failed to update mon endpoint config map for the maxMonID")
@@ -1261,7 +1296,7 @@ func (c *Cluster) startMon(m *monConfig, schedule *controller.MonScheduleInfo) e
 		// isn't using host networking and the deployment is using pvc storage,
 		// then the node selector can be removed. this may happen after
 		// upgrading the cluster with the k8s scheduling support for monitors.
-		if c.spec.Network.IsHost() || !pvcExists {
+		if m.UseHostNetwork || !pvcExists {
 			p.PodAffinity = nil
 			p.PodAntiAffinity = nil
 			k8sutil.SetNodeAntiAffinityForPod(&d.Spec.Template.Spec, requiredDuringScheduling(&c.spec), v1.LabelHostname,
@@ -1327,7 +1362,7 @@ func waitForQuorumWithMons(context *clusterd.Context, clusterInfo *cephclient.Cl
 
 	// wait for monitors to establish quorum
 	retryCount := 0
-	retryMax := 30
+	retryMax := 60
 	for {
 		// Return immediately if the context has been canceled
 		if clusterInfo.Context.Err() != nil {

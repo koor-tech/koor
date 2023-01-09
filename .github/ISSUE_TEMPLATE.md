@@ -1,6 +1,6 @@
 <!-- **Are you in the right place?**
 1. For issues or feature requests, please create an issue in this repository.
-2. For general technical and non-technical questions, we are happy to help you in [the GitHub Discussions](https://github.com/koor-tech/koor/discussions).
+2. For general technical and non-technical questions, we are happy to help you in [the Github Discussions](https://github.com/koor-tech/koor/discussions).
 3. Did you already search the existing open issues for anything similar? -->
 
 **Is this a bug report or feature request?**
@@ -41,7 +41,7 @@ Read [GitHub documentation if you need help](https://help.github.com/en/articles
 * OS (e.g. from /etc/os-release):
 * Kernel (e.g. `uname -a`):
 * Cloud provider or hardware configuration:
-* Koor Storage Distribution version (use `rook version` inside of a Rook Pod):
+* Koor Storage Distribution version (use `rook version` inside of a Koor Storage Distribution Pod):
 * Storage backend version (e.g. for ceph do `ceph -v`):
 * Kubernetes version (use `kubectl version`):
 * Kubernetes cluster type (e.g. Tectonic, GKE, OpenShift):

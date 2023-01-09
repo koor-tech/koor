@@ -9,7 +9,7 @@ This document will describe a proposed design for the upgrading of Rook software
 ## **Goal**
 In order for software upgrade support in Rook to be considered successful, the goals listed below should be met.
 Note that these goals are for a long term vision and are not all necessarily deliverable within the v0.6 release time frame.
-* **Automatic:** When a new version of Rook is released and the admin has chosen to start the upgrade, a live cluster should be able to update all its components to the new version without further user intervention.
+* **Automatic:** When a new version of Koor Storage Distribution is released and the admin has chosen to start the upgrade, a live cluster should be able to update all its components to the new version without further user intervention.
 * **No downtime:** During an upgrade window, there should be **zero** downtime of cluster functionality.
   * The upgrade process should be carried out in a rolling fashion so that not all components are being updated simultaneously.
 The cluster should be maintained in a healthy state the entire time.
