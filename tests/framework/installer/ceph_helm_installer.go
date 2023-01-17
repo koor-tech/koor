@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/koor-tech/koor/tests/framework/utils"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"

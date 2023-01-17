@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"os/signal"
 
-	"github.com/koor-tech/koor/cmd/rook/rook"
 	"github.com/koor-tech/koor/pkg/daemon/util"
 	operator "github.com/koor-tech/koor/pkg/operator/ceph"
 

@@ -24,7 +24,7 @@ import (
 	"path"
 	"strings"
 
-        "github.com/coreos/pkg/capnslog"
+	"github.com/coreos/pkg/capnslog"
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"

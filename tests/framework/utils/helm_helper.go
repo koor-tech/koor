@@ -24,8 +24,8 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/pkg/errors"
 	"github.com/koor-tech/koor/pkg/util/exec"
+	"github.com/pkg/errors"
 )
 
 // HelmHelper is wrapper for running helm commands

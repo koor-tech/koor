@@ -25,6 +25,7 @@ import (
 	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/koor-tech/koor/pkg/util/flags"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 

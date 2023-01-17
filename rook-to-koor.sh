@@ -62,6 +62,9 @@ sed -i 's/v1\.9\../v1\.0\.0/g' "${ROOKDIR}"/Documentation/Upgrade/rook-upgrade.m
 sed -i "s|rook|koor-tech|g" "${ROOKDIR}"/.docs/macros/includes/main.py
 sed -i "s|koorinc/ceph|Koor Storage Distribution|g" "${ROOKDIR}"/Documentation/Troubleshooting/common-issues.md
 
+# run gofmt
+gofmt -w .
+
 # apply patch and merge
 git add -u
 git commit -sm "conflict resolution for rook upstream merge"

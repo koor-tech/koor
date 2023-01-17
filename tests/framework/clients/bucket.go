@@ -21,10 +21,10 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-sdk-go/service/s3"
-	bktv1alpha1 "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1"
 	rgw "github.com/koor-tech/koor/pkg/operator/ceph/object"
 	"github.com/koor-tech/koor/tests/framework/installer"
 	"github.com/koor-tech/koor/tests/framework/utils"
+	bktv1alpha1 "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1"
 )
 
 // BucketOperation is a wrapper for rook bucket operations

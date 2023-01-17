@@ -51,7 +51,7 @@ const (
 	blockPVCMetadataMapperInitContainer           = "blkdevmapper-metadata"
 	blockPVCWalMapperInitContainer                = "blkdevmapper-wal"
 	activatePVCOSDInitContainer                   = "activate"
-	expandPVCOSDInitContainer                     = "expand-bluefs"
+	expandOSDInitContainer                        = "expand-bluefs"
 	expandEncryptedPVCOSDInitContainer            = "expand-encrypted-bluefs"
 	encryptedPVCStatusOSDInitContainer            = "encrypted-block-status"
 	encryptionKeyFileName                         = "luks_key"
@@ -87,7 +87,7 @@ DEVICE="$%s"
 # https://github.com/ceph/ceph/commit/25655e5a8829e001adf467511a6bde8142b0a575
 # This limitation will be removed later. After that, we can remove this
 # fsid injection code. Probably a good time is when to remove Quincy support.
-# https://github.com/koor-tech/koor/pull/10333#discussion_r892817877
+# https://github.com/rook/rook/pull/10333#discussion_r892817877
 cp --no-preserve=mode /etc/temp-ceph/ceph.conf /etc/ceph/ceph.conf
 python3 -c "
 import configparser
@@ -225,7 +225,7 @@ fi
 	// When restarting the OSD, the PVC block might end up with a different Kernel disk allocation
 	// For instance, prior to restart the block was mapped to 8:32 and when re-attached it was on 8:16
 	// The previous "block" is still 8:32 so if we don't override it we will try to initialize on a disk that is not an OSD or worse another OSD
-	// This is mainly because in https://github.com/koor-tech/koor/commit/ae8dcf7cc3b51cf8ca7da22f48b7a58887536c4f we switched to use HostPath to store the OSD data
+	// This is mainly because in https://github.com/rook/rook/commit/ae8dcf7cc3b51cf8ca7da22f48b7a58887536c4f we switched to use HostPath to store the OSD data
 	// Since HostPath is not ephemeral, the block file must be re-hydrated each time the deployment starts
 	blockDevMapper = `
 set -xe
@@ -482,35 +482,6 @@ func (c *Cluster) makeDeployment(osdProps osdProperties, osd OSDInfo, provisionC
 		initContainers = append(initContainers, *copyBinariesContainer)
 	}
 
-	if osdProps.onPVC() && osd.CVMode == "lvm" {
-		initContainers = append(initContainers, c.getPVCInitContainer(osdProps))
-	} else if osdProps.onPVC() && osd.CVMode == "raw" {
-		// Copy main block device to an empty dir
-		initContainers = append(initContainers, c.getPVCInitContainerActivate(osdDataDirPath, osdProps))
-		// Copy main block.db device to an empty dir
-		if osdProps.onPVCWithMetadata() {
-			initContainers = append(initContainers, c.getPVCMetadataInitContainerActivate(osdDataDirPath, osdProps))
-		}
-		// Copy main block.wal device to an empty dir
-		if osdProps.onPVCWithWal() {
-			initContainers = append(initContainers, c.getPVCWalInitContainerActivate(osdDataDirPath, osdProps))
-		}
-		if osdProps.encrypted {
-			// Open the encrypted disk
-			initContainers = append(initContainers, c.getPVCEncryptionOpenInitContainerActivate(osdDataDirPath, osdProps)...)
-			// Copy the encrypted block to the osd data location, e,g: /var/lib/ceph/osd/ceph-0/block
-			initContainers = append(initContainers, c.getPVCEncryptionInitContainerActivate(osdDataDirPath, osdProps)...)
-			// Print the encrypted block status
-			initContainers = append(initContainers, c.getEncryptedStatusPVCInitContainer(osdDataDirPath, osdProps))
-			// Resize the encrypted device if necessary, this must be done after the encrypted block is opened
-			initContainers = append(initContainers, c.getExpandEncryptedPVCInitContainer(osdDataDirPath, osdProps))
-		}
-		initContainers = append(initContainers, c.getActivatePVCInitContainer(osdProps, osdID))
-		initContainers = append(initContainers, c.getExpandPVCInitContainer(osdProps, osdID))
-	} else {
-		initContainers = append(initContainers, *activateOSDContainer)
-	}
-
 	// For OSD on PVC with LVM the directory does not exist yet
 	// It gets created by the 'ceph-volume lvm activate' command
 	//
@@ -557,13 +528,14 @@ func (c *Cluster) makeDeployment(osdProps osdProperties, osd OSDInfo, provisionC
 		volumes = append(volumes, activateOSDVolume...)
 		volumeMounts = append(volumeMounts, activateOSDContainer.VolumeMounts[0])
 		initContainers = append(initContainers, *activateOSDContainer)
+		initContainers = append(initContainers, c.getExpandInitContainer(osdProps, c.spec.DataDirHostPath, c.clusterInfo.Namespace, osdID, osd))
 	}
 
 	// Doing a chown in a post start lifecycle hook does not reliably complete before the OSD
 	// process starts, which can cause the pod to fail without the lifecycle hook's chown command
 	// completing. It can take an arbitrarily long time for a pod restart to successfully chown the
 	// directory. This is a race condition for all OSDs; therefore, do this in an init container.
-	// See more discussion here: https://github.com/koor-tech/koor/pull/3594#discussion_r312279176
+	// See more discussion here: https://github.com/rook/rook/pull/3594#discussion_r312279176
 	initContainers = append(initContainers,
 		controller.ChownCephDataDirsInitContainer(
 			opconfig.DataPathMap{ContainerDataDir: dataPath},
@@ -1182,7 +1154,7 @@ func (c *Cluster) getExpandPVCInitContainer(osdProps osdProperties, osdID string
 	osdDataPath := activateOSDMountPath + osdID
 
 	return v1.Container{
-		Name:            expandPVCOSDInitContainer,
+		Name:            expandOSDInitContainer,
 		Image:           c.spec.CephVersion.Image,
 		ImagePullPolicy: controller.GetContainerImagePullPolicy(c.spec.CephVersion.ImagePullPolicy),
 		Command: []string{
@@ -1190,6 +1162,27 @@ func (c *Cluster) getExpandPVCInitContainer(osdProps osdProperties, osdID string
 		},
 		Args:            []string{"bluefs-bdev-expand", "--path", osdDataPath},
 		VolumeMounts:    []v1.VolumeMount{getPvcOSDBridgeMountActivate(osdDataPath, osdProps.pvc.ClaimName)},
+		SecurityContext: controller.PrivilegedContext(true),
+		Resources:       osdProps.resources,
+	}
+}
+
+func (c *Cluster) getExpandInitContainer(osdProps osdProperties, configDir, namespace, osdID string, osdInfo OSDInfo) v1.Container {
+	// Output example is in the comments at the beginning of `getExpandPVCInitContainer()`.
+	osdDataPath := activateOSDMountPath + osdID
+
+	return v1.Container{
+		Name:            expandOSDInitContainer,
+		Image:           c.spec.CephVersion.Image,
+		ImagePullPolicy: controller.GetContainerImagePullPolicy(c.spec.CephVersion.ImagePullPolicy),
+		Command: []string{
+			"ceph-bluestore-tool",
+		},
+		Args: []string{"bluefs-bdev-expand", "--path", osdDataPath},
+		VolumeMounts: []v1.VolumeMount{
+			{Name: activateOSDVolumeName, MountPath: osdDataPath},
+			{Name: "devices", MountPath: "/dev"},
+		},
 		SecurityContext: controller.PrivilegedContext(true),
 		Resources:       osdProps.resources,
 	}
