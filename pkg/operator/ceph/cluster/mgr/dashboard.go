@@ -102,7 +102,15 @@ func (c *Cluster) configureDashboardModules() error {
 			hasChanged = true
 		}
 	}
-	c.setupSSO()
+
+	ssoChanged, err := c.setupSSO()
+	if err != nil {
+		return errors.Wrap(err, "Failed to initialize SSO")
+	}
+
+	if ssoChanged {
+		logger.Info("SSO setup successful!")
+	}
 
 	if hasChanged {
 		logger.Info("dashboard config has changed. restarting the dashboard module")
@@ -319,7 +327,9 @@ func (c *Cluster) restartDashboard() error {
 }
 
 func (c *Cluster) setupSSO() (bool, error) {
-	if !c.spec.Dashboard.SSO.Enabled {
+	enabled := c.spec.Dashboard.SSO.Enabled
+	logger.Println(enabled)
+	if !enabled {
 		// Make sure SSO is disabled
 		args := []string{"dashboard", "sso", "disable"}
 		for i := 0; i < 5; i++ {
@@ -333,7 +343,7 @@ func (c *Cluster) setupSSO() (bool, error) {
 	// TODO create and build sso setup args command
 	dashboardUrl := c.spec.Dashboard.SSO.BaseURL
 	idpMetadataUrl := c.spec.Dashboard.SSO.IDPMetadataUrl
-	args := []string{"dashboard", "sso", "setup", dashboardUrl, idpMetadataUrl}
+	args := []string{"dashboard", "sso", "setup", "saml2", dashboardUrl, idpMetadataUrl}
 	idpUsernameAttribute := c.spec.Dashboard.SSO.IDPAttributes.Username
 	idpEntityId := c.spec.Dashboard.SSO.EntityID
 	// spCertificateKey := c.spec.Dashboard.SSO.SPCert.Key
@@ -356,22 +366,23 @@ func (c *Cluster) setupSSO() (bool, error) {
 	// retry a few times in the case that the mgr module is not ready to accept commands
 	for i := 0; i < 5; i++ {
 		_, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
+		if err == nil {
+			return true, nil
+		}
 		if err == context.DeadlineExceeded {
 			logger.Warning("sso setup timed out. trying again")
 			continue
 		}
-		if err != nil {
-			exitCode, parsed := c.exitCode(err)
-			if parsed {
-				if exitCode == invalidArgErrorCode {
-					logger.Info("dashboard module is not ready yet. trying again")
-					time.Sleep(dashboardInitWaitTime)
-					continue
-				}
+
+		exitCode, parsed := c.exitCode(err)
+		if parsed {
+			if exitCode == invalidArgErrorCode {
+				logger.Info("dashboard module is not ready yet. trying again")
+				time.Sleep(dashboardInitWaitTime)
+				continue
 			}
-			return false, errors.Wrap(err, "failed to setup sso on mgr dashboard")
 		}
-		break
+		return false, errors.Wrap(err, "failed to setup sso on mgr dashboard")
 	}
 	return false, nil
 }
