@@ -53,10 +53,10 @@ func (c *CephCluster) ValidateCreate() error {
 	logger.Infof("validate create cephcluster %q", c.ObjectMeta.Name)
 	//If external mode enabled, then check if other fields are empty
 	if c.Spec.External.Enable {
-		if c.Spec.Mon != (MonSpec{}) ||
-			reflect.DeepEqual(c.Spec.Dashboard, DashboardSpec{}) ||
-			!reflect.DeepEqual(c.Spec.Monitoring, (MonitoringSpec{})) ||
-			c.Spec.DisruptionManagement != (DisruptionManagementSpec{}) ||
+		if !reflect.DeepEqual(c.Spec.Mon, MonSpec{}) ||
+			!reflect.DeepEqual(c.Spec.Dashboard, DashboardSpec{}) ||
+			!reflect.DeepEqual(c.Spec.Monitoring, MonitoringSpec{}) ||
+			!reflect.DeepEqual(c.Spec.DisruptionManagement, DisruptionManagementSpec{}) ||
 			len(c.Spec.Mgr.Modules) > 0 ||
 			len(c.Spec.Network.Provider) > 0 ||
 			len(c.Spec.Network.Selectors) > 0 {
