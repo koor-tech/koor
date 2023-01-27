@@ -298,7 +298,7 @@ type DashboardSpec struct {
 	SSL bool `json:"ssl,omitempty"`
 	// SSO determines whether to enable SSO for dashboard
 	// +optional
-	SSO *SSOSpec `json:"sso,omitempty"`
+	SSO SSOSpec `json:"sso,omitempty"`
 }
 
 type SSOSpec struct {
@@ -316,7 +316,7 @@ type SSOSpec struct {
 	Users []UserRef `json:"users,omitempty"`
 	// IDP Attributes that should be used to get the username from the authentication response. Defaults to uid.
 	// +optional
-	IDPAttributes *IDPAttributes `json:"idpAttributes,omitempty"`
+	IDPAttributes IDPAttributes `json:"idpAttributes,omitempty"`
 	// To be used when more than one entity id exists on the IdP metadata
 	// +optional
 	EntityID string `json:"entityId,omitempty"`
