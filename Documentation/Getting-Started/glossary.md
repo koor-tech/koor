@@ -74,6 +74,10 @@ A [host storage cluster](../CRDs/Cluster/host-cluster.md) is where Rook configur
 
 The [Rook Krew plugin](../Troubleshooting/krew-plugin.md) is a tool to help troubleshoot your Rook cluster.
 
+### Koor Storage Distribution (KSD)
+
+Koor Storage Distribution (KSD) is a product based on Rook Ceph that makes running and maintaining Ceph storage on Kubernetes easier.
+
 ### Object Bucket Claim (OBC)
 
 An Object Bucket Claim (OBC) is custom resource which requests a bucket (new or existing) from a Ceph object store. For further reference please refer to [OBC Custom Resource](../Storage-Configuration/Object-Storage-RGW/ceph-object-bucket-claim.md).
