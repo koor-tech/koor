@@ -981,7 +981,7 @@ spec:
                         enabled:
                           description: Enabled determines whether to enable SSO
                           type: boolean
-                        entityId:
+                        entityID:
                           description: To be used when more than one entity id exists on the IdP metadata
                           type: string
                         idpAttributes:
@@ -1021,16 +1021,14 @@ spec:
                           description: List of users to be created with a respective role from the admin side
                           items:
                             properties:
-                              role:
-                                description: Respective role of the user which is needed for the same
+                              roles:
+                                description: Respective roles of the user which is needed for the same
                                 items:
                                   type: string
                                 type: array
                               username:
                                 description: Name of the user created
-                                items:
-                                  type: string
-                                type: array
+                                type: string
                             type: object
                           type: array
                       type: object
