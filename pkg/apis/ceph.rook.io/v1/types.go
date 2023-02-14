@@ -316,7 +316,7 @@ type SSOSpec struct {
 	BaseURL string `json:"baseUrl,omitempty"`
 	// URL to IDP Metadata
 	// +optional
-	IDPMetadataUrl string `json:"idpMetadataUrl,omitempty"`
+	IDPMetadataURL string `json:"idpMetadataUrl,omitempty"`
 	// List of users to be created with a respective role from the admin side
 	// +optional
 	Users []UserRef `json:"users,omitempty"`
@@ -325,7 +325,7 @@ type SSOSpec struct {
 	IDPAttributes IDPAttributes `json:"idpAttributes,omitempty"`
 	// To be used when more than one entity id exists on the IdP metadata
 	// +optional
-	EntityID string `json:"entityId,omitempty"`
+	EntityID string `json:"entityID,omitempty"`
 	// Certificate that should be used by Ceph Dashboard for signing and encryption
 	// +optional
 	SPCert SecretKeyRef `json:"spCert,omitempty"`
@@ -336,9 +336,9 @@ type SSOSpec struct {
 
 type UserRef struct {
 	// Name of the user created
-	Name []string `json:"username,omitempty"`
-	// Respective role of the user which is needed for the same
-	Role []string `json:"role,omitempty"`
+	Username string `json:"username,omitempty"`
+	// Respective roles of the user which is needed for the same
+	Roles []string `json:"roles,omitempty"`
 }
 
 // SecretKeyRef reference a key from a Secret
