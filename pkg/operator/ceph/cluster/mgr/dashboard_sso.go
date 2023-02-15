@@ -19,9 +19,11 @@ package mgr
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/util"
 	"github.com/koor-tech/koor/pkg/util/exec"
 	"github.com/pkg/errors"
 )
@@ -50,7 +52,7 @@ func (c *Cluster) setupSSO() (bool, error) {
 	// SSO is enabled once, it must be disabled first and then re-enabled with the new settings
 	// run `ceph dashboard sso show saml2` and search for the input args
 
-	out, err := client.NewCephCommand(c.context, c.clusterInfo, []string{"dashboard", "sso", "show", "saml2"}).RunWithTimeout(exec.CephCommandsTimeout)
+	ssout, err := client.NewCephCommand(c.context, c.clusterInfo, []string{"dashboard", "sso", "show", "saml2"}).RunWithTimeout(exec.CephCommandsTimeout)
 	if err == nil {
 		return false, err
 	}
@@ -88,3 +90,49 @@ func (c *Cluster) setupSSO() (bool, error) {
 
 // TODO add function to create the users and set them the accordingly role
 // TODO if an user already exists, the user needs to be checked to only have the roles as specified in the list
+
+func (c *Cluster) createUsers() (bool, error) {
+	// Generate a password
+	password, err := GeneratePassword(passwordLength)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to generate password")
+	}
+
+	file, err := util.CreateTempFile(password)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to create a temporary dashboard password file")
+	}
+
+	users := c.spec.Dashboard.SSO.Users
+	for i := 0; i < len(users); i++ {
+		username := users[i].Username
+		role := users[i].Role
+		args := []string{"dashboard", "ac-user-create", username, "-i", file.Name(), role}
+		defer func() {
+			if err := os.Remove(file.Name()); err != nil {
+				logger.Errorf("failed to clean up dashboard password file %q. %v", file.Name(), err)
+			}
+		}()
+		_, err = client.ExecuteCephCommandWithRetry(func() (string, []byte, error) {
+			output, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
+			return "create dashboard user", output, err
+		}, c.exitCode, 5, invalidArgErrorCode, dashboardInitWaitTime)
+		if err != nil {
+			return false, errors.Wrap(err, "failed to create user")
+		}
+		// If the user already exists, update the role
+		if err.Error() == "User"+"'"+username+"' already exists" {
+			args := []string{"dashboard", "ac-user-set-roles", username, role}
+			_, err = client.ExecuteCephCommandWithRetry(func() (string, []byte, error) {
+				output, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
+				return "set user role", output, err
+			}, c.exitCode, 5, invalidArgErrorCode, dashboardInitWaitTime)
+			if err != nil {
+				return false, errors.Wrap(err, "failed to update role")
+			}
+		}
+
+		logger.Info("successfully created dashboard user")
+		return true, nil
+	}
+}
