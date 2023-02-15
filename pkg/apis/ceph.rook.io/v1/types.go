@@ -338,7 +338,7 @@ type UserRef struct {
 	// Name of the user created
 	Username string `json:"username,omitempty"`
 	// Respective roles of the user which is needed for the same
-	Role string `json:"roles,omitempty"`
+	Roles []string `json:"roles,omitempty"`
 }
 
 // SecretKeyRef reference a key from a Secret
