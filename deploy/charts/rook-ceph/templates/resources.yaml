@@ -1053,9 +1053,7 @@ spec:
                             properties:
                               roles:
                                 description: Respective roles of the user which is needed for the same
-                                items:
-                                  type: string
-                                type: array
+                                type: string
                               username:
                                 description: Name of the user created
                                 type: string
