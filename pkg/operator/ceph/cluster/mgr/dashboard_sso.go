@@ -22,10 +22,15 @@ import (
 	"os"
 	"time"
 
+	v1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	"github.com/koor-tech/koor/pkg/util"
 	"github.com/koor-tech/koor/pkg/util/exec"
 	"github.com/pkg/errors"
+)
+
+const (
+	dashboardUserReadOnlyRole = "read-only"
 )
 
 func (c *Cluster) setupSSO() (bool, error) {
@@ -56,6 +61,7 @@ func (c *Cluster) setupSSO() (bool, error) {
 	if err == nil {
 		return false, err
 	}
+	_ = ssout
 	// TODO Check the output for the settings if they are all still set the same (simple grep'ing should be enough)
 
 	args := []string{"dashboard", "sso", "setup", "saml2", dashboardURL, idpMetadataURL}
@@ -85,7 +91,7 @@ func (c *Cluster) setupSSO() (bool, error) {
 		return false, errors.Wrap(err, "failed to setup sso on mgr dashboard")
 	}
 
-	return true, nil
+	return c.createUsers()
 }
 
 // TODO add function to create the users and set them the accordingly role
@@ -102,37 +108,56 @@ func (c *Cluster) createUsers() (bool, error) {
 	if err != nil {
 		return false, errors.Wrap(err, "failed to create a temporary dashboard password file")
 	}
-
-	users := c.spec.Dashboard.SSO.Users
-	for i := 0; i < len(users); i++ {
-		username := users[i].Username
-		role := users[i].Role
-		args := []string{"dashboard", "ac-user-create", username, "-i", file.Name(), role}
-		defer func() {
-			if err := os.Remove(file.Name()); err != nil {
-				logger.Errorf("failed to clean up dashboard password file %q. %v", file.Name(), err)
-			}
-		}()
-		_, err = client.ExecuteCephCommandWithRetry(func() (string, []byte, error) {
-			output, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
-			return "create dashboard user", output, err
-		}, c.exitCode, 5, invalidArgErrorCode, dashboardInitWaitTime)
-		if err != nil {
-			return false, errors.Wrap(err, "failed to create user")
+	defer func() {
+		if err := os.Remove(file.Name()); err != nil {
+			logger.Errorf("failed to clean up dashboard password file %q. %v", file.Name(), err)
 		}
-		// If the user already exists, update the role
-		if err.Error() == "User"+"'"+username+"' already exists" {
-			args := []string{"dashboard", "ac-user-set-roles", username, role}
+	}()
+
+	for _, user := range c.spec.Dashboard.SSO.Users {
+		if len(user.Roles) == 0 {
+			user.Roles = append(user.Roles, dashboardUserReadOnlyRole)
+		}
+
+		// TODO Checking/Getting the user (if it exists), create and set/update the rules
+		// TODO Compare the current user roles with the roles from the CR
+
+		// USER EXISTS
+		if true {
+			// TODO Check what roles they have and what roles we need to add/ set
+			// use json parse for that to get ther roles list:
+			// {... "roles": ["administrator"], ...}
+		} else {
+			args := []string{"dashboard", "ac-user-create", user.Username, "-i", file.Name(), user.Roles[0]}
 			_, err = client.ExecuteCephCommandWithRetry(func() (string, []byte, error) {
 				output, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
-				return "set user role", output, err
+				return "create dashboard user", output, err
 			}, c.exitCode, 5, invalidArgErrorCode, dashboardInitWaitTime)
 			if err != nil {
-				return false, errors.Wrap(err, "failed to update role")
+				return false, errors.Wrap(err, "failed to create user")
+			}
+
+			// If the user already exists, update the role
+			if err := c.setUserRoles(user); err != nil {
+				return false, errors.Wrap(err, "")
 			}
 		}
-
-		logger.Info("successfully created dashboard user")
-		return true, nil
 	}
+
+	logger.Info("successfully created dashboard user")
+	return true, nil
+}
+
+func (c *Cluster) setUserRoles(user v1.UserRef) error {
+	args := []string{"dashboard", "ac-user-set-roles", user.Username}
+	args = append(args, user.Roles...)
+	_, err := client.ExecuteCephCommandWithRetry(func() (string, []byte, error) {
+		output, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
+		return "set user role", output, err
+	}, c.exitCode, 5, invalidArgErrorCode, dashboardInitWaitTime)
+	if err != nil {
+		return errors.Wrap(err, "failed to set user roles")
+	}
+
+	return nil
 }
