@@ -5,7 +5,7 @@ version: 0.0.1
 appVersion: 0.0.1
 icon: https://rook.io/images/rook-logo.svg
 sources:
-  - https://github.com/rook/rook
+  - https://github.com/koor-tech/koor
 dependencies:
 - name: library
   version: "0.0.1"

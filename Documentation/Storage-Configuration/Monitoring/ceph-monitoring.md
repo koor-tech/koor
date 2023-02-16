@@ -2,7 +2,7 @@
 title: Prometheus Monitoring
 ---
 
-Each Rook Ceph cluster has some built in metrics collectors/exporters for monitoring with [Prometheus](https://prometheus.io/).
+Each Koor cluster has some built in metrics collectors/exporters for monitoring with [Prometheus](https://prometheus.io/).
 
 If you do not have Prometheus running, follow the steps below to enable monitoring of Rook. If your cluster already
 contains a Prometheus instance, it will automatically discover Rook's scrape endpoint using the standard
@@ -44,7 +44,7 @@ There are two sources for metrics collection:
 From the root of your locally cloned Rook repo, go the monitoring directory:
 
 ```console
-$ git clone --single-branch --branch master https://github.com/rook/rook.git
+$ git clone --single-branch --branch master https://github.com/koor-tech/koor.git
 cd rook/deploy/examples/monitoring
 ```
 
@@ -151,7 +151,7 @@ The Prometheus alerts can be customized with a post-processor using tools such a
 For example, first extract the helm chart:
 
 ```console
-helm template -f values.yaml rook-release/rook-ceph-cluster > cluster-chart.yaml
+helm template -f values.yaml koor-release/rook-ceph-cluster > cluster-chart.yaml
 ```
 
 Now create the desired customization configuration files. This simple example will show how to
@@ -193,7 +193,7 @@ kubectl create -f updated-chart.yaml
 
 ## Grafana Dashboards
 
-The dashboards have been created by [@galexrt](https://github.com/galexrt). For feedback on the dashboards please reach out to him on the [Rook.io Slack](https://slack.rook.io).
+The dashboards have been created by [@galexrt](https://github.com/galexrt). For feedback on the dashboards please reach out to him on the [Rook.io Slack]([the GitHub Discussions](https://github.com/koor-tech/koor/discussions)
 
 !!! note
     The dashboards are only compatible with Grafana 7.2.0 or higher.

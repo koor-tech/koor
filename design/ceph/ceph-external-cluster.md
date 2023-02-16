@@ -27,7 +27,7 @@ Requirements for clients in the local cluster to connect to the external cluster
   - mgr: for dashboard access
   - mds: for shared filesystem access
 
-## Rook Ceph Operator
+## Koor Operator
 
 When the Rook operator is started, initially it is not aware of any clusters. When the admin creates the operator, they will want to configure the operator differently depending on if they want to configure a local Rook cluster, or an external cluster.
 

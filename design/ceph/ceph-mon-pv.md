@@ -161,7 +161,7 @@ The topology of the K8s cluster is to be determined by the admin, outside the sc
 Rook will simply detect the topology labels that have been added to the nodes.
 
 If the desired failure domain is a "zone", the `topology.kubernetes.io/zone` label should
-be added to the nodes. Any of the [topology labels](https://rook.io/docs/rook/latest/ceph-cluster-crd.html#osd-topology)
+be added to the nodes. Any of the [topology labels](https://docs.koor.tech/docs/latest/ceph-cluster-crd.html#osd-topology)
 supported by OSDs can be used also for this scenario.
 
 For example:

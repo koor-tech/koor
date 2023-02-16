@@ -51,16 +51,16 @@ To enable Ceph's multisite, the following steps need to happen.
 ### Master Zone/Zonegroup
 The master zone of the master zonegroup is designated as the 'metadata master zone', and all changes to user and bucket metadata are written through that zone first before replicating to other zones via metadata sync. This is different from data sync, where objects can be written to any zone and replicated to its peers in the zonegroup.
 
-## Rook Ceph Multisite Steps
+## Koor Multisite Steps
 
-1. If an admin is creating a new realm on a Rook Ceph cluster, the admin should create:
+1. If an admin is creating a new realm on a Koor cluster, the admin should create:
 
     - A [ceph-object-realm](/design/ceph/object/realm.md) with the name of the realm the admin wishes to create.
     - A [ceph-object-zone-group](/design/ceph/object/zone-group.md) referring to the ceph-object-realm resource.
     - A [ceph-object-zone](/design/ceph/object/zone.md) referring to the ceph-object-zone-group resource.
     - A [ceph-object-store](/design/ceph/object/store.md) referring to the ceph-object-zone resource.
 
-2. If an admins pulls a realm on a Rook Ceph cluster from another Ceph cluster, the admin should create:
+2. If an admins pulls a realm on a Koor cluster from another Ceph cluster, the admin should create:
 
     - A [ceph-object-realm](/design/ceph/object/realm.md) referring to the realm on the other Ceph cluster, and an endpoint in a master zone in that realm.
     - A [ceph-object-zone-group](/design/ceph/object/zone-group.md) referring to the realm that was pulled or matching the ceph-object-zone-group resource from the cluster the realm was pulled from.

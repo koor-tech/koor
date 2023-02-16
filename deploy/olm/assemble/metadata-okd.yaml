@@ -3,7 +3,7 @@ metadata:
     categories: Storage
     description: Install and maintain Ceph Storage cluster
     createdAt: 2019-05-13T18-08-04Z
-    support: https://slack.rook.io/
+    support: [the GitHub Discussions](https://github.com/koor-tech/koor/discussions)
     certified: "false"
     capabilities: Full Lifecycle
 spec:

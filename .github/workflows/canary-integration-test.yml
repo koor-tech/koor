@@ -187,7 +187,7 @@ jobs:
           sed -i 's/<OSD-IDs>/1/' deploy/examples/osd-purge.yaml
           # the CI must force the deletion since we use replica 1 on 2 OSDs
           sed -i 's/false/true/' deploy/examples/osd-purge.yaml
-          sed -i 's|rook/ceph:.*|rook/ceph:local-build|' deploy/examples/osd-purge.yaml
+          sed -i 's|koorinc/ceph:.*|koorinc/ceph:local-build|' deploy/examples/osd-purge.yaml
           kubectl -n rook-ceph create -f deploy/examples/osd-purge.yaml
           toolbox=$(kubectl get pod -l app=rook-ceph-tools -n rook-ceph -o jsonpath='{.items[*].metadata.name}')
           kubectl -n rook-ceph exec $toolbox -- ceph status
@@ -206,7 +206,7 @@ jobs:
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 
@@ -266,7 +266,7 @@ jobs:
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 
@@ -320,7 +320,7 @@ jobs:
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 
@@ -380,7 +380,7 @@ jobs:
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 
@@ -485,7 +485,7 @@ jobs:
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 
@@ -565,7 +565,7 @@ jobs:
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 
@@ -621,7 +621,7 @@ jobs:
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 
@@ -680,7 +680,7 @@ jobs:
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 
@@ -756,7 +756,7 @@ jobs:
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 
@@ -814,7 +814,7 @@ jobs:
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 
@@ -873,7 +873,7 @@ jobs:
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 
@@ -960,7 +960,7 @@ jobs:
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 
@@ -1029,7 +1029,7 @@ jobs:
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 
@@ -1090,7 +1090,7 @@ jobs:
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 
@@ -1347,7 +1347,7 @@ jobs:
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 
@@ -1382,7 +1382,7 @@ jobs:
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 
@@ -1420,7 +1420,7 @@ jobs:
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 
@@ -1508,7 +1508,7 @@ jobs:
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 
@@ -1567,7 +1567,7 @@ jobs:
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 

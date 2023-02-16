@@ -22,9 +22,9 @@ import (
 	"time"
 
 	"github.com/banzaicloud/k8s-objectmatcher/patch"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/util"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/util"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -458,7 +458,7 @@ func WaitForDeploymentImage(ctx context.Context, clientset kubernetes.Interface,
 	return fmt.Errorf("failed to wait for image %s in label %s", desiredImage, label)
 }
 
-// AddRookVersionLabelToDeployment adds or updates a label reporting the Rook version which last
+// AddRookVersionLabelToDeployment adds or updates a label reporting the Koor Storage Distribution version which last
 // modified a deployment.
 func AddRookVersionLabelToDeployment(d *appsv1.Deployment) {
 	if d == nil {

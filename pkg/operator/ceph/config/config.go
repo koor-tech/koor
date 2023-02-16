@@ -25,14 +25,14 @@ import (
 	"strings"
 
 	"github.com/coreos/pkg/capnslog"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/ceph/version"
 )
 
-var logger = capnslog.NewPackageLogger("github.com/rook/rook", "op-config")
+var logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "op-config")
 
 const (
 	// MonType defines the mon DaemonType

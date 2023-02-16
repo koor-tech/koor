@@ -78,7 +78,7 @@ sudo apt-get install -y lvm2
 **RancherOS**:
 
 * Since version [1.5.0](https://github.com/rancher/os/issues/2551) LVM is supported
-* Logical volumes [will not be activated](https://github.com/rook/rook/issues/5027) during the boot process. You need to add an [runcmd command](https://rancher.com/docs/os/v1.x/en/installation/configuration/running-commands/) for that.
+* Logical volumes [will not be activated](https://github.com/koor-tech/koor/issues/5027) during the boot process. You need to add an [runcmd command](https://rancher.com/docs/os/v1.x/en/installation/configuration/running-commands/) for that.
 
 ```yaml
 runcmd:
@@ -121,7 +121,7 @@ Specific configurations for some distributions.
 When you use NixOS, the kernel modules will be found in the non-standard path `/run/current-system/kernel-modules/lib/modules/`,
 and they'll be symlinked inside the also non-standard path `/nix`.
 
-For Rook Ceph containers to be able to load the required modules, they need read access to those locations.
+For Koor containers to be able to load the required modules, they need read access to those locations.
 They have to be bind-mounted as volumes in the CephFS and RBD plugin pods.
 
 If you install Rook with Helm, uncomment these example settings in `values.yaml`:

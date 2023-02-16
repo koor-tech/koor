@@ -28,21 +28,21 @@ import (
 
 	"github.com/pkg/errors"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/daemon/ceph/osd/kms"
-	"github.com/rook/rook/pkg/operator/ceph/cluster/mgr"
-	"github.com/rook/rook/pkg/operator/ceph/cluster/mon"
-	"github.com/rook/rook/pkg/operator/ceph/cluster/nodedaemon"
-	"github.com/rook/rook/pkg/operator/ceph/cluster/osd"
-	"github.com/rook/rook/pkg/operator/ceph/cluster/telemetry"
-	"github.com/rook/rook/pkg/operator/ceph/config"
-	"github.com/rook/rook/pkg/operator/ceph/controller"
-	"github.com/rook/rook/pkg/operator/ceph/csi"
-	cephver "github.com/rook/rook/pkg/operator/ceph/version"
-	"github.com/rook/rook/pkg/operator/k8sutil"
-	rookversion "github.com/rook/rook/pkg/version"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/osd/kms"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mgr"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mon"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/nodedaemon"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/osd"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/telemetry"
+	"github.com/koor-tech/koor/pkg/operator/ceph/config"
+	"github.com/koor-tech/koor/pkg/operator/ceph/controller"
+	"github.com/koor-tech/koor/pkg/operator/ceph/csi"
+	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	rookversion "github.com/koor-tech/koor/pkg/version"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -547,7 +547,7 @@ func (c *cluster) reportTelemetry() {
 	telemetryMutex.Lock()
 	defer telemetryMutex.Unlock()
 
-	// Identify this as a rook cluster for Ceph telemetry by setting the Rook version.
+	// Identify this as a rook cluster for Ceph telemetry by setting the Koor Storage Distribution version.
 	logger.Info("reporting cluster telemetry")
 	telemetry.ReportKeyValue(c.context, c.ClusterInfo, telemetry.RookVersionKey, rookversion.Version)
 

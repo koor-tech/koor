@@ -20,12 +20,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/koor-tech/koor/pkg/clusterd"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
+	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
+	"github.com/koor-tech/koor/pkg/util/sys"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/clusterd"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	cephver "github.com/rook/rook/pkg/operator/ceph/version"
-	exectest "github.com/rook/rook/pkg/util/exec/test"
-	"github.com/rook/rook/pkg/util/sys"
 	"github.com/stretchr/testify/assert"
 )
 

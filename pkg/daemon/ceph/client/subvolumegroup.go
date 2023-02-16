@@ -17,8 +17,8 @@ limitations under the License.
 package client
 
 import (
+	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/clusterd"
 )
 
 // CreateCephFSSubVolumeGroup create a CephFS subvolume group.

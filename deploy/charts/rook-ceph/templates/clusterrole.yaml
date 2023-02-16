@@ -376,7 +376,7 @@ rules:
   - get
   - list
 ---
-# TODO: remove this, once https://github.com/rook/rook/issues/10141
+# TODO: remove this, once https://github.com/koor-tech/koor/issues/10141
 # is resolved.
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
@@ -433,7 +433,7 @@ rules:
     resources: ["persistentvolumeclaims/status"]
     verbs: ["patch"]
 ---
-# TODO: remove this, once https://github.com/rook/rook/issues/10141
+# TODO: remove this, once https://github.com/koor-tech/koor/issues/10141
 # is resolved.
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1

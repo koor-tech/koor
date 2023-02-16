@@ -1,4 +1,4 @@
-# Rook Ceph Operator Status Conditions
+# Koor Operator Status Conditions
 
 Reference: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md
 

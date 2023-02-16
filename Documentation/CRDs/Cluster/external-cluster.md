@@ -30,7 +30,7 @@ In order to configure an external Ceph cluster with Rook, we need to extract som
 
 ### 1. Create all users and keys
 
-Run the python script [create-external-cluster-resources.py](https://github.com/rook/rook/blob/master/deploy/examples/create-external-cluster-resources.py) for creating all users and keys.
+Run the python script [create-external-cluster-resources.py](https://github.com/koor-tech/koor/blob/master/deploy/examples/create-external-cluster-resources.py) for creating all users and keys.
 
 ```console
 python3 create-external-cluster-resources.py --rbd-data-pool-name <pool_name> --cephfs-filesystem-name <filesystem-name> --rgw-endpoint  <rgw-endpoint> --namespace <namespace> --format bash
@@ -113,13 +113,13 @@ export RGW_POOL_PREFIX=default
 
 ## Commands on the K8s consumer cluster
 
-1. Deploy Rook, create [common.yaml](https://github.com/rook/rook/blob/master/deploy/examples/common.yaml), [crds.yaml](https://github.com/rook/rook/blob/master/deploy/examples/crds.yaml) and [operator.yaml](https://github.com/rook/rook/blob/master/deploy/examples/operator.yaml) manifests.
+1. Deploy Rook, create [common.yaml](https://github.com/koor-tech/koor/blob/master/deploy/examples/common.yaml), [crds.yaml](https://github.com/koor-tech/koor/blob/master/deploy/examples/crds.yaml) and [operator.yaml](https://github.com/koor-tech/koor/blob/master/deploy/examples/operator.yaml) manifests.
 
-2. Create [common-external.yaml](https://github.com/rook/rook/blob/master/deploy/examples/common-external.yaml) and [cluster-external.yaml](https://github.com/rook/rook/blob/master/deploy/examples/cluster-external.yaml)
+2. Create [common-external.yaml](https://github.com/koor-tech/koor/blob/master/deploy/examples/common-external.yaml) and [cluster-external.yaml](https://github.com/koor-tech/koor/blob/master/deploy/examples/cluster-external.yaml)
 
 3. Paste the above output from `create-external-cluster-resources.py` into your current shell to allow importing the source data.
 
-4. Run the [import](https://github.com/rook/rook/blob/master/deploy/examples/import-external-cluster.sh) script.
+4. Run the [import](https://github.com/koor-tech/koor/blob/master/deploy/examples/import-external-cluster.sh) script.
    Note that if your Rook cluster nodes are running a kernel earlier than 5.4 or equivalent you may need to
    remove `fast-diff,object-map,deep-flatten,exclusive-lock` from the `imageFeatures` line.
 
@@ -140,7 +140,7 @@ export RGW_POOL_PREFIX=default
     kubectl -n rook-ceph-external get sc
     ```
 
-7. Then you can now create a [persistent volume](https://github.com/rook/rook/tree/master/deploy/examples/csi) based on these StorageClass.
+7. Then you can now create a [persistent volume](https://github.com/koor-tech/koor/tree/master/deploy/examples/csi) based on these StorageClass.
 
 ### CephCluster example (management)
 

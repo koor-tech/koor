@@ -1,10 +1,10 @@
-site_name: Rook Ceph Documentation
+site_name: Koor Documentation
 docs_dir: Documentation/
 site_url: 'https://rook.io'
-repo_url: https://github.com/rook/rook
+repo_url: https://github.com/koor-tech/koor
 edit_uri: edit/master/Documentation/
 site_author: Rook Authors
-site_description: "Rook Ceph Documentation"
+site_description: "Koor Documentation"
 use_directory_urls: true
 copyright: |
   <a class="logo" href="/">
@@ -112,9 +112,9 @@ extra:
     default: latest-release
   social:
     - icon: fontawesome/brands/slack
-      link: https://slack.rook.io/
+      link: [the GitHub Discussions](https://github.com/koor-tech/koor/discussions)
     - icon: fontawesome/brands/twitter
-      link: https://twitter.com/rook_io
+      link: https://twitter.com/koor_tech
     - icon: fontawesome/solid/envelopes-bulk
       link: 'https://groups.google.com/forum/#!forum/rook-dev'
     - icon: fontawesome/brands/medium

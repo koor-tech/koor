@@ -85,7 +85,7 @@ For more details on the mons and when to choose a number other than `3`, see the
         * For non-PVCs: `placement.all` and `placement.osd`
         * For PVCs: `placement.all` and inside the storageClassDeviceSets from the `placement` or `preparePlacement`
 * `disruptionManagement`: The section for configuring management of daemon disruptions
-    * `managePodBudgets`: if `true`, the operator will create and manage PodDisruptionBudgets for OSD, Mon, RGW, and MDS daemons. OSD PDBs are managed dynamically via the strategy outlined in the [design](https://github.com/rook/rook/blob/master/design/ceph/ceph-managed-disruptionbudgets.md). The operator will block eviction of OSDs by default and unblock them safely when drains are detected.
+    * `managePodBudgets`: if `true`, the operator will create and manage PodDisruptionBudgets for OSD, Mon, RGW, and MDS daemons. OSD PDBs are managed dynamically via the strategy outlined in the [design](https://github.com/koor-tech/koor/blob/master/design/ceph/ceph-managed-disruptionbudgets.md). The operator will block eviction of OSDs by default and unblock them safely when drains are detected.
     * `osdMaintenanceTimeout`: is a duration in minutes that determines how long an entire failureDomain like `region/zone/host` will be held in `noout` (in addition to the default DOWN/OUT interval) when it is draining. This is only relevant when  `managePodBudgets` is `true`. The default value is `30` minutes.
 * `removeOSDsIfOutAndSafeToRemove`: If `true` the operator will remove the OSDs that are down and whose data has been restored to other OSDs. In Ceph terms, the OSDs are `out` and `safe-to-destroy` when they are removed.
 * `cleanupPolicy`: [cleanup policy settings](#cleanup-policy)
@@ -241,7 +241,7 @@ Based on the configuration, the operator will do the following:
 \* Internal cluster traffic includes OSD heartbeats, data replication, and data recovery
 
 Only OSD pods will have both Public and Cluster networks attached. The rest of the Ceph component pods and CSI pods will only have the Public network attached.
-Rook Ceph operator will not have any networks attached as it proxies the required commands via a sidecar container in the mgr pod.
+Koor operator will not have any networks attached as it proxies the required commands via a sidecar container in the mgr pod.
 
 In order to work, each selector value must match a `NetworkAttachmentDefinition` object name in Multus.
 
@@ -313,7 +313,7 @@ Nodes are removed from Ceph as OSD hosts only (1) if the node is deleted from Ku
 (2) if the node has its taints or affinities modified in such a way that the node is no longer
 usable by Rook. Any changes to taints or affinities, intentional or unintentional, may affect the
 data reliability of the Ceph cluster. In order to help protect against this somewhat, deletion of
-nodes by taint or affinity modifications must be "confirmed" by deleting the Rook Ceph operator pod
+nodes by taint or affinity modifications must be "confirmed" by deleting the Koor operator pod
 and allowing the operator deployment to restart the pod.
 
 For production clusters, we recommend that `useAllNodes` is set to `false` to prevent the Ceph
@@ -440,9 +440,9 @@ A Placement configuration is specified (according to the kubernetes PodSpec) as:
 * `tolerations`: list of kubernetes [Toleration](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/)
 * `topologySpreadConstraints`: kubernetes [TopologySpreadConstraints](https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/)
 
-If you use `labelSelector` for `osd` pods, you must write two rules both for `rook-ceph-osd` and `rook-ceph-osd-prepare` like [the example configuration](https://github.com/rook/rook/blob/master/deploy/examples/cluster-on-pvc.yaml#L68). It comes from the design that there are these two pods for an OSD. For more detail, see the [osd design doc](https://github.com/rook/rook/blob/master/design/ceph/dedicated-osd-pod.md) and [the related issue](https://github.com/rook/rook/issues/4582).
+If you use `labelSelector` for `osd` pods, you must write two rules both for `rook-ceph-osd` and `rook-ceph-osd-prepare` like [the example configuration](https://github.com/koor-tech/koor/blob/master/deploy/examples/cluster-on-pvc.yaml#L68). It comes from the design that there are these two pods for an OSD. For more detail, see the [osd design doc](https://github.com/koor-tech/koor/blob/master/design/ceph/dedicated-osd-pod.md) and [the related issue](https://github.com/koor-tech/koor/issues/4582).
 
-The Rook Ceph operator creates a Job called `rook-ceph-detect-version` to detect the full Ceph version used by the given `cephVersion.image`. The placement from the `mon` section is used for the Job except for the `PodAntiAffinity` field.
+The Koor operator creates a Job called `rook-ceph-detect-version` to detect the full Ceph version used by the given `cephVersion.image`. The placement from the `mon` section is used for the Job except for the `PodAntiAffinity` field.
 
 #### Placement Example
 
@@ -594,7 +594,7 @@ The specific component keys will act as overrides to `all`.
 
 ### Health settings
 
-The Rook Ceph operator will monitor the state of the CephCluster on various components by default.
+The Koor operator will monitor the state of the CephCluster on various components by default.
 The following CRD settings are available:
 
 * `healthCheck`: main ceph cluster health monitoring section
@@ -808,13 +808,13 @@ racks in the data center setup.
 ## Deleting a CephCluster
 
 During deletion of a CephCluster resource, Rook protects against accidental or premature destruction
-of user data by blocking deletion if there are any other Rook Ceph Custom Resources that reference
+of user data by blocking deletion if there are any other Koor Custom Resources that reference
 the CephCluster being deleted. Rook will warn about which other resources are blocking deletion in
 three ways until all blocking resources are deleted:
 
 1. An event will be registered on the CephCluster resource
 1. A status condition will be added to the CephCluster resource
-1. An error will be added to the Rook Ceph operator log
+1. An error will be added to the Koor operator log
 
 ## Cleanup policy
 

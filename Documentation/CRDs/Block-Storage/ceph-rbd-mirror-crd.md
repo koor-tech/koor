@@ -36,7 +36,7 @@ If any setting is unspecified, a suitable default will be used automatically.
 ### RBDMirror Settings
 
 * `count`: The number of rbd mirror instance to run.
-* `placement`: The rbd mirror pods can be given standard Kubernetes placement restrictions with `nodeAffinity`, `tolerations`, `podAffinity`, and `podAntiAffinity` similar to placement defined for daemons configured by the [cluster CRD](https://github.com/rook/rook/blob/master/deploy/examples/cluster.yaml)..
+* `placement`: The rbd mirror pods can be given standard Kubernetes placement restrictions with `nodeAffinity`, `tolerations`, `podAffinity`, and `podAntiAffinity` similar to placement defined for daemons configured by the [cluster CRD](https://github.com/koor-tech/koor/blob/master/deploy/examples/cluster.yaml)..
 * `annotations`: Key value pair list of annotations to add.
 * `labels`: Key value pair list of labels to add.
 * `resources`: The resource requirements for the rbd mirror pods.

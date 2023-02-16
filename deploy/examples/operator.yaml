@@ -9,7 +9,7 @@
 # - operator-openshift.yaml: Common settings for running in OpenShift
 ###############################################################################################################
 
-# Rook Ceph Operator Config ConfigMap
+# Koor Operator Config ConfigMap
 # Use this ConfigMap to override Rook-Ceph Operator configurations.
 # NOTE! Precedence will be given to this config if the same Env Var config also exists in the
 #       Operator Deployment.
@@ -82,7 +82,7 @@ data:
 
   # Enable cephfs kernel driver instead of ceph-fuse.
   # If you disable the kernel client, your application may be disrupted during upgrade.
-  # See the upgrade guide: https://rook.io/docs/rook/latest/ceph-upgrade.html
+  # See the upgrade guide: https://docs.koor.tech/docs/latest/ceph-upgrade.html
   # NOTE! cephfs quota is not supported in kernel version < 4.17
   CSI_FORCE_CEPHFS_KERNEL_CLIENT: "true"
 
@@ -531,7 +531,7 @@ spec:
       serviceAccountName: rook-ceph-system
       containers:
         - name: rook-ceph-operator
-          image: rook/ceph:master
+          image: koorinc/ceph:master
           args: ["ceph", "operator"]
           securityContext:
             runAsNonRoot: true
@@ -585,7 +585,7 @@ spec:
 
             # Whether to start pods as privileged that mount a host path, which includes the Ceph mon and osd pods.
             # Set this to true if SELinux is enabled (e.g. OpenShift) to workaround the anyuid issues.
-            # For more details see https://github.com/rook/rook/issues/1314#issuecomment-355799641
+            # For more details see https://github.com/koor-tech/koor/issues/1314#issuecomment-355799641
             - name: ROOK_HOSTPATH_REQUIRES_PRIVILEGED
               value: "false"
 

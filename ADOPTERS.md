@@ -29,7 +29,7 @@ to share the details of their usage publicly at this time.
   critical business applications.
 * [Centre of Excellence in Next Generation Networks (CENGN)](https://www.cengn.ca) is on a mission
   to accelerate the growth of the Canadian Information and Communications Technology (ICT) sector.
-  The Rook Ceph operator is key to the Kubernetes clusters frequently set up for projects by
+  The Koor operator is key to the Kubernetes clusters frequently set up for projects by
   small-medium enterprises in the CENGN labs.
 * [Avisi](https://www.avisi.nl/) develops and operates software for organizations like the Dutch
   Notary Association. They have survived multiple disaster scenarios already with Rook and it has

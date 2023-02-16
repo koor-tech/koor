@@ -24,13 +24,13 @@ import (
 	"strings"
 	"time"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	opcontroller "github.com/rook/rook/pkg/operator/ceph/controller"
-	"github.com/rook/rook/pkg/operator/ceph/csi"
-	"github.com/rook/rook/pkg/operator/ceph/reporting"
-	"github.com/rook/rook/pkg/operator/k8sutil"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
+	"github.com/koor-tech/koor/pkg/operator/ceph/csi"
+	"github.com/koor-tech/koor/pkg/operator/ceph/reporting"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 
 	"github.com/coreos/pkg/capnslog"
 	"github.com/pkg/errors"
@@ -50,7 +50,7 @@ const (
 	controllerName = "blockpool-rados-namespace-controller"
 )
 
-var logger = capnslog.NewPackageLogger("github.com/rook/rook", controllerName)
+var logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", controllerName)
 
 var poolNamespace = reflect.TypeOf(cephv1.CephBlockPoolRadosNamespace{}).Name()
 

@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"os/signal"
 
-	"github.com/rook/rook/pkg/daemon/util"
-	operator "github.com/rook/rook/pkg/operator/ceph"
+	"github.com/koor-tech/koor/pkg/daemon/util"
+	operator "github.com/koor-tech/koor/pkg/operator/ceph"
 
 	"github.com/rook/rook/cmd/rook/rook"
 	"github.com/spf13/cobra"

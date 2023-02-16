@@ -21,10 +21,10 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	rookfake "github.com/rook/rook/pkg/client/clientset/versioned/fake"
-	"github.com/rook/rook/pkg/clusterd"
-	testop "github.com/rook/rook/pkg/operator/test"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	rookfake "github.com/koor-tech/koor/pkg/client/clientset/versioned/fake"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	testop "github.com/koor-tech/koor/pkg/operator/test"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

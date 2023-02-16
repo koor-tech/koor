@@ -19,7 +19,7 @@ package installer
 import (
 	"strings"
 
-	"github.com/rook/rook/tests/framework/utils"
+	"github.com/koor-tech/koor/tests/framework/utils"
 )
 
 const (
@@ -128,7 +128,7 @@ func (m *CephManifestsPreviousVersion) GetFilesystem(name string, activeCount in
 	return m.latest.GetFilesystem(name, activeCount)
 }
 
-// GetNFS returns the manifest to create a Rook Ceph NFS resource with the given config.
+// GetNFS returns the manifest to create a Koor NFS resource with the given config.
 func (m *CephManifestsPreviousVersion) GetNFS(name string, count int) string {
 	return m.latest.GetNFS(name, count)
 }
@@ -178,7 +178,7 @@ func (m *CephManifestsPreviousVersion) GetExternalCephCluster() string {
 	return m.latest.GetExternalCephCluster()
 }
 
-// GetRBDMirror returns the manifest to create a Rook Ceph RBD Mirror resource with the given config.
+// GetRBDMirror returns the manifest to create a Koor RBD Mirror resource with the given config.
 func (m *CephManifestsPreviousVersion) GetRBDMirror(name string, count int) string {
 	return m.latest.GetRBDMirror(name, count)
 }

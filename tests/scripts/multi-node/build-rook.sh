@@ -75,8 +75,8 @@ function run_docker_registry {
 function docker_import {
   img=$(docker images | grep -Eo '^build-[a-z0-9]{8}/ceph-[a-z0-9]+\s')
   # shellcheck disable=SC2086
-  docker tag $img 172.17.8.1:5000/rook/ceph:latest
-  docker --debug push 172.17.8.1:5000/rook/ceph:latest
+  docker tag $img 172.17.8.1:5000/koorinc/ceph:latest
+  docker --debug push 172.17.8.1:5000/koorinc/ceph:latest
   # shellcheck disable=SC2086
   docker rmi $img
 }
@@ -101,8 +101,8 @@ function run_rook {
 
 function edit_rook_cluster_template {
   cd "$rook_kube_templates_dir"
-  sed -i 's|image: .*$|image: 172.17.8.1:5000/rook/ceph:latest|' operator.yaml
-  echo "operator.yml has been edited with the new image '172.17.8.1:5000/rook/ceph:latest'"
+  sed -i 's|image: .*$|image: 172.17.8.1:5000/koorinc/ceph:latest|' operator.yaml
+  echo "operator.yml has been edited with the new image '172.17.8.1:5000/koorinc/ceph:latest'"
   cd -
 }
 

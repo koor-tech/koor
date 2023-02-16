@@ -21,11 +21,11 @@ import (
 	"context"
 	"testing"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	discoverDaemon "github.com/rook/rook/pkg/daemon/discover"
-	"github.com/rook/rook/pkg/operator/k8sutil"
-	"github.com/rook/rook/pkg/operator/test"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	discoverDaemon "github.com/koor-tech/koor/pkg/daemon/discover"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/pkg/operator/test"
 
 	"github.com/stretchr/testify/assert"
 
@@ -62,7 +62,7 @@ func TestStartDiscoveryDaemonset(t *testing.T) {
 	_, err := clientset.CoreV1().Pods("rook-system").Create(ctx, &pod, metav1.CreateOptions{})
 	assert.NoError(t, err)
 	// start a basic cluster
-	err = a.Start(ctx, namespace, "rook/rook:myversion", "mysa", false)
+	err = a.Start(ctx, namespace, "koor-tech/koor:myversion", "mysa", false)
 	assert.Nil(t, err)
 
 	// check daemonset parameters
@@ -81,7 +81,7 @@ func TestStartDiscoveryDaemonset(t *testing.T) {
 	envs := agentDS.Spec.Template.Spec.Containers[0].Env
 	assert.Equal(t, 3, len(envs))
 	image := agentDS.Spec.Template.Spec.Containers[0].Image
-	assert.Equal(t, "rook/rook:myversion", image)
+	assert.Equal(t, "koor-tech/koor:myversion", image)
 	assert.Nil(t, agentDS.Spec.Template.Spec.Tolerations)
 }
 

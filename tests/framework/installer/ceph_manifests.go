@@ -21,7 +21,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/rook/rook/tests/framework/utils"
+	"github.com/koor-tech/koor/tests/framework/utils"
 )
 
 type CephManifests interface {
@@ -61,7 +61,7 @@ type CephManifestsMaster struct {
 	settings *TestCephSettings
 }
 
-// NewCephManifests gets the manifest type depending on the Rook version desired
+// NewCephManifests gets the manifest type depending on the Koor Storage Distribution version desired
 func NewCephManifests(settings *TestCephSettings) CephManifests {
 	switch settings.RookVersion {
 	case LocalBuildTag:
@@ -416,7 +416,7 @@ spec:
     activeStandby: true`
 }
 
-// GetFilesystem returns the manifest to create a Rook Ceph NFS resource with the given config.
+// GetFilesystem returns the manifest to create a Koor NFS resource with the given config.
 func (m *CephManifestsMaster) GetNFS(name string, count int) string {
 	return `apiVersion: ceph.rook.io/v1
 kind: CephNFS
@@ -431,7 +431,7 @@ spec:
     active: ` + strconv.Itoa(count)
 }
 
-// GetFilesystem returns the manifest to create a Rook Ceph NFS resource with the given config.
+// GetFilesystem returns the manifest to create a Koor NFS resource with the given config.
 func (m *CephManifestsMaster) GetNFSPool() string {
 	return `apiVersion: ceph.rook.io/v1
 kind: CephBlockPool
@@ -616,7 +616,7 @@ spec:
         interval: 5s`
 }
 
-// GetRBDMirror returns the manifest to create a Rook Ceph RBD Mirror resource with the given config.
+// GetRBDMirror returns the manifest to create a Koor RBD Mirror resource with the given config.
 func (m *CephManifestsMaster) GetRBDMirror(name string, count int) string {
 	return `apiVersion: ceph.rook.io/v1
 kind: CephRBDMirror

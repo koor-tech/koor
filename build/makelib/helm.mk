@@ -14,8 +14,8 @@
 
 # the helm charts to build
 HELM_CHARTS ?= rook-ceph rook-ceph-cluster
-HELM_BASE_URL ?= https://charts.rook.io
-HELM_S3_BUCKET ?= rook.chart
+HELM_BASE_URL ?= https://charts.koor.tech
+HELM_S3_BUCKET ?= koor.chart
 HELM_CHARTS_DIR ?= $(ROOT_DIR)/deploy/charts
 HELM_OUTPUT_DIR ?= $(OUTPUT_DIR)/charts
 

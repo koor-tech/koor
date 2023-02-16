@@ -19,7 +19,7 @@ package mon
 import (
 	"testing"
 
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	"github.com/stretchr/testify/assert"
 )
 

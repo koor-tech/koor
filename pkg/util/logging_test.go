@@ -24,7 +24,7 @@ import (
 )
 
 func TestSetGlobalLogLevel(t *testing.T) {
-	logger := capnslog.NewPackageLogger("github.com/rook/rook", "pkg/util/logging_test")
+	logger := capnslog.NewPackageLogger("github.com/koor-tech/koor", "pkg/util/logging_test")
 
 	tests := []struct {
 		name                  string

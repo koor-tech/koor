@@ -49,4 +49,4 @@ which CSI features are enabled.
 kubectl --namespace rook-ceph get pod -o jsonpath='{range .items[*]}{range .spec.containers[*]}{.image}{"\n"}' -l 'app in (csi-rbdplugin,csi-rbdplugin-provisioner,csi-cephfsplugin,csi-cephfsplugin-provisioner)' | sort | uniq
 ```
 
-The default images can also be found with each release in the [images list](https://github.com/rook/rook/blob/master/deploy/examples/images.txt)
+The default images can also be found with each release in the [images list](https://github.com/koor-tech/koor/blob/master/deploy/examples/images.txt)

@@ -93,7 +93,7 @@ The `server` spec sets configuration for Rook-created NFS-Ganesha server pods.
   [known issue](#serveractive-count-greater-than-1) below.
 * `placement`: Kubernetes placement restrictions to apply to NFS server Pod(s). This is similar to
   placement defined for daemons configured by the
-  [CephCluster CRD](https://github.com/rook/rook/blob/master/deploy/examples/cluster.yaml).
+  [CephCluster CRD](https://github.com/koor-tech/koor/blob/master/deploy/examples/cluster.yaml).
 * `annotations`: Kubernetes annotations to apply to NFS server Pod(s)
 * `labels`: Kubernetes labels to apply to NFS server Pod(s)
 * `resources`: Kubernetes resource requests and limits to set on NFS server containers

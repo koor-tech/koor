@@ -26,8 +26,8 @@ import (
 	"time"
 
 	"github.com/coreos/pkg/capnslog"
+	rookversion "github.com/koor-tech/koor/pkg/version"
 	"github.com/pkg/errors"
-	rookversion "github.com/rook/rook/pkg/version"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/validation"
@@ -35,7 +35,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-var logger = capnslog.NewPackageLogger("github.com/rook/rook", "op-k8sutil")
+var logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "op-k8sutil")
 
 const (
 	// Namespace for rook
@@ -55,7 +55,7 @@ const (
 	// NodeNameEnvVar is the env variable for getting the node via downward api
 	NodeNameEnvVar = "NODE_NAME"
 
-	// RookVersionLabelKey is the key used for reporting the Rook version which last created or
+	// RookVersionLabelKey is the key used for reporting the Koor Storage Distribution version which last created or
 	// modified a resource.
 	RookVersionLabelKey = "rook-version"
 )

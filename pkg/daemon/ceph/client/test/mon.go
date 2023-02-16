@@ -19,7 +19,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/rook/rook/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
 )
 
 func MonInQuorumResponse() string {

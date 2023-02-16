@@ -23,7 +23,7 @@ import (
 	"testing"
 
 	"github.com/coreos/pkg/capnslog"
-	optest "github.com/rook/rook/pkg/operator/test"
+	optest "github.com/koor-tech/koor/pkg/operator/test"
 	"github.com/stretchr/testify/assert"
 	"k8s.io/api/core/v1"
 )

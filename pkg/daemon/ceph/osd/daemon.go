@@ -29,12 +29,12 @@ import (
 	"syscall"
 
 	"github.com/coreos/pkg/capnslog"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	oposd "github.com/koor-tech/koor/pkg/operator/ceph/cluster/osd"
+	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
+	"github.com/koor-tech/koor/pkg/util/sys"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	oposd "github.com/rook/rook/pkg/operator/ceph/cluster/osd"
-	cephver "github.com/rook/rook/pkg/operator/ceph/version"
-	"github.com/rook/rook/pkg/util/sys"
 )
 
 const (
@@ -46,7 +46,7 @@ const (
 )
 
 var (
-	logger = capnslog.NewPackageLogger("github.com/rook/rook", "cephosd")
+	logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "cephosd")
 )
 
 // StartOSD starts an OSD on a device that was provisioned by ceph-volume
@@ -294,7 +294,7 @@ func matchDevLinks(devLinks, deviceName string) bool {
 
 func getOsdUUIDImpl(device *sys.LocalDisk) (string, error) {
 	// Old lsblk can't detect an existing OSD.
-	// See: https://github.com/rook/rook/issues/10665
+	// See: https://github.com/koor-tech/koor/issues/10665
 	logger.Infof("old lsblk can't detect bluestore signature, so try to detect here")
 
 	f, err := os.Open(device.RealPath)

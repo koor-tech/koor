@@ -9,7 +9,7 @@ This document will describe a proposed design for the upgrading of Rook software
 ## **Goal**
 In order for software upgrade support in Rook to be considered successful, the goals listed below should be met.
 Note that these goals are for a long term vision and are not all necessarily deliverable within the v0.6 release time frame.
-* **Automatic:** When a new version of Rook is released and the admin has chosen to start the upgrade, a live cluster should be able to update all its components to the new version without further user intervention.
+* **Automatic:** When a new version of Koor Storage Distribution is released and the admin has chosen to start the upgrade, a live cluster should be able to update all its components to the new version without further user intervention.
 * **No downtime:** During an upgrade window, there should be **zero** downtime of cluster functionality.
   * The upgrade process should be carried out in a rolling fashion so that not all components are being updated simultaneously.
 The cluster should be maintained in a healthy state the entire time.
@@ -44,7 +44,7 @@ This system namespace should be upgraded first before any individual clusters ar
 If there is any new upgrade logic or any migration needed, the new version of the upgrade controller would know how to perform it, so it needs to be updated first.
 This will be a manual operation by the admin, ensuring that they are ready for their cluster to begin the upgrade process:
 ```bash
-kubectl set image deployment/rook-operator rook-operator=rook/rook:v0.6.1
+kubectl set image deployment/rook-operator rook-operator=koor-tech/koor:v0.6.1
 ```
 This command will update the image field of the operator's pod template, which will then begin the process of the deployment that manages the operator pod to terminate the pod and start a new one running the new version in its place.
 

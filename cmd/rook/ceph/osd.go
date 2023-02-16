@@ -26,15 +26,15 @@ import (
 
 	"k8s.io/client-go/kubernetes"
 
+	osddaemon "github.com/koor-tech/koor/pkg/daemon/ceph/osd"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mon"
+	oposd "github.com/koor-tech/koor/pkg/operator/ceph/cluster/osd"
+	osdcfg "github.com/koor-tech/koor/pkg/operator/ceph/cluster/osd/config"
+	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/pkg/util/flags"
 	"github.com/pkg/errors"
 	"github.com/rook/rook/cmd/rook/rook"
-	osddaemon "github.com/rook/rook/pkg/daemon/ceph/osd"
-	"github.com/rook/rook/pkg/operator/ceph/cluster/mon"
-	oposd "github.com/rook/rook/pkg/operator/ceph/cluster/osd"
-	osdcfg "github.com/rook/rook/pkg/operator/ceph/cluster/osd/config"
-	opcontroller "github.com/rook/rook/pkg/operator/ceph/controller"
-	"github.com/rook/rook/pkg/operator/k8sutil"
-	"github.com/rook/rook/pkg/util/flags"
 	"github.com/spf13/cobra"
 )
 

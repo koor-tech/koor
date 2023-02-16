@@ -20,38 +20,38 @@ import (
 	"context"
 	"time"
 
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mgr"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mon"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/rbd"
+	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/operator/ceph/cluster/mgr"
-	"github.com/rook/rook/pkg/operator/ceph/cluster/mon"
-	"github.com/rook/rook/pkg/operator/ceph/cluster/rbd"
-	cephver "github.com/rook/rook/pkg/operator/ceph/version"
 	appsv1 "k8s.io/api/apps/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/rook/rook/pkg/operator/ceph/file/mds"
-	"github.com/rook/rook/pkg/operator/ceph/file/mirror"
-	"github.com/rook/rook/pkg/operator/ceph/object"
+	"github.com/koor-tech/koor/pkg/operator/ceph/file/mds"
+	"github.com/koor-tech/koor/pkg/operator/ceph/file/mirror"
+	"github.com/koor-tech/koor/pkg/operator/ceph/object"
 
 	"github.com/coreos/pkg/capnslog"
 
-	"github.com/rook/rook/pkg/operator/ceph/cluster/osd"
-	"github.com/rook/rook/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/osd"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	opcontroller "github.com/rook/rook/pkg/operator/ceph/controller"
-	"github.com/rook/rook/pkg/operator/ceph/disruption/controllerconfig"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
+	"github.com/koor-tech/koor/pkg/operator/ceph/disruption/controllerconfig"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 var (
-	logger = capnslog.NewPackageLogger("github.com/rook/rook", controllerName)
+	logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", controllerName)
 	// Implement reconcile.Reconciler so the controller can reconcile objects
 	_ reconcile.Reconciler = &ReconcileNode{}
 

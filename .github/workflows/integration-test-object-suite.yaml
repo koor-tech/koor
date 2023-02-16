@@ -39,12 +39,12 @@ jobs:
         run: |
           tests/scripts/github-action-helper.sh collect_udev_logs_in_background
           export DEVICE_FILTER=$(lsblk|awk '/14G/ {print $1}'| head -1)
-          SKIP_CLEANUP_POLICY=false go test -v -timeout 1800s -failfast -run CephObjectSuite github.com/rook/rook/tests/integration
+          SKIP_CLEANUP_POLICY=false go test -v -timeout 1800s -failfast -run CephObjectSuite github.com/koor-tech/koor/tests/integration
 
       - name: collect common logs
         if: always()
         run: |
-          export LOG_DIR="/home/runner/work/rook/rook/tests/integration/_output/tests/"
+          export LOG_DIR="/home/runner/work/koor/koor/tests/integration/_output/tests/"
           export CLUSTER_NAMESPACE="object-ns"
           export OPERATOR_NAMESPACE="object-ns-system"
           tests/scripts/collect-logs.sh
@@ -54,13 +54,13 @@ jobs:
         if: failure()
         with:
           name: ceph-object-suite-artifact-${{ matrix.kubernetes-versions }}
-          path: /home/runner/work/rook/rook/tests/integration/_output/tests/
+          path: /home/runner/work/koor/koor/tests/integration/_output/tests/
 
       - name: consider debugging
         if: failure() && github.event_name == 'pull_request'
         run: |
           # Enable tmate only in the Rook fork, where the USE_TMATE secret is set in the repo, or if the action is re-run
-          if [ "$GITHUB_REPOSITORY_OWNER" = "rook" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
+          if [ "$GITHUB_REPOSITORY_OWNER" = "koor-tech" ] || [ -n "${{ secrets.USE_TMATE }}" ] || [ "$GITHUB_RUN_ATTEMPT" -gt 1 ]; then
             echo USE_TMATE=1 >> $GITHUB_ENV
           fi
 

@@ -3,11 +3,11 @@ title: Ceph Operator Helm Chart
 ---
 {{ template "generatedDocsWarning" . }}
 
-Installs [rook](https://github.com/rook/rook) to create, configure, and manage Ceph clusters on Kubernetes.
+Installs [rook](https://github.com/koor-tech/koor) to create, configure, and manage Ceph clusters on Kubernetes.
 
 ## Introduction
 
-This chart bootstraps a [rook-ceph-operator](https://github.com/rook/rook) deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
+This chart bootstraps a [rook-ceph-operator](https://github.com/koor-tech/koor) deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
 
 ## Prerequisites
 
@@ -32,11 +32,11 @@ Rook currently publishes builds of the Ceph operator to the `release` and `maste
 The release channel is the most recent release of Rook that is considered stable for the community.
 
 ```console
-helm repo add rook-release https://charts.rook.io/release
-helm install --create-namespace --namespace rook-ceph rook-ceph rook-release/rook-ceph -f values.yaml
+helm repo add koor-release https://charts.koor.tech/release
+helm install --create-namespace --namespace rook-ceph rook-ceph koor-release/rook-ceph -f values.yaml
 ```
 
-For example settings, see the next section or [values.yaml](https://github.com/rook/rook/tree/master/deploy/charts/rook-ceph/values.yaml)
+For example settings, see the next section or [values.yaml](https://github.com/koor-tech/koor/tree/master/deploy/charts/rook-ceph/values.yaml)
 
 ## Configuration
 

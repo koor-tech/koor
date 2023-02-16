@@ -1,8 +1,8 @@
-# Rook Ceph Object Zone
+# Koor Object Zone
 
 ## Prerequisites
 
-A Rook Ceph cluster. Ideally a ceph-object-realm and a ceph-object-zone-group resource would have been started up already.
+A Koor cluster. Ideally a ceph-object-realm and a ceph-object-zone-group resource would have been started up already.
 
 ## Ceph Object Zone Walkthrough
 
@@ -59,7 +59,7 @@ kubectl create -f ceph-object-zone.yaml
 
 The order in which these resources are created is not important.
 
-3. Once the all of the resources in #2 are started up, the operator will create a zone on the Rook Ceph cluster and the ceph-object-zone resource will be running.
+3. Once the all of the resources in #2 are started up, the operator will create a zone on the Koor cluster and the ceph-object-zone resource will be running.
 
 #### Notes
 
@@ -69,7 +69,7 @@ The order in which these resources are created is not important.
 
 ### Creating an ceph-object-zone when syncing from another Ceph Cluster
 
-When the storage admin is ready to sync data from another Ceph cluster with multisite set up (primary cluster) to a Rook Ceph cluster (pulling cluster), the pulling cluster will have a newly created in the zone group from the primary cluster.
+When the storage admin is ready to sync data from another Ceph cluster with multisite set up (primary cluster) to a Koor cluster (pulling cluster), the pulling cluster will have a newly created in the zone group from the primary cluster.
 
 A [ceph-object-pull-realm](/design/ceph/object/ceph-object-pull-realm.md) resource must be created to pull the realm information from the primary cluster to the pulling cluster.
 

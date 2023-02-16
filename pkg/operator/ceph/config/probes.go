@@ -19,7 +19,7 @@ limitations under the License.
 package config
 
 import (
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	v1 "k8s.io/api/core/v1"
 )
 

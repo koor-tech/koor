@@ -7,7 +7,7 @@ import re
 GitHub branch/tag URL replacer
 """
 
-regex = r"(github\.com/.+/rook/.+)/master/"
+regex = r"(github\.com/.+/koor-tech/.+)/master/"
 subst = "\\1/%s/"
 
 
@@ -21,7 +21,7 @@ def define_env(env):
 
 def on_post_page_macros(env):
     """
-    Replace the branch/tag in the rook GitHub file and directory links pointing to `master`
+    Replace the branch/tag in the koor-tech GitHub file and directory links pointing to `master`
     with the correct one that is currently active.
     """
 

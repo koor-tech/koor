@@ -20,8 +20,8 @@ import (
 	"context"
 
 	"github.com/google/go-cmp/cmp"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	opcontroller "github.com/rook/rook/pkg/operator/ceph/controller"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"

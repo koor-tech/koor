@@ -11,7 +11,7 @@ If the user deletes a rook-ceph cluster and wants to start a new cluster on the 
 - Delete the dataDirHostPath on each host. Otherwise, stale keys and other configs will remain from the previous cluster and the new mons will fail to start.
 - Clean the OSD disks from the previous cluster before starting a new one.
 
-Read more about the manual clean up steps [here](https://github.com/rook/rook/blob/master/Documentation/Storage-Configuration/ceph-teardown.md#delete-the-data-on-hosts)
+Read more about the manual clean up steps [here](https://github.com/koor-tech/koor/blob/master/Documentation/Storage-Configuration/ceph-teardown.md#delete-the-data-on-hosts)
 
 This implementation aims to automate both of these manual steps.
 
@@ -61,7 +61,7 @@ spec:
 - Wait till all the ceph daemons are destroyed on each node. This is important because deleting the data (say dataDirHostPath) before the daemons would cause the daemons to panic.
 - Create a batch job that runs on each of the above nodes.
 - The job performs the following action on each node based on the user confirmation:
-  - cleanup the cluster namespace on the dataDirHostPath. For example `/var/lib/rook/rook-ceph`
+  - cleanup the cluster namespace on the dataDirHostPath. For example `/var/lib/koor-tech/koor-ceph`
   - Delete all the ceph monitor directories on the dataDirHostPath. For example `/var/lib/rook/mon-a`, `/var/lib/rook/mon-b`, etc.
   - Sanitize the local disks used by OSDs on each node.
 - Local disk sanitization can be further configured by the admin with following options:

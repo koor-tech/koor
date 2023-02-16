@@ -123,15 +123,15 @@ kubectl rook-ceph rook purge-osd 0 --force
 # 2022-09-14 08:58:28.888431 I | rookcmd: starting Rook v1.10.0-alpha.0.164.gcb73f728c with arguments 'rook ceph osd remove --osd-ids=0 --force-osd-removal=true'
 # 2022-09-14 08:58:28.889217 I | rookcmd: flag values: --force-osd-removal=true, --help=false, --log-level=INFO, --operator-image=, --osd-ids=0, --preserve-pvc=false, --service-account=
 # 2022-09-14 08:58:28.889582 I | op-mon: parsing mon endpoints: b=10.106.118.240:6789
-# 2022-09-14 08:58:28.898898 I | cephclient: writing config file /var/lib/rook/rook-ceph/rook-ceph.config
-# 2022-09-14 08:58:28.899567 I | cephclient: generated admin config in /var/lib/rook/rook-ceph
+# 2022-09-14 08:58:28.898898 I | cephclient: writing config file /var/lib/koor-tech/koor-ceph/rook-ceph.config
+# 2022-09-14 08:58:28.899567 I | cephclient: generated admin config in /var/lib/koor-tech/koor-ceph
 # 2022-09-14 08:58:29.421345 I | cephosd: validating status of osd.0
 ---
 ```
 
 ### Purge the OSD with a Job
 
-OSD removal can be automated with the example found in the [rook-ceph-purge-osd job](https://github.com/rook/rook/blob/master/deploy/examples/osd-purge.yaml).
+OSD removal can be automated with the example found in the [rook-ceph-purge-osd job](https://github.com/koor-tech/koor/blob/master/deploy/examples/osd-purge.yaml).
 In the osd-purge.yaml, change the `<OSD-IDs>` to the ID(s) of the OSDs you want to remove.
 
 1. Run the job: `kubectl create -f osd-purge.yaml`

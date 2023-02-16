@@ -22,12 +22,12 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/osd/kms"
+	operator "github.com/koor-tech/koor/pkg/operator/ceph"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/pkg/errors"
 	"github.com/rook/rook/cmd/rook/rook"
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/daemon/ceph/osd/kms"
-	operator "github.com/rook/rook/pkg/operator/ceph"
-	"github.com/rook/rook/pkg/operator/k8sutil"
 	"github.com/spf13/cobra"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

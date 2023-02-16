@@ -351,6 +351,6 @@ EXPORT {
 [CephFS driver]: (https://github.com/openstack/manila/blob/master/doc/source/admin/cephfs_driver.rst)
 [k8s ConfigMaps]: (https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/)
 [k8s Service]: (https://kubernetes.io/docs/concepts/services-networking/service)
-[Ceph Pool CRD]: (https://github.com/rook/rook/blob/master/Documentation/ceph-pool-crd.md)
+[Ceph Pool CRD]: (https://github.com/koor-tech/koor/blob/master/Documentation/ceph-pool-crd.md)
 [k8s Deployments]: (https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
 [SSSD]: (https://sssd.io)

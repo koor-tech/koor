@@ -18,9 +18,9 @@ package main
 import (
 	"time"
 
+	"github.com/koor-tech/koor/pkg/daemon/discover"
+	"github.com/koor-tech/koor/pkg/util/flags"
 	rook "github.com/rook/rook/cmd/rook/rook"
-	"github.com/rook/rook/pkg/daemon/discover"
-	"github.com/rook/rook/pkg/util/flags"
 	"github.com/spf13/cobra"
 )
 

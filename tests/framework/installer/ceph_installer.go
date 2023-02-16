@@ -28,12 +28,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mon"
+	"github.com/koor-tech/koor/tests/framework/utils"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	"github.com/rook/rook/pkg/operator/ceph/cluster"
-	"github.com/rook/rook/pkg/operator/ceph/cluster/mon"
-	"github.com/rook/rook/tests/framework/utils"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -533,7 +533,7 @@ func (h *CephInstaller) installRookOperator() (bool, error) {
 func (h *CephInstaller) InstallRook() (bool, error) {
 	if h.settings.RookVersion != LocalBuildTag {
 		// make sure we have the images from a previous release locally so the test doesn't hit a timeout
-		assert.NoError(h.T(), h.k8shelper.GetDockerImage("rook/ceph:"+h.settings.RookVersion))
+		assert.NoError(h.T(), h.k8shelper.GetDockerImage("koorinc/ceph:"+h.settings.RookVersion))
 	}
 
 	assert.NoError(h.T(), h.k8shelper.GetDockerImage(h.settings.CephVersion.Image))
@@ -981,7 +981,7 @@ spec:
           restartPolicy: Never
           containers:
               - name: rook-cleaner
-                image: rook/ceph:` + LocalBuildTag + `
+                image: koorinc/ceph:` + LocalBuildTag + `
                 securityContext:
                     privileged: true
                 volumeMounts:
@@ -1011,7 +1011,7 @@ spec:
           restartPolicy: Never
           containers:
               - name: rook-cleaner
-                image: rook/ceph:` + LocalBuildTag + `
+                image: koorinc/ceph:` + LocalBuildTag + `
                 securityContext:
                     privileged: true
                 volumeMounts:

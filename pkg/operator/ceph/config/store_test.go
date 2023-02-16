@@ -22,10 +22,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/rook/rook/pkg/clusterd"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	clienttest "github.com/rook/rook/pkg/daemon/ceph/client/test"
-	testop "github.com/rook/rook/pkg/operator/test"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	clienttest "github.com/koor-tech/koor/pkg/daemon/ceph/client/test"
+	testop "github.com/koor-tech/koor/pkg/operator/test"
 	"github.com/stretchr/testify/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

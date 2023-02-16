@@ -21,12 +21,12 @@ import (
 	"strings"
 	"testing"
 
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
+	"github.com/koor-tech/koor/pkg/operator/test"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	cephver "github.com/rook/rook/pkg/operator/ceph/version"
-	"github.com/rook/rook/pkg/operator/test"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -111,7 +111,7 @@ func Test_createNewOSDsFromStatus(t *testing.T) {
 		ctx := &clusterd.Context{
 			Clientset: clientset,
 		}
-		c = New(ctx, clusterInfo, spec, "rook/rook:master")
+		c = New(ctx, clusterInfo, spec, "koor-tech/koor:master")
 		config := c.newProvisionConfig()
 		createConfig = c.newCreateConfig(config, awaitingStatusConfigMaps, deployments)
 	}
@@ -328,7 +328,7 @@ func Test_startProvisioningOverPVCs(t *testing.T) {
 		ctx := &clusterd.Context{
 			Clientset: clientset,
 		}
-		c = New(ctx, clusterInfo, spec, "rook/rook:master")
+		c = New(ctx, clusterInfo, spec, "koor-tech/koor:master")
 		config = c.newProvisionConfig()
 	}
 
@@ -467,7 +467,7 @@ func Test_startProvisioningOverNodes(t *testing.T) {
 		ctx := &clusterd.Context{
 			Clientset: clientset,
 		}
-		c = New(ctx, clusterInfo, spec, "rook/rook:master")
+		c = New(ctx, clusterInfo, spec, "koor-tech/koor:master")
 		config = c.newProvisionConfig()
 	}
 

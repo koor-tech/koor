@@ -5,7 +5,7 @@ labels: bug
 ---
 <!-- **Are you in the right place?**
 1. For issues or feature requests, please create an issue in this repository.
-2. For general technical and non-technical questions, we are happy to help you on our [Rook.io Slack](https://slack.rook.io/).
+2. For general technical and non-technical questions, we are happy to help you in [the Github Discussions](https://github.com/koor-tech/koor/discussions).
 3. Did you already search the existing open issues for anything similar? -->
 
 **Is this a bug report or feature request?**
@@ -37,14 +37,14 @@ labels: bug
 
   To get the health of the cluster, use `kubectl rook-ceph health`
   To get the status of the cluster, use `kubectl rook-ceph ceph status`
-  For more details, see the [Rook Krew Plugin](https://rook.io/docs/rook/latest-release/Troubleshooting/krew-plugin)
+  For more details, see the [Koor Storage Distribution Krew Plugin](https://docs.koor.tech/docs/latest-release/Troubleshooting/krew-plugin)
 
 **Environment**:
 * OS (e.g. from /etc/os-release):
 * Kernel (e.g. `uname -a`):
 * Cloud provider or hardware configuration:
-* Rook version (use `rook version` inside of a Rook Pod):
+* Koor Storage Distribution version (use `rook version` inside of a Koor Storage Distribution Pod):
 * Storage backend version (e.g. for ceph do `ceph -v`):
 * Kubernetes version (use `kubectl version`):
 * Kubernetes cluster type (e.g. Tectonic, GKE, OpenShift):
-* Storage backend status (e.g. for Ceph use `ceph health` in the [Rook Ceph toolbox](https://rook.io/docs/rook/latest-release/Troubleshooting/ceph-toolbox/#interactive-toolbox)):
+* Storage backend status (e.g. for Ceph use `ceph health` in the [Koor toolbox](https://docs.koor.tech/docs/latest-release/Troubleshooting/ceph-toolbox/#interactive-toolbox)):

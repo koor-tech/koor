@@ -10,7 +10,7 @@ The workflow at a high level for minor releases is as follows:
 
 ## Minor Release Criteria
 
-Before the process of releasing a new version of Rook can begin, all items in the below release criteria must be completed and verified.
+Before the process of releasing a new version of Koor Storage Distribution can begin, all items in the below release criteria must be completed and verified.
 The maintainers have the responsibility of ensuring this criteria is met.
 
 * Project Management
@@ -78,7 +78,7 @@ To publish a new patch release build, follow these steps:
     tests/scripts/gen_release_notes.sh
     ```
 
-6. When the release build is done (~15 minutes after tagging and pushing), publish the release notes by [creating the release on GitHub](https://github.com/rook/rook/releases).
+6. When the release build is done (~15 minutes after tagging and pushing), publish the release notes by [creating the release on GitHub](https://github.com/koor-tech/koor/releases).
     Be sure to review the [Authoring Release Notes section below](#authoring-release-notes).
 
 ### After a Minor Release
@@ -100,4 +100,4 @@ Ensure that you only click `Save draft` until the release is complete, after whi
 
 ## Release Artifacts
 
-Images are pushed to docker hub under the [rook/ceph](https://hub.docker.com/r/rook/ceph/tags/) repo.
+Images are pushed to docker hub under the [koorinc/ceph](https://hub.docker.com/r/koorinc/ceph/tags/) repo.

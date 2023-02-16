@@ -18,7 +18,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: rook-direct-mount
-          image: rook/ceph:master
+          image: koorinc/ceph:master
           command: ["/bin/bash"]
           args: ["-m", "-c", "/usr/local/bin/toolbox.sh"]
           imagePullPolicy: IfNotPresent
@@ -43,7 +43,7 @@ spec:
               mountPath: /etc/rook
             - name: ceph-admin-secret
               mountPath: /var/lib/rook-ceph-mon
-      # if hostNetwork: false, the "rbd map" command hangs, see https://github.com/rook/rook/issues/2021
+      # if hostNetwork: false, the "rbd map" command hangs, see https://github.com/koor-tech/koor/issues/2021
       hostNetwork: true
       volumes:
         - name: ceph-admin-secret

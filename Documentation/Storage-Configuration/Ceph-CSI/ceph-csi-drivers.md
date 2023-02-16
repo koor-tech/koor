@@ -112,7 +112,7 @@ provisioned and used by the pod with its lifecycle. The volumes are provisioned
 when pod get spawned and destroyed at time of pod delete.
 
 Refer to [ephemeral-doc](https://kubernetes.io/docs/concepts/storage/ephemeral-volumes/#generic-ephemeral-volumes) for more info.
-Also, See the example manifests for an [RBD ephemeral volume](https://github.com/rook/rook/tree/master/deploy/examples/csi/rbd/pod-ephemeral.yaml) and a [CephFS ephemeral volume](https://github.com/rook/rook/tree/master/deploy/examples/csi/cephfs/pod-ephemeral.yaml).
+Also, See the example manifests for an [RBD ephemeral volume](https://github.com/koor-tech/koor/tree/master/deploy/examples/csi/rbd/pod-ephemeral.yaml) and a [CephFS ephemeral volume](https://github.com/koor-tech/koor/tree/master/deploy/examples/csi/cephfs/pod-ephemeral.yaml).
 
 ## CSI-Addons Controller
 
@@ -222,7 +222,7 @@ stringData:
   encryptionPassphrase: test-encryption
 ```
 
-* Create a new [storageclass](https://github.com/rook/rook/blob/master/deploy/examples/csi/rbd/storageclass.yaml) with additional parameters
+* Create a new [storageclass](https://github.com/koor-tech/koor/blob/master/deploy/examples/csi/rbd/storageclass.yaml) with additional parameters
 `encrypted: "true"` and `encryptionKMSID: "<key used in configmap>"`. An example is show below:
 
 ```yaml

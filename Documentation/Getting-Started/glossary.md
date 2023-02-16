@@ -12,7 +12,7 @@ The [CephBlockPoolRadosNamespace CRD](../CRDs/Block-Storage/ceph-block-pool-rado
 
 ### CephClient CRD
 
-CephClient CRD is used by Rook to allow [creation](https://rook.io/docs/rook/latest/CRDs/ceph-client-crd/) and updating clients.
+CephClient CRD is used by Rook to allow [creation](https://docs.koor.tech/docs/latest/CRDs/ceph-client-crd/) and updating clients.
 
 ### CephCluster CRD
 
@@ -36,11 +36,11 @@ CephFilesystemMirror CRD is used by Rook to allow [creation](../CRDs/Shared-File
 
 ### CephNFS CRD
 
-CephNFS CRD is used by Rook to allow exporting NFS shares of a CephFilesystem or CephObjectStore through the CephNFS custom resource definition. For further information please refer to the example [here](https://rook.io/docs/rook/latest/CRDs/ceph-nfs-crd/#example).
+CephNFS CRD is used by Rook to allow exporting NFS shares of a CephFilesystem or CephObjectStore through the CephNFS custom resource definition. For further information please refer to the example [here](https://docs.koor.tech/docs/latest/CRDs/ceph-nfs-crd/#example).
 
 ### CephObjectStore CRD
 
-CephObjectStore CRD is used by Rook to allow [creation](https://rook.io/docs/rook/latest/CRDs/Object-Storage/ceph-object-store-crd/#example) and customization of object stores.
+CephObjectStore CRD is used by Rook to allow [creation](https://docs.koor.tech/docs/latest/CRDs/Object-Storage/ceph-object-store-crd/#example) and customization of object stores.
 
 ### CephObjectStoreUser CRD
 

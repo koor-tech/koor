@@ -18,7 +18,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/rook/rook/cmd/rook/ceph"
+	"github.com/rook/rook/cmd/koorinc/ceph"
 	rook "github.com/rook/rook/cmd/rook/rook"
 	"github.com/rook/rook/cmd/rook/util"
 	"github.com/rook/rook/cmd/rook/version"

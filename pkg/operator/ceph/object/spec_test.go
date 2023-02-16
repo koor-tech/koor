@@ -21,16 +21,16 @@ import (
 	"fmt"
 	"testing"
 
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	clienttest "github.com/koor-tech/koor/pkg/daemon/ceph/client/test"
+	cephconfig "github.com/koor-tech/koor/pkg/operator/ceph/config"
+	cephtest "github.com/koor-tech/koor/pkg/operator/ceph/test"
+	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
+	"github.com/koor-tech/koor/pkg/operator/test"
+	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/daemon/ceph/client"
-	clienttest "github.com/rook/rook/pkg/daemon/ceph/client/test"
-	cephconfig "github.com/rook/rook/pkg/operator/ceph/config"
-	cephtest "github.com/rook/rook/pkg/operator/ceph/test"
-	cephver "github.com/rook/rook/pkg/operator/ceph/version"
-	"github.com/rook/rook/pkg/operator/test"
-	exectest "github.com/rook/rook/pkg/util/exec/test"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -87,7 +87,7 @@ func TestPodSpecs(t *testing.T) {
 	c := &clusterConfig{
 		clusterInfo: info,
 		store:       store,
-		rookVersion: "rook/rook:myversion",
+		rookVersion: "koor-tech/koor:myversion",
 		clusterSpec: &cephv1.ClusterSpec{
 			CephVersion: cephv1.CephVersionSpec{Image: "quay.io/ceph/ceph:v15"},
 			Network: cephv1.NetworkSpec{
@@ -158,7 +158,7 @@ func TestSSLPodSpec(t *testing.T) {
 		clusterInfo: info,
 		store:       store,
 		context:     context,
-		rookVersion: "rook/rook:myversion",
+		rookVersion: "koor-tech/koor:myversion",
 		clusterSpec: &cephv1.ClusterSpec{
 			CephVersion: cephv1.CephVersionSpec{Image: "quay.io/ceph/ceph:v17.2.5"},
 			Network: cephv1.NetworkSpec{
@@ -667,7 +667,7 @@ func TestMakeRGWPodSpec(t *testing.T) {
 	data := cephconfig.NewStatelessDaemonDataPathMap(cephconfig.RgwType, "default", "rook-ceph", "/var/lib/rook/")
 	c := &clusterConfig{
 		store:       store,
-		rookVersion: "rook/rook:myversion",
+		rookVersion: "koor-tech/koor:myversion",
 		clusterSpec: &cephv1.ClusterSpec{
 			CephVersion: cephv1.CephVersionSpec{Image: "quay.io/ceph/ceph:v15"},
 			Network: cephv1.NetworkSpec{
@@ -727,7 +727,7 @@ func TestAWSServerSideEncryption(t *testing.T) {
 		clusterInfo: info,
 		store:       store,
 		context:     context,
-		rookVersion: "rook/rook:myversion",
+		rookVersion: "koor-tech/koor:myversion",
 		clusterSpec: &cephv1.ClusterSpec{
 			CephVersion: cephv1.CephVersionSpec{Image: "quay.io/ceph/ceph:v17.3"},
 			Network: cephv1.NetworkSpec{

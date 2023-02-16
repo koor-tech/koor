@@ -95,7 +95,7 @@ func (h *CephInstaller) UpgradeRookCephClusterViaHelm() error {
 }
 func (h *CephInstaller) configureRookCephClusterViaHelm(upgrade bool) error {
 	values := map[string]interface{}{
-		"image": "rook/ceph:" + h.settings.RookVersion,
+		"image": "koorinc/ceph:" + h.settings.RookVersion,
 	}
 
 	// Set the host path the first time, but use the same path for an upgrade

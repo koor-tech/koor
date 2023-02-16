@@ -23,9 +23,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/util/exec"
-	"github.com/rook/rook/pkg/util/exec/test"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/util/exec"
+	"github.com/koor-tech/koor/pkg/util/exec/test"
 	"github.com/stretchr/testify/assert"
 )
 

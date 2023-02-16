@@ -18,7 +18,7 @@ limitations under the License.
 package config
 
 import (
-	"github.com/rook/rook/pkg/operator/ceph/version"
+	"github.com/koor-tech/koor/pkg/operator/ceph/version"
 )
 
 // DefaultFlags returns the default configuration flags Rook will set on the command line for all

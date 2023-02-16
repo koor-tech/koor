@@ -196,7 +196,7 @@ spec:
     * **Dashboard** - The Operator deploys a dashboard for monitoring and introspecting your cluster.
 
     ## Before you start
-    https://rook.io/docs/rook/v1.0/k8s-pre-reqs.html
+    https://docs.koor.tech/docs/v1.0/k8s-pre-reqs.html
 
   keywords:
     [
@@ -237,8 +237,8 @@ spec:
 metadata:
   annotations:
     tectonic-visibility: ocs
-    repository: https://github.com/rook/rook
-    containerImage: rook/ceph:v1.2.2
+    repository: https://github.com/koor-tech/koor
+    containerImage: koorinc/ceph:v1.2.2
     alm-examples: |-
       [
         {

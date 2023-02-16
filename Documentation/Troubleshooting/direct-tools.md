@@ -43,7 +43,7 @@ Map the block volume and format it and mount it:
 
 ```console
 # Map the rbd device. If the Direct Mount Pod was started with "hostNetwork: false" this hangs and you have to stop it with Ctrl-C,
-# however the command still succeeds; see https://github.com/rook/rook/issues/2021
+# however the command still succeeds; see https://github.com/koor-tech/koor/issues/2021
 rbd map replicapool/test
 
 # Find the device name, such as rbd0

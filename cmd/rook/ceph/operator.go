@@ -20,12 +20,12 @@ import (
 	"flag"
 	"os"
 
+	operator "github.com/koor-tech/koor/pkg/operator/ceph"
+	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/pkg/util/flags"
 	"github.com/pkg/errors"
 	"github.com/rook/rook/cmd/rook/rook"
-	operator "github.com/rook/rook/pkg/operator/ceph"
-	opcontroller "github.com/rook/rook/pkg/operator/ceph/controller"
-	"github.com/rook/rook/pkg/operator/k8sutil"
-	"github.com/rook/rook/pkg/util/flags"
 	"github.com/spf13/cobra"
 )
 
@@ -37,7 +37,7 @@ var operatorCmd = &cobra.Command{
 	Use:   "operator",
 	Short: "Runs the Ceph operator for orchestrating and managing Ceph storage in a Kubernetes cluster",
 	Long: `Runs the Ceph operator for orchestrating and managing Ceph storage in a Kubernetes cluster
-https://github.com/rook/rook`,
+https://github.com/koor-tech/koor`,
 }
 
 func init() {

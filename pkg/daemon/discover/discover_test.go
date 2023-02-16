@@ -22,9 +22,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/rook/rook/pkg/clusterd"
-	exectest "github.com/rook/rook/pkg/util/exec/test"
-	"github.com/rook/rook/pkg/util/sys"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
+	"github.com/koor-tech/koor/pkg/util/sys"
 
 	"github.com/stretchr/testify/assert"
 )

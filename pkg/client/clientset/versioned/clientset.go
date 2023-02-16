@@ -21,7 +21,7 @@ package versioned
 import (
 	"fmt"
 
-	cephv1 "github.com/rook/rook/pkg/client/clientset/versioned/typed/ceph.rook.io/v1"
+	cephv1 "github.com/koor-tech/koor/pkg/client/clientset/versioned/typed/ceph.rook.io/v1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"

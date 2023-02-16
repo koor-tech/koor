@@ -21,7 +21,7 @@ import (
 	"os"
 	"strings"
 
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 )
 
 // TestCephSettings struct for handling panic and test suite tear down

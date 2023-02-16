@@ -21,10 +21,10 @@ import (
 	"path"
 	"strings"
 
+	"github.com/koor-tech/koor/pkg/clusterd"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/clusterd"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	opcontroller "github.com/rook/rook/pkg/operator/ceph/controller"
 	v1 "k8s.io/api/core/v1"
 )
 

@@ -80,7 +80,7 @@ SERVER_PACKAGES = $(GO_PROJECT)/cmd/rook
 TEST_PACKAGES = $(GO_PROJECT)/tests/integration
 
 # the root go project
-GO_PROJECT=github.com/rook/rook
+GO_PROJECT=github.com/koor-tech/koor
 
 # inject the version number into the golang version package using the -X linker flag
 LDFLAGS += -X $(GO_PROJECT)/pkg/version.Version=$(VERSION)

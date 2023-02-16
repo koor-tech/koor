@@ -39,8 +39,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/rook/rook/pkg/operator/ceph/config"
-	optest "github.com/rook/rook/pkg/operator/test"
+	"github.com/koor-tech/koor/pkg/operator/ceph/config"
+	optest "github.com/koor-tech/koor/pkg/operator/test"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
 )

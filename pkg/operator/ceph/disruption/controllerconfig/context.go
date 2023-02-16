@@ -20,7 +20,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/rook/rook/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/clusterd"
 )
 
 // Context passed to the controller when associating it with the manager.

@@ -19,7 +19,7 @@ package clients
 import (
 	"fmt"
 
-	"github.com/rook/rook/pkg/daemon/ceph/client"
+	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
 )
 
 // IsClusterHealthy determines if the Rook cluster is currently healthy or not.

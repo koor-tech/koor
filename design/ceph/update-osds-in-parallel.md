@@ -86,7 +86,7 @@ opportunity to reconcile other components of a Ceph cluster's `CephCluster` reso
 ensure that the OSD update reconciliation does not create a scenario where the `CephCluster` cannot
 be modified in other ways.
 
-https://github.com/rook/rook/pull/6693 introduced a means of interrupting the current OSD
+https://github.com/koor-tech/koor/pull/6693 introduced a means of interrupting the current OSD
 orchestration to handle newer `CephCluster` resource changes. This functionality should remain so
 that user changes to the `CephCluster` can begin reconciliation quickly. The Rook Operator should
 stop OSD orchestration on any updates to the `CephCluster` spec and be able to resume OSD 

@@ -33,8 +33,8 @@ This guide assumes you have created a Rook cluster as explained in the main
 storage for NFS.
 
 Many samples reference the CephNFS and CephFilesystem example manifests
-[here](https://github.com/rook/rook/blob/master/deploy/examples/nfs.yaml) and
-[here](https://github.com/rook/rook/blob/master/deploy/examples/filesystem.yaml).
+[here](https://github.com/koor-tech/koor/blob/master/deploy/examples/nfs.yaml) and
+[here](https://github.com/koor-tech/koor/blob/master/deploy/examples/filesystem.yaml).
 
 
 ## Creating an NFS cluster
@@ -157,7 +157,7 @@ mount -t nfs4 -o proto=tcp <nfs-service-address>:/<export-path> <mount-location>
 Use a LoadBalancer Service to expose an NFS server (and its exports) outside of the Kubernetes
 cluster. The Service's endpoint can be used as the NFS service address when
 [mounting the export manually](#mounting-exports). We provide an example Service here:
-[`deploy/examples/nfs-load-balancer.yaml`](https://github.com/rook/rook/tree/master/deploy/examples).
+[`deploy/examples/nfs-load-balancer.yaml`](https://github.com/koor-tech/koor/tree/master/deploy/examples).
 
 
 ## NFS Security

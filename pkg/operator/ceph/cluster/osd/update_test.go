@@ -23,16 +23,16 @@ import (
 	"testing"
 
 	"github.com/coreos/pkg/capnslog"
+	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
+	"github.com/koor-tech/koor/pkg/clusterd"
+	cephclient "github.com/koor-tech/koor/pkg/daemon/ceph/client"
+	cephclientfake "github.com/koor-tech/koor/pkg/daemon/ceph/client/fake"
+	"github.com/koor-tech/koor/pkg/operator/ceph/controller"
+	cephver "github.com/koor-tech/koor/pkg/operator/ceph/version"
+	"github.com/koor-tech/koor/pkg/operator/k8sutil"
+	"github.com/koor-tech/koor/pkg/operator/test"
+	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
 	"github.com/pkg/errors"
-	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	"github.com/rook/rook/pkg/clusterd"
-	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
-	cephclientfake "github.com/rook/rook/pkg/daemon/ceph/client/fake"
-	"github.com/rook/rook/pkg/operator/ceph/controller"
-	cephver "github.com/rook/rook/pkg/operator/ceph/version"
-	"github.com/rook/rook/pkg/operator/k8sutil"
-	"github.com/rook/rook/pkg/operator/test"
-	exectest "github.com/rook/rook/pkg/util/exec/test"
 	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -109,7 +109,7 @@ func Test_updateExistingOSDs(t *testing.T) {
 		spec := cephv1.ClusterSpec{
 			ContinueUpgradeAfterChecksEvenIfNotHealthy: forceUpgradeIfUnhealthy,
 		}
-		c = New(ctx, clusterInfo, spec, "rook/rook:master")
+		c = New(ctx, clusterInfo, spec, "koor-tech/koor:master")
 		config := c.newProvisionConfig()
 		updateConfig = c.newUpdateConfig(config, updateQueue, existingDeployments, sets.NewString())
 
@@ -521,7 +521,7 @@ func Test_getOSDUpdateInfo(t *testing.T) {
 	spec := cephv1.ClusterSpec{
 		CephVersion: cephv1.CephVersionSpec{Image: cephImage},
 	}
-	c := New(ctx, clusterInfo, spec, "rook/rook:master")
+	c := New(ctx, clusterInfo, spec, "koor-tech/koor:master")
 
 	var errs *provisionErrors
 	var d *appsv1.Deployment
@@ -550,7 +550,7 @@ func Test_getOSDUpdateInfo(t *testing.T) {
 		}
 		clusterInfo2.SetName("other-cluster")
 		clusterInfo2.OwnerInfo = cephclient.NewMinimumOwnerInfo(t)
-		c2 := New(ctx, clusterInfo2, spec, "rook/rook:master")
+		c2 := New(ctx, clusterInfo2, spec, "koor-tech/koor:master")
 
 		// osd.1 on PVC in "other-namespace"
 		d = getDummyDeploymentOnPVC(clientset, c2, "pvc1", 1)
@@ -608,7 +608,7 @@ func Test_getOSDUpdateInfo(t *testing.T) {
 		ctx = &clusterd.Context{
 			Clientset: clientset,
 		}
-		c = New(ctx, clusterInfo, spec, "rook/rook:master")
+		c = New(ctx, clusterInfo, spec, "koor-tech/koor:master")
 
 		errs = newProvisionErrors()
 		_, _, err := c.getOSDUpdateInfo(errs)

@@ -28,7 +28,7 @@ metadata:
 rules:
   # Placeholder role so the rgw service account will
   # be generated in the csv. Remove this role and role binding
-  # when fixing https://github.com/rook/rook/issues/10141.
+  # when fixing https://github.com/koor-tech/koor/issues/10141.
   - apiGroups:
       - ""
     resources:

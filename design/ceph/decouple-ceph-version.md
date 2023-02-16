@@ -2,7 +2,7 @@
 
 **Targeted for v0.9**
 
-Today the version of Ceph is tied to the version of Rook. Each release of Rook releases a specific version of Ceph that is embedded in the same docker image.
+Today the version of Ceph is tied to the version of Koor Storage Distribution. Each release of Rook releases a specific version of Ceph that is embedded in the same docker image.
 This needs to be changed such that the version of Ceph is decoupled from the release of Rook. By separating the decision of which version of Ceph will be deployed with Rook, we have a number of advantages:
 - Admins can choose to run the version of Ceph that meets their requirements.
 - Admins can control when they upgrade the version of Ceph. The data path upgrade needs to be carefully controlled by admins in production environments.
@@ -20,14 +20,14 @@ The project is growing out of these requirements and we need to support some add
 
 ## New Design
 
-There are two versions that will be specified independently in the cluster: the Rook version and the Ceph version.
+There are two versions that will be specified independently in the cluster: the Koor Storage Distribution version and the Ceph version.
 
 ### Rook Version
 
-The Rook version is defined by the operator's container `image` tag. All Rook containers launched by the operator will also launch the same version of the Rook image.
+The Koor Storage Distribution version is defined by the operator's container `image` tag. All Rook containers launched by the operator will also launch the same version of the Rook image.
 The full image name is an important part of the version. This allows the container to be loaded from a private repo if desired.
 
-In this example, the Rook version is `rook/ceph:v0.8.1`.
+In this example, the Koor Storage Distribution version is `koorinc/ceph:v0.8.1`.
 
 ```yaml
 apiVersion: apps/v1
@@ -39,13 +39,13 @@ spec:
     spec:
       containers:
       - name: rook-ceph-operator
-        image: rook/ceph:v0.8.1
+        image: koorinc/ceph:v0.8.1
 ```
 
 ### Ceph Version
 
 The Ceph version is defined under the property `cephVersion` in the Cluster CRD. All Ceph daemon containers launched by the Rook operator will use this image, including the mon, mgr,
-osd, rgw, and mds pods. The significance of this approach is that the Rook binary is not included in the daemon containers. All initialization performed by Rook to generate the Ceph config and prepare the daemons must be completed in an [init container](https://github.com/rook/rook/issues/2003). Once the Rook init containers complete their execution, the daemon container will run the Ceph image. The daemon container will no longer have Rook running.
+osd, rgw, and mds pods. The significance of this approach is that the Rook binary is not included in the daemon containers. All initialization performed by Rook to generate the Ceph config and prepare the daemons must be completed in an [init container](https://github.com/koor-tech/koor/issues/2003). Once the Rook init containers complete their execution, the daemon container will run the Ceph image. The daemon container will no longer have Rook running.
 
 In the following Cluster CRD example, the Ceph version is Mimic `13.2.2` built on 23 Oct 2018.
 
@@ -92,7 +92,7 @@ The flexibility during upgrades will now be improved since the upgrade of Rook w
 - To upgrade Rook, update the version of the Rook operator container
 - To upgrade Ceph, make sure Rook is running the latest release, then update the `cephVersion.image` in the cluster CRD
 
-The versions to be supported during upgrade will be a specific set for each version of Rook. In 0.9, it is anticipated that the only upgrade of Ceph
+The versions to be supported during upgrade will be a specific set for each version of Koor Storage Distribution. In 0.9, it is anticipated that the only upgrade of Ceph
 supported would only be Luminous to Mimic. When Rook officially adds support for a release of Ceph (ie. Nautilus), the upgrade path will also be supported from one previous version.
 For example, after Nautilus support is added, Luminous users would first need to upgrade to Mimic and then Nautilus. While it may be possible to skip versions
 during upgrade, it is not supported in order to keep the testing more scoped.
@@ -159,5 +159,5 @@ Until Nautilus builds are released, the latest Nautilus build can be tested by u
 
 For backward compatibility, if the `cephVersion` property is not set, the operator will need to internally set a default version of Ceph.
 The operator will assume the desired Ceph version is Luminous 12.2.7, which was shipped with Rook v0.8.
-This default will allow the Rook upgrade from v0.8 to v0.9 to only impact the Rook version and hold the Ceph version at Luminous.
+This default will allow the Rook upgrade from v0.8 to v0.9 to only impact the Koor Storage Distribution version and hold the Ceph version at Luminous.
 After the Rook upgrade to v0.9, the user can choose to set the `cephVersion` property to some newer version of Ceph such as mimic.

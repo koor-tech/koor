@@ -119,7 +119,7 @@ func DeleteBatchJob(ctx context.Context, clientset kubernetes.Interface, namespa
 	return nil
 }
 
-// AddRookVersionLabelToJob adds or updates a label reporting the Rook version which last
+// AddRookVersionLabelToJob adds or updates a label reporting the Koor Storage Distribution version which last
 // modified a Job.
 func AddRookVersionLabelToJob(j *batch.Job) {
 	if j == nil {

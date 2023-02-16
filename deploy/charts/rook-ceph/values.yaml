@@ -4,7 +4,7 @@
 
 image:
   # -- Image
-  repository: rook/ceph
+  repository: koorinc/ceph
   # -- Image tag
   # @default -- `master`
   tag: VERSION
@@ -16,7 +16,7 @@ crds:
   # managed independently with deploy/examples/crds.yaml.
   # **WARNING** Only set during first deployment. If later disabled the cluster may be DESTROYED.
   # If the CRDs are deleted in this case, see
-  # [the disaster recovery guide](https://rook.io/docs/rook/latest/Troubleshooting/disaster-recovery/#restoring-crds-after-deletion)
+  # [the disaster recovery guide](https://docs.koor.tech/docs/latest/Troubleshooting/disaster-recovery/#restoring-crds-after-deletion)
   # to restore them.
   enabled: true
 
@@ -443,7 +443,7 @@ csi:
 
   # -- Enable Ceph Kernel clients on kernel < 4.17. If your kernel does not support quotas for CephFS
   # you may want to disable this setting. However, this will cause an issue during upgrades
-  # with the FUSE client. See the [upgrade guide](https://rook.io/docs/rook/v1.2/ceph-upgrade.html)
+  # with the FUSE client. See the [upgrade guide](https://docs.koor.tech/docs/v1.2/ceph-upgrade.html)
   forceCephFSKernelClient: true
 
   # -- Ceph CSI RBD driver metrics port

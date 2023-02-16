@@ -4,7 +4,7 @@ title: Ceph Common Issues
 
 Many of these problem cases are hard to summarize down to a short phrase that adequately describes the problem. Each problem will start with a bulleted list of symptoms. Keep in mind that all symptoms may not apply depending on the configuration of Rook. If the majority of the symptoms are seen there is a fair chance you are experiencing that problem.
 
-If after trying the suggestions found on this page and the problem is not resolved, the Rook team is very happy to help you troubleshoot the issues in their Slack channel. Once you have [registered for the Rook Slack](https://slack.rook.io), proceed to the `#ceph` channel to ask for assistance.
+If after trying the suggestions found on this page and the problem is not resolved, the Rook team is very happy to help you troubleshoot the issues in their Slack channel. Once you have [registered for the Rook Slack]([the GitHub Discussions](https://github.com/koor-tech/koor/discussions)
 
 See also the [CSI Troubleshooting Guide](../Troubleshooting/ceph-csi-common-issues.md).
 
@@ -130,7 +130,7 @@ Likely you will see an error similar to the following that the operator is timin
 followed by a timeout message five minutes later.
 
 ```console
-2018-01-21 21:47:32.375833 I | exec: Running command: ceph mon_status --cluster=rook --conf=/var/lib/rook/rook-ceph/rook.config --keyring=/var/lib/rook/rook-ceph/client.admin.keyring --format json --out-file /tmp/442263890
+2018-01-21 21:47:32.375833 I | exec: Running command: ceph mon_status --cluster=rook --conf=/var/lib/koor-tech/koor-ceph/rook.config --keyring=/var/lib/koor-tech/koor-ceph/client.admin.keyring --format json --out-file /tmp/442263890
 2018-01-21 21:52:35.370533 I | exec: 2018-01-21 21:52:35.071462 7f96a3b82700  0 monclient(hunting): authenticate timed out after 300
 2018-01-21 21:52:35.071462 7f96a3b82700  0 monclient(hunting): authenticate timed out after 300
 2018-01-21 21:52:35.071524 7f96a3b82700  0 librados: client.admin authentication error (110) Connection timed out
@@ -180,7 +180,7 @@ $ kubectl -n rook-ceph describe pod -l mon=rook-ceph-mon0
 ...
     Last State:    Terminated
       Reason:    Error
-      Message:    The keyring does not match the existing keyring in /var/lib/rook/rook-ceph-mon0/data/keyring.
+      Message:    The keyring does not match the existing keyring in /var/lib/koor-tech/koor-ceph-mon0/data/keyring.
                     You may need to delete the contents of dataDirHostPath on the host from a previous deployment.
 ...
 ```
@@ -502,7 +502,7 @@ Using the toolbox or from inside the operator run:
 ceph config set mon.a log_to_file true
 ```
 
-This will activate logging on the filesystem, you will be able to find logs in `dataDirHostPath/$NAMESPACE/log`, so typically this would mean `/var/lib/rook/rook-ceph/log`.
+This will activate logging on the filesystem, you will be able to find logs in `dataDirHostPath/$NAMESPACE/log`, so typically this would mean `/var/lib/koor-tech/koor-ceph/log`.
 You don't need to restart the pod, the effect will be immediate.
 
 To disable the logging on file, simply set `log_to_file` to `false`.
@@ -532,7 +532,7 @@ $ dmesg
 ...
 ```
 
-It's so-called `hung_task` problem and means that there is a deadlock in the kernel. For more detail, please refer to [the corresponding issue comment](https://github.com/rook/rook/issues/3132#issuecomment-580508760).
+It's so-called `hung_task` problem and means that there is a deadlock in the kernel. For more detail, please refer to [the corresponding issue comment](https://github.com/koor-tech/koor/issues/3132#issuecomment-580508760).
 
 ### Solution
 
@@ -593,13 +593,13 @@ exec: stderr: 2020-09-17T00:30:12.145+0000 7f0c17632f40 -1 bdev(0x56212de88700 /
 To overcome this, you need to increase the value of `fs.aio-max-nr` of your sysctl configuration (typically `/etc/sysctl.conf`).
 You can do this with your favorite configuration management system.
 
-Alternatively, you can have a [DaemonSet](https://github.com/rook/rook/issues/6279#issuecomment-694390514) to apply the configuration for you on all your nodes.
+Alternatively, you can have a [DaemonSet](https://github.com/koor-tech/koor/issues/6279#issuecomment-694390514) to apply the configuration for you on all your nodes.
 
 ## Unexpected partitions created
 
 ### Symptoms
 
-**Users running Rook versions v1.6.0-v1.6.7 may observe unwanted OSDs on partitions that appear
+**Users running Koor Storage Distribution versions v1.6.0-v1.6.7 may observe unwanted OSDs on partitions that appear
 unexpectedly and seemingly randomly, which can corrupt existing OSDs.**
 
 Unexpected partitions are created on host disks that are used by Ceph OSDs. This happens more often
@@ -632,7 +632,7 @@ sdd      8:48   0     3T  0 disk
 └─sdd3   8:51   0   6.3M  0 part
 ```
 
-You can see [GitHub rook/rook - Issue 7940 unexpected partition on disks >= 1TB (atari partitions)](https://github.com/rook/rook/issues/7940) for more detailed information and discussion.
+You can see [GitHub koor-tech/koor - Issue 7940 unexpected partition on disks >= 1TB (atari partitions)](https://github.com/koor-tech/koor/issues/7940) for more detailed information and discussion.
 
 ### Solution
 

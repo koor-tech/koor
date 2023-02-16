@@ -24,26 +24,26 @@ import (
 	"testing"
 	"time"
 
+	"github.com/koor-tech/koor/pkg/clusterd"
+	"github.com/koor-tech/koor/pkg/operator/test"
+	"github.com/koor-tech/koor/pkg/util/exec"
+	exectest "github.com/koor-tech/koor/pkg/util/exec/test"
 	"github.com/pkg/errors"
-	"github.com/rook/rook/pkg/clusterd"
-	"github.com/rook/rook/pkg/operator/test"
-	"github.com/rook/rook/pkg/util/exec"
-	exectest "github.com/rook/rook/pkg/util/exec/test"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestFinalizeCephCommandArgs(t *testing.T) {
 	RunAllCephCommandsInToolboxPod = ""
-	configDir := "/var/lib/rook/rook-ceph"
+	configDir := "/var/lib/koor-tech/koor-ceph"
 	expectedCommand := "ceph"
 	args := []string{"quorum_status"}
 	expectedArgs := []string{
 		"quorum_status",
 		"--connect-timeout=" + strconv.Itoa(int(exec.CephCommandsTimeout.Seconds())),
 		"--cluster=rook",
-		"--conf=/var/lib/rook/rook-ceph/rook/rook.config",
+		"--conf=/var/lib/koor-tech/koor-ceph/koor-tech/koor.config",
 		"--name=client.admin",
-		"--keyring=/var/lib/rook/rook-ceph/rook/client.admin.keyring",
+		"--keyring=/var/lib/koor-tech/koor-ceph/rook/client.admin.keyring",
 	}
 
 	clusterInfo := AdminTestClusterInfo("rook")
@@ -54,7 +54,7 @@ func TestFinalizeCephCommandArgs(t *testing.T) {
 
 func TestFinalizeRadosGWAdminCommandArgs(t *testing.T) {
 	RunAllCephCommandsInToolboxPod = ""
-	configDir := "/var/lib/rook/rook-ceph"
+	configDir := "/var/lib/koor-tech/koor-ceph"
 	expectedCommand := "radosgw-admin"
 	args := []string{
 		"realm",
@@ -71,9 +71,9 @@ func TestFinalizeRadosGWAdminCommandArgs(t *testing.T) {
 		"--rgw-realm=default-rook",
 		"--rgw-zonegroup=default-rook",
 		"--cluster=rook",
-		"--conf=/var/lib/rook/rook-ceph/rook/rook.config",
+		"--conf=/var/lib/koor-tech/koor-ceph/koor-tech/koor.config",
 		"--name=client.admin",
-		"--keyring=/var/lib/rook/rook-ceph/rook/client.admin.keyring",
+		"--keyring=/var/lib/koor-tech/koor-ceph/rook/client.admin.keyring",
 	}
 
 	clusterInfo := AdminTestClusterInfo("rook")
@@ -84,7 +84,7 @@ func TestFinalizeRadosGWAdminCommandArgs(t *testing.T) {
 
 func TestFinalizeCephCommandArgsToolBox(t *testing.T) {
 	RunAllCephCommandsInToolboxPod = "rook-ceph-tools"
-	configDir := "/var/lib/rook/rook-ceph"
+	configDir := "/var/lib/koor-tech/koor-ceph"
 	expectedCommand := "ceph"
 	args := []string{"health"}
 	expectedArgs := []string{
