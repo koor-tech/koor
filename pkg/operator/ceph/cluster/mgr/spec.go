@@ -43,7 +43,7 @@ const (
 func (c *Cluster) makeDeployment(mgrConfig *mgrConfig) (*apps.Deployment, error) {
 	logger.Debugf("mgrConfig: %+v", mgrConfig)
 
-	volumes := controller.DaemonVolumes(mgrConfig.DataPathMap, mgrConfig.ResourceName)
+	volumes := controller.DaemonVolumes(mgrConfig.DataPathMap, mgrConfig.ResourceName, c.spec.DataDirHostPath)
 	if c.spec.Network.IsMultus() {
 		adminKeyringVol, _ := keyring.Volume().Admin(), keyring.VolumeMount().Admin()
 		volumes = append(volumes, adminKeyringVol)
@@ -74,6 +74,7 @@ func (c *Cluster) makeDeployment(mgrConfig *mgrConfig) (*apps.Deployment, error)
 	if c.spec.Mgr.Count > 1 {
 		podSpec.Spec.Containers = append(podSpec.Spec.Containers, c.makeMgrSidecarContainer(mgrConfig))
 		matchLabels := controller.AppLabels(AppName, c.clusterInfo.Namespace)
+		podSpec.Spec.Volumes = append(podSpec.Spec.Volumes, mon.CephSecretVolume())
 
 		// Stretch the mgrs across hosts by default, or across a bigger failure domain for stretch clusters
 		topologyKey := v1.LabelHostname
@@ -140,9 +141,10 @@ func (c *Cluster) makeChownInitContainer(mgrConfig *mgrConfig) v1.Container {
 		*mgrConfig.DataPathMap,
 		c.spec.CephVersion.Image,
 		controller.GetContainerImagePullPolicy(c.spec.CephVersion.ImagePullPolicy),
-		controller.DaemonVolumeMounts(mgrConfig.DataPathMap, mgrConfig.ResourceName),
+		controller.DaemonVolumeMounts(mgrConfig.DataPathMap, mgrConfig.ResourceName, c.spec.DataDirHostPath),
 		cephv1.GetMgrResources(c.spec.Resources),
 		controller.PodSecurityContext(),
+		"",
 	)
 }
 
@@ -163,7 +165,7 @@ func (c *Cluster) makeMgrDaemonContainer(mgrConfig *mgrConfig) v1.Container {
 		),
 		Image:           c.spec.CephVersion.Image,
 		ImagePullPolicy: controller.GetContainerImagePullPolicy(c.spec.CephVersion.ImagePullPolicy),
-		VolumeMounts:    controller.DaemonVolumeMounts(mgrConfig.DataPathMap, mgrConfig.ResourceName),
+		VolumeMounts:    controller.DaemonVolumeMounts(mgrConfig.DataPathMap, mgrConfig.ResourceName, c.spec.DataDirHostPath),
 		Ports: []v1.ContainerPort{
 			{
 				Name:          "mgr",
@@ -189,6 +191,7 @@ func (c *Cluster) makeMgrDaemonContainer(mgrConfig *mgrConfig) v1.Container {
 		SecurityContext: controller.PodSecurityContext(),
 		StartupProbe:    controller.GenerateStartupProbeExecDaemon(config.MgrType, mgrConfig.DaemonID),
 		LivenessProbe:   controller.GenerateLivenessProbeExecDaemon(config.MgrType, mgrConfig.DaemonID),
+		ReadinessProbe:  controller.GenerateMgrReadinessProbeExecDaemon(config.MgrType, mgrConfig.DaemonID),
 		WorkingDir:      config.VarLogCephDir,
 	}
 
@@ -215,7 +218,6 @@ func (c *Cluster) makeMgrSidecarContainer(mgrConfig *mgrConfig) v1.Container {
 		mon.PodNamespaceEnvVar(c.clusterInfo.Namespace),
 		mon.EndpointEnvVar(),
 		mon.CephUsernameEnvVar(),
-		mon.CephSecretEnvVar(),
 		k8sutil.ConfigOverrideEnvVar(),
 		{Name: "ROOK_DASHBOARD_ENABLED", Value: strconv.FormatBool(c.spec.Dashboard.Enabled)},
 		{Name: "ROOK_MONITORING_ENABLED", Value: strconv.FormatBool(c.spec.Monitoring.Enabled)},
@@ -232,6 +234,7 @@ func (c *Cluster) makeMgrSidecarContainer(mgrConfig *mgrConfig) v1.Container {
 		Env:             envVars,
 		Resources:       cephv1.GetMgrSidecarResources(c.spec.Resources),
 		SecurityContext: controller.PrivilegedContext(true),
+		VolumeMounts:    []v1.VolumeMount{mon.CephSecretVolumeMount()},
 	}
 }
 
@@ -243,7 +246,7 @@ func (c *Cluster) makeCmdProxySidecarContainer(mgrConfig *mgrConfig) v1.Containe
 		Args:            []string{"infinity"},
 		Image:           c.spec.CephVersion.Image,
 		ImagePullPolicy: controller.GetContainerImagePullPolicy(c.spec.CephVersion.ImagePullPolicy),
-		VolumeMounts:    append(controller.DaemonVolumeMounts(mgrConfig.DataPathMap, mgrConfig.ResourceName), adminKeyringVolMount),
+		VolumeMounts:    append(controller.DaemonVolumeMounts(mgrConfig.DataPathMap, mgrConfig.ResourceName, c.spec.DataDirHostPath), adminKeyringVolMount),
 		Env:             append(controller.DaemonEnvVars(c.spec.CephVersion.Image), v1.EnvVar{Name: "CEPH_ARGS", Value: fmt.Sprintf("-m $(ROOK_CEPH_MON_HOST) -k %s", keyring.VolumeMount().AdminKeyringFilePath())}),
 		Resources:       cephv1.GetMgrResources(c.spec.Resources),
 		SecurityContext: controller.PodSecurityContext(),

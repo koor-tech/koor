@@ -22,7 +22,20 @@ Rook upgrades are only supported between official releases.
 For a guide to upgrade previous versions of Rook, please refer to the version of documentation for
 those releases.
 
+* [Upgrade 1.8 to 1.9](https://docs.koor.tech/docs/v1.9/Upgrade/rook-upgrade/)
+* [Upgrade 1.7 to 1.8](https://docs.koor.tech/docs/v1.8/ceph-upgrade.html)
+* [Upgrade 1.6 to 1.7](https://docs.koor.tech/docs/v1.7/ceph-upgrade.html)
+* [Upgrade 1.5 to 1.6](https://docs.koor.tech/docs/v1.6/ceph-upgrade.html)
+* [Upgrade 1.4 to 1.5](https://docs.koor.tech/docs/v1.5/ceph-upgrade.html)
+* [Upgrade 1.3 to 1.4](https://docs.koor.tech/docs/v1.4/ceph-upgrade.html)
+* [Upgrade 1.2 to 1.3](https://docs.koor.tech/docs/v1.3/ceph-upgrade.html)
+* [Upgrade 1.1 to 1.2](https://docs.koor.tech/docs/v1.2/ceph-upgrade.html)
 * [Upgrade 1.0 to 1.1](https://docs.koor.tech/docs/v1.1/ceph-upgrade.html)
+* [Upgrade 0.9 to 1.0](https://docs.koor.tech/docs/v1.0/ceph-upgrade.html)
+* [Upgrade 0.8 to 0.9](https://docs.koor.tech/docs/v0.9/ceph-upgrade.html)
+* [Upgrade 0.7 to 0.8](https://docs.koor.tech/docs/v0.8/upgrade.html)
+* [Upgrade 0.6 to 0.7](https://docs.koor.tech/docs/v0.7/upgrade.html)
+* [Upgrade 0.5 to 0.6](https://docs.koor.tech/docs/v0.6/upgrade.html)
 
 !!! important
     **Rook releases from master are expressly unsupported.** It is strongly recommended that you use

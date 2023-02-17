@@ -43,6 +43,10 @@ please see the [v1.0 upgrade guide for a special upgrade consideration](https://
     Ceph v17.2.2 has a blocking issue when running with Rook. If you are running Ceph v17, we
     recommend using v17.2.3 or newer.
 
+!!! warning
+    Ceph v17.2.2 has a blocking issue when running with Rook. If you are running Ceph v17, we
+    recommend using v17.2.3 or newer.
+
 ### Quincy Consideration
 
 In Ceph Quincy (v17), the `device_health_metrics` pool was renamed to `.mgr`. Ceph will perform this

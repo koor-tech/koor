@@ -68,7 +68,7 @@ func TestReportReconcileResult(t *testing.T) {
 		logBuf := bytes.NewBuffer([]byte{})
 		logFmt := capnslog.NewLogFormatter(logBuf, "", 0)
 		capnslog.SetFormatter(logFmt)
-		logger := capnslog.NewPackageLogger("github.com/rook/rook", "")
+		logger := capnslog.NewPackageLogger("github.com/koor-tech/koor", "")
 		capnslog.SetGlobalLogLevel(capnslog.TRACE)
 
 		recorder := record.NewFakeRecorder(3)

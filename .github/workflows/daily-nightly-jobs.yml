@@ -24,7 +24,7 @@ jobs:
       - name: setup golang
         uses: actions/setup-go@v3
         with:
-          go-version: 1.18
+          go-version: 1.19
 
       - name: setup minikube
         run: |
@@ -324,22 +324,22 @@ jobs:
       - name: TestCephUpgradeSuite
         run: |
           export DEVICE_FILTER=$(lsblk|awk '/14G/ {print $1}'| head -1)
-          go test -v -timeout 1800s -failfast -run TestCephUpgradeSuite/TestUpgradeCephToQuincyDevel github.com/rook/rook/tests/integration
+          go test -v -timeout 1800s -failfast -run TestCephUpgradeSuite/TestUpgradeCephToQuincyDevel github.com/koor-tech/koor/tests/integration
 
       - name: collect common logs
         if: always()
         run: |
-          export LOG_DIR="/home/runner/work/rook/rook/tests/integration/_output/tests/"
+          export LOG_DIR="/home/runner/work/koor/koor/tests/integration/_output/tests/"
           export CLUSTER_NAMESPACE="upgrade"
           export OPERATOR_NAMESPACE="upgrade-system"
           tests/scripts/collect-logs.sh
 
       - name: Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: ceph-upgrade-suite-quincy-artifact
-          path: /home/runner/work/rook/rook/tests/integration/_output/tests/
+          path: /home/runner/work/koor/koor/tests/integration/_output/tests/
 
   rgw-multisite-test-with-ceph-devel:
     if: github.repository == 'koor-tech/koor'

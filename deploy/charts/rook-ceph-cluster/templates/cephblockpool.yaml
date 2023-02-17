@@ -20,7 +20,7 @@ parameters:
   pool: {{ $blockpool.name }}
   clusterID: {{ $root.Release.Namespace }}
 {{ with $blockpool.storageClass.parameters }}
-{{ toYaml . | indent 2 }}
+{{ tpl (toYaml .) $ | indent 2 }}
 {{ end }}
 reclaimPolicy: {{ default "Delete" $blockpool.storageClass.reclaimPolicy }}
 allowVolumeExpansion: {{ default "true" $blockpool.storageClass.allowVolumeExpansion }}
@@ -30,5 +30,11 @@ mountOptions:
   - {{ . }}
   {{- end }}
 {{- end }}
+{{ if $blockpool.storageClass.allowedTopologies }}
+allowedTopologies:
+{{ with $blockpool.storageClass.allowedTopologies }}
+{{ toYaml . | indent 2 }}
+{{ end }}
+{{ end }}
 {{ end }}
 {{ end }}

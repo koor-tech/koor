@@ -68,6 +68,8 @@ func NewConfig(context *clusterd.Context, clusterSpec *cephv1.ClusterSpec, clust
 		config.Provider = secrets.TypeVault
 	case TypeIBM:
 		config.Provider = TypeIBM
+	case TypeKMIP:
+		config.Provider = TypeKMIP
 	default:
 		logger.Errorf("unsupported kms type %q", Provider)
 	}

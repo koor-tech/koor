@@ -276,13 +276,6 @@ func (a *OsdAgent) initializeBlockPVC(context *clusterd.Context, devices *Device
 			var deviceArg string
 
 			deviceArg = device.Config.Name
-			logger.Info("devlink names:")
-			for _, devlink := range device.PersistentDevicePaths {
-				logger.Info(devlink)
-				if strings.HasPrefix(devlink, "/dev/mapper") {
-					deviceArg = devlink
-				}
-			}
 
 			immediateExecuteArgs := append(baseArgs, []string{
 				"--data",
@@ -495,7 +488,7 @@ func (a *OsdAgent) initializeDevices(context *clusterd.Context, devices *DeviceO
 		// skip creating OSDs on "phantom" partitions due to a bug in `ceph-volume raw inventory`
 		// which reports only the phantom partitions (and malformed OSD info) when they exist and
 		// ignores the original (correct) OSDs created on the raw disk.
-		// See: https://github.com/koor-tech/koor/issues/7940
+		// See: https://github.com/rook/rook/issues/7940
 		if allowRawMode && isSafeToUseRawMode(device, a.clusterInfo.CephVersion) {
 			rawDevices.Entries[name] = device
 			continue
@@ -586,12 +579,6 @@ func (a *OsdAgent) initializeDevicesLVMMode(context *clusterd.Context, devices *
 
 			logger.Infof("configuring new LVM device %s", name)
 			deviceArg := path.Join("/dev", name)
-			// ceph-volume prefers to use /dev/mapper/<name> if the device has this kind of alias
-			for _, devlink := range device.PersistentDevicePaths {
-				if strings.HasPrefix(devlink, "/dev/mapper") {
-					deviceArg = devlink
-				}
-			}
 
 			deviceOSDCount := osdsPerDeviceCount
 			if device.Config.OSDsPerDevice > 1 {
@@ -974,6 +961,11 @@ func GetCephVolumeRawOSDs(context *clusterd.Context, clusterInfo *client.Cluster
 				}
 
 				target := oposd.EncryptionDMName(pvcName, oposd.DmcryptBlockType)
+				// remove stale dm device left by previous OSD.
+				err = removeEncryptedDevice(context, target)
+				if err != nil {
+					logger.Warningf("failed to remove stale dm device %q: %q", target, err)
+				}
 				err = openEncryptedDevice(context, block, target, passphrase)
 				if err != nil {
 					return nil, errors.Wrapf(err, "failed to open encrypted block device %q on %q", block, target)

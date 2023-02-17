@@ -8,7 +8,6 @@ image:
   # -- Image tag
   # @default -- `master`
   tag: VERSION
-  # -- Image pull policy
   pullPolicy: IfNotPresent
 
 crds:
@@ -457,27 +456,27 @@ csi:
 
   registrar:
     # -- Kubernetes CSI registrar image
-    # @default -- `registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.5.1`
+    # @default -- `registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.7.0`
     image:
 
   provisioner:
     # -- Kubernetes CSI provisioner image
-    # @default -- `registry.k8s.io/sig-storage/csi-provisioner:v3.3.0`
+    # @default -- `registry.k8s.io/sig-storage/csi-provisioner:v3.4.0`
     image:
 
   snapshotter:
     # -- Kubernetes CSI snapshotter image
-    # @default -- `registry.k8s.io/sig-storage/csi-snapshotter:v6.1.0`
+    # @default -- `registry.k8s.io/sig-storage/csi-snapshotter:v6.2.1`
     image:
 
   attacher:
     # -- Kubernetes CSI Attacher image
-    # @default -- `registry.k8s.io/sig-storage/csi-attacher:v4.0.0`
+    # @default -- `registry.k8s.io/sig-storage/csi-attacher:v4.1.0`
     image:
 
   resizer:
     # -- Kubernetes CSI resizer image
-    # @default -- `registry.k8s.io/sig-storage/csi-resizer:v1.6.0`
+    # @default -- `registry.k8s.io/sig-storage/csi-resizer:v1.7.0`
     image:
 
   # -- Image pull policy
@@ -528,15 +527,6 @@ useOperatorHostNetwork:
 ## tolerationKey: Set this to the specific key of the taint to tolerate
 ## tolerations: Array of tolerations in YAML format which will be added to agent deployment
 ## nodeAffinity: Set to labels of the node to match
-# discover:
-#   toleration: NoSchedule
-#   tolerationKey: key
-#   tolerations:
-#   - key: key
-#     operator: Exists
-#     effect: NoSchedule
-#   nodeAffinity: key1=value1,value2; key2=value3
-#   podLabels: "key1=value1,key2=value2"
 
 discover:
   # -- Toleration for the discover pods.
@@ -584,13 +574,13 @@ enableOBCWatchOperatorNamespace: true
 # -- Set tolerations and nodeAffinity [^1] for admission controller pod.
 # The admission controller would be best to start on the same nodes as other ceph daemons.
 admissionController:
+  # Set tolerations and nodeAffinity for admission controller pod.
+  # The admission controller would be best to start on the same nodes as other ceph daemons.
   # tolerations:
   #    - key: key
   #      operator: Exists
   #      effect: NoSchedule
   # nodeAffinity: key1=value1,value2; key2=value3
-
-# [^1]: `nodeAffinity` and `*NodeAffinity` options should have the format `"role=storage,rook; storage=ceph"` or `storage=;role=rook-example` or `storage=;` (_checks only for presence of key_)
 
 monitoring:
   # -- Enable monitoring. Requires Prometheus to be pre-installed.

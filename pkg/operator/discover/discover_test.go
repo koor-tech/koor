@@ -62,7 +62,7 @@ func TestStartDiscoveryDaemonset(t *testing.T) {
 	_, err := clientset.CoreV1().Pods("rook-system").Create(ctx, &pod, metav1.CreateOptions{})
 	assert.NoError(t, err)
 	// start a basic cluster
-	err = a.Start(ctx, namespace, "koorinc/ceph:myversion", "mysa", false)
+	err = a.Start(ctx, namespace, "koor-tech/koor:myversion", "mysa", false)
 	assert.Nil(t, err)
 
 	// check daemonset parameters
@@ -81,7 +81,7 @@ func TestStartDiscoveryDaemonset(t *testing.T) {
 	envs := agentDS.Spec.Template.Spec.Containers[0].Env
 	assert.Equal(t, 3, len(envs))
 	image := agentDS.Spec.Template.Spec.Containers[0].Image
-	assert.Equal(t, "koorinc/ceph:myversion", image)
+	assert.Equal(t, "koor-tech/koor:myversion", image)
 	assert.Nil(t, agentDS.Spec.Template.Spec.Tolerations)
 }
 

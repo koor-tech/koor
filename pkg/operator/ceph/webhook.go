@@ -24,6 +24,7 @@ import (
 
 	cs "github.com/jetstack/cert-manager/pkg/client/clientset/versioned/typed/certmanager/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
+	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
@@ -36,7 +37,6 @@ import (
 const (
 	admissionControllerAppName       = "rook-ceph-admission-controller"
 	tlsPort                    int32 = 443
-	webhookEnv                       = "ROOK_DISABLE_ADMISSION_CONTROLLER"
 )
 
 var (
@@ -51,11 +51,15 @@ func createWebhook(ctx context.Context, context *clusterd.Context) (bool, error)
 		return false, nil
 	}
 
-	if os.Getenv(webhookEnv) == "true" {
-		logger.Info("delete Issuer and Certificate since secret is not found")
-		if err = deleteIssuerAndCertificate(ctx, certMgrClient, context); err != nil {
-			logger.Errorf("failed to delete issuer or certificate. %v", err)
-		}
+	value, err := k8sutil.GetOperatorSetting(ctx, context.Clientset, opcontroller.OperatorSettingConfigMapName, "ROOK_DISABLE_ADMISSION_CONTROLLER", "true")
+	if err != nil {
+		return false, err
+	}
+
+	if value == "true" {
+		logger.Info("delete webhook resources since webhook is disabled")
+
+		deleteWebhookResources(ctx, certMgrClient, context)
 		return false, nil
 	}
 
@@ -84,9 +88,8 @@ func createWebhook(ctx context.Context, context *clusterd.Context) (bool, error)
 		if apierrors.IsNotFound(err) {
 			// If secret is not found. All good ! Proceed with rook without admission controllers
 			logger.Info("delete Issuer and Certificate since secret is not found")
-			if err = deleteIssuerAndCertificate(ctx, certMgrClient, context); err != nil {
-				logger.Infof("could not delete issuer or certificate. %v", err)
-			}
+			deleteWebhookResources(ctx, certMgrClient, context)
+
 			logger.Infof("admission webhook secret %q not found. proceeding without the admission controller", admissionControllerAppName)
 			return false, nil
 		}

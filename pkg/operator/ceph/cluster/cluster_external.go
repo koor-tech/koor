@@ -23,9 +23,9 @@ import (
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
-	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/crash"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mgr"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mon"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/nodedaemon"
 	"github.com/koor-tech/koor/pkg/operator/ceph/config"
 	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	"github.com/koor-tech/koor/pkg/operator/ceph/csi"
@@ -80,7 +80,7 @@ func (c *ClusterController) configureExternalCephCluster(cluster *cluster) error
 		//
 		// Only do this when doing a bit of management...
 		logger.Infof("creating %q configmap", k8sutil.ConfigOverrideName)
-		err = populateConfigOverrideConfigMap(c.context, c.namespacedName.Namespace, cluster.ClusterInfo.OwnerInfo)
+		err = populateConfigOverrideConfigMap(c.context, c.namespacedName.Namespace, cluster.ClusterInfo.OwnerInfo, cluster.clusterMetadata)
 		if err != nil {
 			return errors.Wrap(err, "failed to populate config override config map")
 		}
@@ -122,7 +122,7 @@ func (c *ClusterController) configureExternalCephCluster(cluster *cluster) error
 	// Create Crash Collector Secret
 	// In 14.2.5 the crash daemon will read the client.crash key instead of the admin key
 	if !cluster.Spec.CrashCollector.Disable {
-		err = crash.CreateCrashCollectorSecret(c.context, cluster.ClusterInfo)
+		err = nodedaemon.CreateCrashCollectorSecret(c.context, cluster.ClusterInfo)
 		if err != nil {
 			return errors.Wrap(err, "failed to create crash collector kubernetes secret")
 		}

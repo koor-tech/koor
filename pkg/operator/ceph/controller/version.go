@@ -29,6 +29,7 @@ import (
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil/cmdreporter"
 	"github.com/pkg/errors"
+
 	"k8s.io/client-go/kubernetes"
 )
 

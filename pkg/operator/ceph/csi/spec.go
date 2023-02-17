@@ -25,7 +25,7 @@ import (
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/telemetry"
 	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
-	"github.com/koor-tech/koor/pkg/operator/k8sutil/cmdreporter"
+	"github.com/rook/rook/pkg/operator/k8sutil/cmdreporter"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/pkg/errors"
@@ -50,6 +50,7 @@ type Param struct {
 	EnableCSIGRPCMetrics                  string
 	KubeletDirPath                        string
 	ForceCephFSKernelClient               string
+	CephFSKernelMountOptions              string
 	CephFSPluginUpdateStrategy            string
 	NFSPluginUpdateStrategy               string
 	RBDPluginUpdateStrategy               string
@@ -132,11 +133,11 @@ var (
 var (
 	// image names
 	DefaultCSIPluginImage   = "quay.io/cephcsi/cephcsi:v3.7.2"
-	DefaultRegistrarImage   = "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.5.1"
-	DefaultProvisionerImage = "registry.k8s.io/sig-storage/csi-provisioner:v3.3.0"
-	DefaultAttacherImage    = "registry.k8s.io/sig-storage/csi-attacher:v4.0.0"
-	DefaultSnapshotterImage = "registry.k8s.io/sig-storage/csi-snapshotter:v6.1.0"
-	DefaultResizerImage     = "registry.k8s.io/sig-storage/csi-resizer:v1.6.0"
+	DefaultRegistrarImage   = "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.7.0"
+	DefaultProvisionerImage = "registry.k8s.io/sig-storage/csi-provisioner:v3.4.0"
+	DefaultAttacherImage    = "registry.k8s.io/sig-storage/csi-attacher:v4.1.0"
+	DefaultSnapshotterImage = "registry.k8s.io/sig-storage/csi-snapshotter:v6.2.1"
+	DefaultResizerImage     = "registry.k8s.io/sig-storage/csi-resizer:v1.7.0"
 	DefaultCSIAddonsImage   = "quay.io/csiaddons/k8s-sidecar:v0.5.0"
 
 	// image pull policy
@@ -304,7 +305,7 @@ func (r *ReconcileCSI) startDrivers(ver *version.Info, ownerInfo *k8sutil.OwnerI
 	NFSDriverName = tp.DriverNamePrefix + "nfs.csi.ceph.com"
 
 	if CustomCSICephConfigExists {
-		CSIParam.MountCustomCephConf = v.SupportsCustomCephConf()
+		tp.Param.MountCustomCephConf = v.SupportsCustomCephConf()
 	}
 
 	csiDriverobj = v1CsiDriver{}

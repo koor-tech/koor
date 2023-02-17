@@ -19,13 +19,20 @@ The default upstream images are included below, which you can change to your des
 
 ```yaml
 ROOK_CSI_CEPH_IMAGE: "quay.io/cephcsi/cephcsi:v3.7.2"
-ROOK_CSI_REGISTRAR_IMAGE: "k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.5.1"
-ROOK_CSI_PROVISIONER_IMAGE: "k8s.gcr.io/sig-storage/csi-provisioner:v3.3.0"
-ROOK_CSI_ATTACHER_IMAGE: "k8s.gcr.io/sig-storage/csi-attacher:v4.0.0"
-ROOK_CSI_RESIZER_IMAGE: "k8s.gcr.io/sig-storage/csi-resizer:v1.6.0"
-ROOK_CSI_SNAPSHOTTER_IMAGE: "k8s.gcr.io/sig-storage/csi-snapshotter:v6.1.0"
+ROOK_CSI_REGISTRAR_IMAGE: "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.7.0"
+ROOK_CSI_PROVISIONER_IMAGE: "registry.k8s.io/sig-storage/csi-provisioner:v3.4.0"
+ROOK_CSI_ATTACHER_IMAGE: "registry.k8s.io/sig-storage/csi-attacher:v4.1.0"
+ROOK_CSI_RESIZER_IMAGE: "registry.k8s.io/sig-storage/csi-resizer:v1.7.0"
+ROOK_CSI_SNAPSHOTTER_IMAGE: "registry.k8s.io/sig-storage/csi-snapshotter:v6.2.1"
 ROOK_CSIADDONS_IMAGE: "quay.io/csiaddons/k8s-sidecar:v0.5.0"
 ```
+
+### **Use private repository**
+
+If image version is not passed along with the image name in any of the variables above,
+Rook will add the corresponding default version to that image.
+Example: if `ROOK_CSI_CEPH_IMAGE: "quay.io/private-repo/cephcsi"` is passed,
+Rook will add internal default version and consume it as `"quay.io/private-repo/cephcsi:v3.7.2"`.
 
 ### **Use default images**
 

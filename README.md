@@ -1,6 +1,5 @@
 <img alt="Koor Storage Distribution" src="Documentation/media/logo.svg" width="50%" height="50%">
 
-
 [![GitHub release](https://img.shields.io/github/release/koor-tech/koor/all.svg)](https://github.com/koor-tech/koor/releases)
 [![Docker Pulls](https://img.shields.io/docker/pulls/koorinc/ceph)](https://hub.docker.com/u/rook)
 [![Go Report Card](https://goreportcard.com/badge/github.com/koor-tech/koor)](https://goreportcard.com/report/github.com/koor-tech/koor)

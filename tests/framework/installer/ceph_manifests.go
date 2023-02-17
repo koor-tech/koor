@@ -66,7 +66,7 @@ func NewCephManifests(settings *TestCephSettings) CephManifests {
 	switch settings.RookVersion {
 	case LocalBuildTag:
 		return &CephManifestsMaster{settings}
-	case Version1_0:
+	case Version1_10:
 		return &CephManifestsPreviousVersion{settings, &CephManifestsMaster{settings}}
 	}
 	panic(fmt.Errorf("unrecognized ceph manifest version: %s", settings.RookVersion))
@@ -159,6 +159,7 @@ spec:
   network:
     hostNetwork: false
     connections:
+      requireMsgr2: ` + strconv.FormatBool(m.settings.RequireMsgr2) + `
       encryption:
         enabled: ` + strconv.FormatBool(m.settings.ConnectionsEncrypted) + `
       compression:
@@ -174,8 +175,6 @@ spec:
     managePodBudgets: true
     osdMaintenanceTimeout: 30
     pgHealthCheckTimeout: 0
-    manageMachineDisruptionBudgets: false
-    machineDisruptionBudgetNamespace: openshift-machine-api
   healthCheck:
     daemonHealth:
       mon:
@@ -316,11 +315,6 @@ parameters:
   imageFeatures: layering
   csi.storage.k8s.io/fstype: ext4
 `
-	if m.settings.ConnectionsEncrypted {
-		// encryption requires either the 5.11 kernel or the nbd mounter. Until the newer
-		// kernel is available in minikube, we need to test with nbd.
-		sc += "  mounter: rbd-nbd"
-	}
 	return sc
 }
 

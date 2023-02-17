@@ -31,13 +31,21 @@ cd $GOPATH/src/github.com/koor-tech
 # Clone your fork, where <user> is your GitHub account name
 $ git clone https://github.com/<user>/koor-tech.git
 cd rook
+git remote add upstream https://github.com/koor-tech/koor.git
+
+# Verify the remote was added
+git remote -v
 ```
+
+Now you should have at least `origin` and `upstream` remotes. You can also add other remotes to collaborate with other contributors.
 
 ### Build
 
 Building Koor Storage Distribution is simple.
 
 ```console
+# Fetch all from 'upstream'
+git fetch -a
 make build
 ```
 

@@ -32,11 +32,12 @@ import (
 	"github.com/coreos/pkg/capnslog"
 	rookclient "github.com/koor-tech/koor/pkg/client/clientset/versioned"
 	"github.com/koor-tech/koor/pkg/clusterd"
-	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/crash"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/nodedaemon"
 	"github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/koor-tech/koor/pkg/util/exec"
 	bktclient "github.com/kube-object-storage/lib-bucket-provisioner/pkg/client/clientset/versioned"
 	"github.com/pkg/errors"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
@@ -112,7 +113,7 @@ func CreateK8sHelper(t func() *testing.T) (*K8sHelper, error) {
 }
 
 var (
-	k8slogger = capnslog.NewPackageLogger("github.com/koor-tech/koor", "utils")
+	k8slogger = capnslog.NewPackageLogger("github.com/rook/rook", "utils")
 	cmd       = getCmd()
 	// RetryLoop params for tests.
 	RetryLoop = TestRetryNumber()
@@ -448,6 +449,26 @@ func (k8sh *K8sHelper) PrintPodStatus(namespace string) {
 	}
 	for _, pod := range pods.Items {
 		logger.Infof("%s (%s) pod status: %+v", pod.Name, namespace, pod.Status)
+	}
+}
+
+func (k8sh *K8sHelper) GetPodRestartsFromNamespace(namespace, testName, platformName string) {
+	logger.Infof("will alert if any pods were restarted in namespace %s", namespace)
+	pods, err := k8sh.Clientset.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		logger.Errorf("failed to list pods in namespace %s. %+v", namespace, err)
+		return
+	}
+	for _, pod := range pods.Items {
+		podName := pod.Name
+		for _, status := range pod.Status.ContainerStatuses {
+			if strings.Contains(podName, status.Name) {
+				if status.RestartCount > int32(0) {
+					logger.Infof("number of time pod %s has restarted is %d", podName, status.RestartCount)
+				}
+				assert.Equal(k8sh.T(), int32(0), status.RestartCount)
+			}
+		}
 	}
 }
 
@@ -1577,7 +1598,7 @@ func (k8sh *K8sHelper) WaitForCronJob(name, namespace string) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get k8s version")
 	}
-	useCronJobV1 := k8sVersion.AtLeast(version.MustParseSemantic(crash.MinVersionForCronV1))
+	useCronJobV1 := k8sVersion.AtLeast(version.MustParseSemantic(nodedaemon.MinVersionForCronV1))
 	for i := 0; i < RetryLoop; i++ {
 		var err error
 		if useCronJobV1 {

@@ -149,6 +149,10 @@ the CRs to their prior state without even necessarily suffering cluster downtime
     kubectl -n rook-ceph logs -f deployment/rook-ceph-operator
     ```
 
+```console
+# Use the same cluster settings as exported above in step 2.
+kubectl create -f cluster.yaml
+```
 
 ## Adopt an existing Koor cluster into a new Kubernetes cluster
 

@@ -2,7 +2,7 @@
 title: Prometheus Monitoring
 ---
 
-Each Koor cluster has some built in metrics collectors/exporters for monitoring with [Prometheus](https://prometheus.io/).
+Each Rook Ceph cluster has some built in metrics collectors/exporters for monitoring with [Prometheus](https://prometheus.io/).
 
 If you do not have Prometheus running, follow the steps below to enable monitoring of Rook. If your cluster already
 contains a Prometheus instance, it will automatically discover Rook's scrape endpoint using the standard
@@ -144,7 +144,7 @@ The Prometheus alerts can be customized with a post-processor using tools such a
 For example, first extract the helm chart:
 
 ```console
-helm template -f values.yaml rook-release/rook-ceph-cluster > cluster-chart.yaml
+helm template -f values.yaml koor-release/rook-ceph-cluster > cluster-chart.yaml
 ```
 
 Now create the desired customization configuration files. This simple example will show how to

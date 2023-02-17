@@ -88,6 +88,10 @@ spec:
       # Requires Ceph Quincy (v17) or newer. Also see the kernel requirements above for encryption.
       compression:
         enabled: false
+      # Whether to require communication over msgr2. If true, the msgr v1 port (6789) will be disabled
+      # and clients will be required to connect to the Ceph cluster with the v2 port (3300).
+      # Requires a kernel that supports msgr v2 (kernel 5.11 or CentOS 8.4 or newer).
+      requireMsgr2: false
     # enable host networking
     #provider: host
     # enable the Multus network provider
@@ -261,11 +265,6 @@ spec:
     # Operator will continue with the next drain if the timeout exceeds. It only works if `managePodBudgets` is `true`.
     # No values or 0 means that the operator will wait until the placement groups are healthy before unblocking the next drain.
     pgHealthCheckTimeout: 0
-    # If true, the operator will create and manage MachineDisruptionBudgets to ensure OSDs are only fenced when the cluster is healthy.
-    # Only available on OpenShift.
-    manageMachineDisruptionBudgets: false
-    # Namespace in which to watch for the MachineDisruptionBudgets.
-    machineDisruptionBudgetNamespace: openshift-machine-api
 
   # healthChecks
   # Valid values for daemons are 'mon', 'osd', 'status'

@@ -87,7 +87,7 @@ DEVICE="$%s"
 # https://github.com/ceph/ceph/commit/25655e5a8829e001adf467511a6bde8142b0a575
 # This limitation will be removed later. After that, we can remove this
 # fsid injection code. Probably a good time is when to remove Quincy support.
-# https://github.com/rook/rook/pull/10333#discussion_r892817877
+# https://github.com/koor-tech/koor/pull/10333#discussion_r892817877
 cp --no-preserve=mode /etc/temp-ceph/ceph.conf /etc/ceph/ceph.conf
 python3 -c "
 import configparser
@@ -544,6 +544,7 @@ func (c *Cluster) makeDeployment(osdProps osdProperties, osd OSDInfo, provisionC
 			volumeMounts,
 			osdProps.resources,
 			securityContext,
+			"",
 		))
 
 	podTemplateSpec := v1.PodTemplateSpec{
@@ -603,11 +604,21 @@ func (c *Cluster) makeDeployment(osdProps osdProperties, osd OSDInfo, provisionC
 
 	k8sutil.RemoveDuplicateEnvVars(&podTemplateSpec.Spec)
 
+	// Copy the pod labels into a new map so the deployment labels can
+	// diverge from the pod labels. For example, we don't want the
+	// rook-version label to be added to the pod labels or else it will
+	// cause the osd pods to be updated with every rook upgrade even if
+	// the osds don't need to restart.
+	deploymentLabels := map[string]string{}
+	for key, value := range podTemplateSpec.Labels {
+		deploymentLabels[key] = value
+	}
+
 	deployment := &apps.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      deploymentName,
 			Namespace: c.clusterInfo.Namespace,
-			Labels:    podTemplateSpec.Labels,
+			Labels:    deploymentLabels,
 		},
 		Spec: apps.DeploymentSpec{
 			Selector: &metav1.LabelSelector{
@@ -654,7 +665,6 @@ func (c *Cluster) makeDeployment(osdProps osdProperties, osd OSDInfo, provisionC
 	cephv1.GetOSDAnnotations(c.spec.Annotations).ApplyToObjectMeta(&deployment.Spec.Template.ObjectMeta)
 	cephv1.GetOSDLabels(c.spec.Labels).ApplyToObjectMeta(&deployment.ObjectMeta)
 	cephv1.GetOSDLabels(c.spec.Labels).ApplyToObjectMeta(&deployment.Spec.Template.ObjectMeta)
-	controller.AddCephVersionLabelToDeployment(c.clusterInfo.CephVersion, deployment)
 	controller.AddCephVersionLabelToDeployment(c.clusterInfo.CephVersion, deployment)
 	err := c.clusterInfo.OwnerInfo.SetControllerReference(deployment)
 	if err != nil {

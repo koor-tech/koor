@@ -70,6 +70,7 @@ type Summary struct {
 
 type MonMap struct {
 	Epoch        int           `json:"epoch"`
+	NumMons      int           `josn:"num_mons"`
 	FSID         string        `json:"fsid"`
 	CreatedTime  string        `json:"created"`
 	ModifiedTime string        `json:"modified"`

@@ -32,9 +32,9 @@ import (
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/osd/kms"
-	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/crash"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mgr"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/mon"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/nodedaemon"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/osd"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/telemetry"
 	"github.com/koor-tech/koor/pkg/operator/ceph/config"
@@ -60,6 +60,7 @@ type cluster struct {
 	context            *clusterd.Context
 	Namespace          string
 	Spec               *cephv1.ClusterSpec
+	clusterMetadata    metav1.ObjectMeta
 	namespacedName     types.NamespacedName
 	mons               *mon.Cluster
 	ownerInfo          *k8sutil.OwnerInfo
@@ -76,6 +77,7 @@ func newCluster(ctx context.Context, c *cephv1.CephCluster, context *clusterd.Co
 		ClusterInfo:        client.AdminClusterInfo(ctx, c.Namespace, c.Name),
 		Namespace:          c.Namespace,
 		Spec:               &c.Spec,
+		clusterMetadata:    c.ObjectMeta,
 		context:            context,
 		namespacedName:     types.NamespacedName{Namespace: c.Namespace, Name: c.Name},
 		monitoringRoutines: make(map[string]*controller.ClusterHealth),
@@ -91,7 +93,7 @@ func newCluster(ctx context.Context, c *cephv1.CephCluster, context *clusterd.Co
 func (c *cluster) reconcileCephDaemons(rookImage string, cephVersion cephver.CephVersion) error {
 	// Create a configmap for overriding ceph config settings
 	// These settings should only be modified by a user after they are initialized
-	err := populateConfigOverrideConfigMap(c.context, c.Namespace, c.ownerInfo)
+	err := populateConfigOverrideConfigMap(c.context, c.Namespace, c.ownerInfo, c.clusterMetadata)
 	if err != nil {
 		return errors.Wrap(err, "failed to populate config override config map")
 	}
@@ -197,7 +199,6 @@ func (c *ClusterController) initializeCluster(cluster *cluster) error {
 		} else {
 			clusterInfo.OwnerInfo = cluster.ownerInfo
 			clusterInfo.SetName(c.namespacedName.Name)
-			clusterInfo.RequireMsgr2 = cluster.Spec.RequireMsgr2()
 			cluster.ClusterInfo = clusterInfo
 		}
 		// If the local cluster has already been configured, immediately start monitoring the cluster.
@@ -214,6 +215,9 @@ func (c *ClusterController) initializeCluster(cluster *cluster) error {
 			controller.UpdateCondition(c.OpManagerCtx, c.context, c.namespacedName, k8sutil.ObservedGenerationNotAvailable, cephv1.ConditionProgressing, v1.ConditionFalse, cephv1.ClusterProgressingReason, err.Error())
 			return errors.Wrap(err, "failed to configure local ceph cluster")
 		}
+
+		// Asynchronously report the telemetry to allow another reconcile to proceed if needed
+		go cluster.reportTelemetry()
 	}
 
 	// Populate ClusterInfo with the last value
@@ -222,9 +226,6 @@ func (c *ClusterController) initializeCluster(cluster *cluster) error {
 
 	// Start the monitoring if not already started
 	c.configureCephMonitoring(cluster, cluster.ClusterInfo)
-
-	// Asynchronously report the telemetry to allow another reconcile to proceed if needed
-	go cluster.reportTelemetry()
 
 	return nil
 }
@@ -502,7 +503,7 @@ func (c *cluster) postMonStartupActions() error {
 	}
 
 	// Create crash collector Kubernetes Secret
-	err = crash.CreateCrashCollectorSecret(c.context, c.ClusterInfo)
+	err = nodedaemon.CreateCrashCollectorSecret(c.context, c.ClusterInfo)
 	if err != nil {
 		return errors.Wrap(err, "failed to create crash collector kubernetes secret")
 	}
@@ -596,47 +597,64 @@ func (c *cluster) reportTelemetry() {
 }
 
 func (c *cluster) configureMsgr2() error {
-	if c.Spec.Network.Connections == nil {
-		return nil
+	encryptionSetting := "secure"
+	rbdMapOptions := "rbd_default_map_options"
+	encryptionGlobalConfigSettings := map[string]string{
+		"ms_cluster_mode": encryptionSetting,
+		"ms_service_mode": encryptionSetting,
+		"ms_client_mode":  encryptionSetting,
+		rbdMapOptions:     "ms_mode=secure",
 	}
-
-	// Set network encryption
 	monStore := config.GetMonStore(c.context, c.ClusterInfo)
-	if c.Spec.Network.Connections.Encryption != nil {
-		encryptionSetting := "crc secure"
-		if c.Spec.Network.Connections.Encryption.Enabled {
-			encryptionSetting = "secure"
-		}
 
-		globalConfigSettings := map[string]string{
-			"ms_cluster_mode": encryptionSetting,
-			"ms_service_mode": encryptionSetting,
-			"ms_client_mode":  encryptionSetting,
-		}
+	encryptionEnabled := c.Spec.Network.Connections != nil &&
+		c.Spec.Network.Connections.Encryption != nil &&
+		c.Spec.Network.Connections.Encryption.Enabled
 
+	if encryptionEnabled {
 		logger.Infof("setting msgr2 encryption mode to %q", encryptionSetting)
-		if err := monStore.SetAll("global", globalConfigSettings); err != nil {
+		if err := monStore.SetAll("global", encryptionGlobalConfigSettings); err != nil {
 			return err
 		}
-	}
+	} else {
+		encryptionConfig := []config.Option{}
+		for k := range encryptionGlobalConfigSettings {
+			encryptionConfig = append(encryptionConfig, config.Option{Who: "global", Option: k})
+		}
+		if err := monStore.DeleteAll(encryptionConfig...); err != nil {
+			return errors.Wrap(err, "failed to delete msgr2 encryption settings")
+		}
 
+		// set default rbd map options to enable msgr2 in the kernel if it's
+		// required even with encryption disabled
+		if c.Spec.Network.Connections != nil && c.Spec.Network.Connections.RequireMsgr2 {
+			if err := monStore.SetAll("global", map[string]string{rbdMapOptions: "ms_mode=prefer-crc"}); err != nil {
+				return err
+			}
+		}
+	}
 	// Set network compression
-	if c.Spec.Network.Connections.Compression != nil {
-		if c.ClusterInfo.CephVersion.IsAtLeastQuincy() {
-			compressionSetting := "none"
-			if c.Spec.Network.Connections.Compression.Enabled {
-				compressionSetting = "force"
+	if c.ClusterInfo.CephVersion.IsAtLeastQuincy() {
+		if c.Spec.Network.Connections == nil || c.Spec.Network.Connections.Compression == nil || !c.Spec.Network.Connections.Compression.Enabled {
+			encryptionConfig := []config.Option{
+				{Who: "global", Option: "ms_osd_compress_mode"},
 			}
+			if err := monStore.DeleteAll(encryptionConfig...); err != nil {
+				return errors.Wrap(err, "failed to delete msgr2 compression settings")
+			}
+		} else {
 			globalConfigSettings := map[string]string{
-				"ms_osd_compress_mode": compressionSetting,
+				"ms_osd_compress_mode": "force",
 			}
-			logger.Infof("setting msgr2 compression mode to %q", compressionSetting)
+			logger.Infof("setting msgr2 compression mode to %q", "force")
 			if err := monStore.SetAll("global", globalConfigSettings); err != nil {
 				return err
 			}
-		} else {
-			logger.Warningf("network compression requires Ceph Quincy (v17) or newer, skipping for current ceph %q", c.ClusterInfo.CephVersion.String())
 		}
+
+	} else {
+		logger.Warningf("network compression requires Ceph Quincy (v17) or newer, skipping for current ceph %q", c.ClusterInfo.CephVersion.String())
 	}
+
 	return nil
 }

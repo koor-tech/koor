@@ -22,14 +22,12 @@ import (
 	"github.com/koor-tech/koor/pkg/clusterd"
 	"github.com/koor-tech/koor/pkg/operator/ceph/client"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster"
-	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/crash"
+	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/nodedaemon"
 	"github.com/koor-tech/koor/pkg/operator/ceph/cluster/rbd"
 	opcontroller "github.com/koor-tech/koor/pkg/operator/ceph/controller"
 	"github.com/koor-tech/koor/pkg/operator/ceph/csi"
 	"github.com/koor-tech/koor/pkg/operator/ceph/disruption/clusterdisruption"
 	"github.com/koor-tech/koor/pkg/operator/ceph/disruption/controllerconfig"
-	"github.com/koor-tech/koor/pkg/operator/ceph/disruption/machinedisruption"
-	"github.com/koor-tech/koor/pkg/operator/ceph/disruption/machinelabel"
 	"github.com/koor-tech/koor/pkg/operator/ceph/file"
 	"github.com/koor-tech/koor/pkg/operator/ceph/file/mirror"
 	"github.com/koor-tech/koor/pkg/operator/ceph/file/subvolumegroup"
@@ -48,8 +46,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	cephv1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
-	mapiv1 "github.com/openshift/cluster-api/pkg/apis/machine/v1beta1"
-	healthchecking "github.com/openshift/machine-api-operator/pkg/apis/healthchecking/v1alpha1"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -63,8 +59,6 @@ const (
 var (
 	resourcesSchemeFuncs = []func(*runtime.Scheme) error{
 		clientgoscheme.AddToScheme,
-		mapiv1.AddToScheme,
-		healthchecking.AddToScheme,
 		cephv1.AddToScheme,
 	}
 )
@@ -89,15 +83,9 @@ var AddToManagerFuncsMaintenance = []func(manager.Manager, *controllerconfig.Con
 	clusterdisruption.Add,
 }
 
-// MachineDisruptionBudgetAddToManagerFuncs is a list of fencing related functions to add all Controllers to the Manager (entrypoint for controller)
-var MachineDisruptionBudgetAddToManagerFuncs = []func(manager.Manager, *controllerconfig.Context) error{
-	machinelabel.Add,
-	machinedisruption.Add,
-}
-
 // AddToManagerFuncs is a list of functions to add all Controllers to the Manager (entrypoint for controller)
 var AddToManagerFuncs = []func(manager.Manager, *clusterd.Context, context.Context, opcontroller.OperatorConfig) error{
-	crash.Add,
+	nodedaemon.Add,
 	pool.Add,
 	objectuser.Add,
 	realm.Add,
@@ -146,15 +134,6 @@ func (o *Operator) addToManager(m manager.Manager, c *controllerconfig.Context, 
 	for _, f := range AddToManagerFuncsMaintenance {
 		if err := f(m, c); err != nil {
 			return err
-		}
-	}
-
-	// If machine disruption budget is enabled let's add the controllers
-	if EnableMachineDisruptionBudget {
-		for _, f := range MachineDisruptionBudgetAddToManagerFuncs {
-			if err := f(m, c); err != nil {
-				return err
-			}
 		}
 	}
 

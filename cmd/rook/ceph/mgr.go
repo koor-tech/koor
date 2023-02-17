@@ -17,6 +17,7 @@ limitations under the License.
 package ceph
 
 import (
+	"path"
 	"time"
 
 	"github.com/koor-tech/koor/cmd/rook/rook"

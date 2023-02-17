@@ -18,12 +18,14 @@ package csi
 
 import (
 	"bytes"
+	"fmt"
 	"strconv"
 	"strings"
 	"text/template"
 
 	k8sutil "github.com/koor-tech/koor/pkg/operator/k8sutil"
 	"github.com/pkg/errors"
+	k8sutil "github.com/rook/rook/pkg/operator/k8sutil"
 	apps "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -102,7 +104,7 @@ func getComputeResource(opConfig map[string]string, key string) []k8sutil.Contai
 	var err error
 
 	if resourceRaw := k8sutil.GetValue(opConfig, key, ""); resourceRaw != "" {
-		resource, err = k8sutil.YamlToContainerResourceArray(resourceRaw)
+		resource, err = k8sutil.YamlToContainerResource(resourceRaw)
 		if err != nil {
 			logger.Warningf("failed to parse %q. %v", resourceRaw, err)
 		}
@@ -251,4 +253,16 @@ func applyVolumeMountToContainer(opConfig map[string]string, configName, contain
 			}
 		}
 	}
+}
+
+// getImage returns the image for the given setting name. If the image does not contain version,
+// the default version is appended from the default image.
+func getImage(data map[string]string, settingName, defaultImage string) string {
+	image := k8sutil.GetValue(data, settingName, defaultImage)
+	if !strings.Contains(image, ":") {
+		version := strings.SplitN(defaultImage, ":", 2)[1]
+		image = fmt.Sprintf("%s:%s", image, version)
+	}
+
+	return image
 }

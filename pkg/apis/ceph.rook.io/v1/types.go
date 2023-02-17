@@ -1348,8 +1348,9 @@ type ObjectStoreSpec struct {
 
 // ObjectHealthCheckSpec represents the health check of an object store
 type ObjectHealthCheckSpec struct {
-	// +optional
-	LivenessProbe *ProbeSpec `json:"livenessProbe,omitempty"`
+	// livenessProbe field is no longer used
+	// +kubebuilder:pruning:PreserveUnknownFields
+
 	// +optional
 	ReadinessProbe *ProbeSpec `json:"readinessProbe,omitempty"`
 	// +optional
@@ -2169,6 +2170,12 @@ type ConnectionsSpec struct {
 	// +nullable
 	// +optional
 	Compression *CompressionSpec `json:"compression,omitempty"`
+
+	// Whether to require msgr2 (port 3300) even if compression or encryption are not enabled.
+	// If true, the msgr1 port (6789) will be disabled.
+	// Requires a kernel that supports msgr2 (kernel 5.11 or CentOS 8.4 or newer).
+	// +optional
+	RequireMsgr2 bool `json:"requireMsgr2,omitempty"`
 }
 
 type EncryptionSpec struct {
@@ -2208,11 +2215,11 @@ type DisruptionManagementSpec struct {
 	// +optional
 	PGHealthCheckTimeout time.Duration `json:"pgHealthCheckTimeout,omitempty"`
 
-	// This enables management of machinedisruptionbudgets
+	// Deprecated. This enables management of machinedisruptionbudgets.
 	// +optional
 	ManageMachineDisruptionBudgets bool `json:"manageMachineDisruptionBudgets,omitempty"`
 
-	// Namespace to look for MDBs by the machineDisruptionBudgetController
+	// Deprecated. Namespace to look for MDBs by the machineDisruptionBudgetController
 	// +optional
 	MachineDisruptionBudgetNamespace string `json:"machineDisruptionBudgetNamespace,omitempty"`
 }

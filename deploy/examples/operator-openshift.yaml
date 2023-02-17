@@ -96,7 +96,7 @@ users:
   - system:serviceaccount:rook-ceph:rook-csi-nfs-plugin-sa # serviceaccount:namespace:operator
   - system:serviceaccount:rook-ceph:rook-csi-nfs-provisioner-sa # serviceaccount:namespace:operator
 ---
-# Koor Operator Config
+# Rook Ceph Operator Config
 # Use this ConfigMap to override operator configurations
 # Precedence will be given to this config in case Env Var also exists for the same
 #
@@ -109,9 +109,6 @@ metadata:
 data:
   # The logging level for the operator: ERROR | WARNING | INFO | DEBUG
   ROOK_LOG_LEVEL: "INFO"
-
-  # Allow using loop devices for osds in test clusters.
-  ROOK_CEPH_ALLOW_LOOP_DEVICES: "false"
 
   # Enable the CSI driver.
   # To run the non-default version of the CSI driver, see the override-able image properties in operator.yaml
@@ -190,7 +187,7 @@ data:
   # The default version of CSI supported by Rook will be started. To change the version
   # of the CSI driver to something other than what is officially supported, change
   # these images to the desired release of the CSI driver.
-  # ROOK_CSI_CEPH_IMAGE: "quay.io/cephcsi/cephcsi:v3.7.2"
+  # ROOK_CSI_CEPH_IMAGE: "quay.io/cephcsi/cephcsi:v3.7.1"
   # ROOK_CSI_REGISTRAR_IMAGE: "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.5.1"
   # ROOK_CSI_RESIZER_IMAGE: "registry.k8s.io/sig-storage/csi-resizer:v1.6.0"
   # ROOK_CSI_PROVISIONER_IMAGE: "registry.k8s.io/sig-storage/csi-provisioner:v3.3.0"
@@ -209,9 +206,6 @@ data:
   # CSI RBD plugin daemonset update strategy, supported values are OnDelete and RollingUpdate.
   # Default value is RollingUpdate.
   # CSI_RBD_PLUGIN_UPDATE_STRATEGY: "OnDelete"
-  # A maxUnavailable parameter of CSI RBD plugin daemonset update strategy.
-  # Default value is 1.
-  # CSI_RBD_PLUGIN_UPDATE_STRATEGY_MAX_UNAVAILABLE: "1"
 
   # CSI NFS plugin daemonset update strategy, supported values are OnDelete and RollingUpdate.
   # Default value is RollingUpdate.
@@ -598,7 +592,7 @@ spec:
       serviceAccountName: rook-ceph-system
       containers:
         - name: rook-ceph-operator
-          image: koorinc/ceph:master
+          image: rook/ceph:master
           args: ["ceph", "operator"]
           securityContext:
             runAsNonRoot: true
@@ -640,8 +634,17 @@ spec:
               value: "60m"
             # Whether to start pods as privileged that mount a host path, which includes the Ceph mon and osd pods.
             # Set this to true if SELinux is enabled (e.g. OpenShift) to workaround the anyuid issues.
-            # For more details see https://github.com/koor-tech/koor/issues/1314#issuecomment-355799641
+            # For more details see https://github.com/rook/rook/issues/1314#issuecomment-355799641
             - name: ROOK_HOSTPATH_REQUIRES_PRIVILEGED
+              value: "true"
+            # In some situations SELinux relabelling breaks (times out) on large filesystems, and doesn't work with cephfs ReadWriteMany volumes (last relabel wins).
+            # Disable it here if you have similar issues.
+            # For more details see https://github.com/rook/rook/issues/2417
+            - name: ROOK_ENABLE_SELINUX_RELABELING
+              value: "true"
+            # In large volumes it will take some time to chown all the files. Disable it here if you have performance issues.
+            # For more details see https://github.com/rook/rook/issues/2254
+            - name: ROOK_ENABLE_FSGROUP
               value: "true"
             # Disable automatic orchestration when new devices are discovered
             - name: ROOK_DISABLE_DEVICE_HOTPLUG
@@ -657,16 +660,6 @@ spec:
             # Whether to start machineDisruptionBudget and machineLabel controller to watch for the osd pods and MDBs.
             - name: ROOK_ENABLE_MACHINE_DISRUPTION_BUDGET
               value: "false"
-
-            # - name: DISCOVER_DAEMON_RESOURCES
-            #   value: |
-            #     resources:
-            #       limits:
-            #         cpu: 500m
-            #         memory: 512Mi
-            #       requests:
-            #         cpu: 100m
-            #         memory: 128Mi
 
             # Time to wait until the node controller will move Rook pods to other
             # nodes after detecting an unreachable node.

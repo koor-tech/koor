@@ -57,7 +57,7 @@ const (
 
 var waitForRequeueIfObjectStoreNotReady = reconcile.Result{Requeue: true, RequeueAfter: 10 * time.Second}
 
-var logger = capnslog.NewPackageLogger("github.com/rook/rook", controllerName)
+var logger = capnslog.NewPackageLogger("github.com/koor-tech/koor", controllerName)
 
 // List of object resources to watch by the controller
 var objectsToWatch = []client.Object{
