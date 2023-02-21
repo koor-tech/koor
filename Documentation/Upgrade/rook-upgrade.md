@@ -91,6 +91,7 @@ Also update optional resources like Prometheus monitoring noted more fully in th
 
 ## Helm
 
+
 If you have installed Rook via the Helm chart, Helm will handle some details of the upgrade for you.
 The upgrade steps in this guide will clarify if Helm manages the step for you.
 
