@@ -32,7 +32,7 @@ function promote() {
 #############
 
 # Load dot env file if available
-if [ -x .env ]; then
+if [ -f .env ]; then
     # shellcheck disable=SC1091
     source .env
 fi
