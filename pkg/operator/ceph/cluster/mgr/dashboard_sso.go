@@ -19,7 +19,10 @@ package mgr
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	v1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
@@ -114,19 +117,44 @@ func (c *Cluster) createUsers() (bool, error) {
 		}
 	}()
 
+	args := []string{"dashboard", "ac-user-show"}
+	userOutput, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to get users")
+	}
+
 	for _, user := range c.spec.Dashboard.SSO.Users {
 		if len(user.Roles) == 0 {
 			user.Roles = append(user.Roles, dashboardUserReadOnlyRole)
 		}
 
-		// TODO Checking/Getting the user (if it exists), create and set/update the rules
+		// TODO Checking/Getting the user (if it exists), create and set/update the roles
 		// TODO Compare the current user roles with the roles from the CR
 
 		// USER EXISTS
-		if true {
+		if strings.Contains(string(userOutput), user.Username) {
+
+			args_roles := []string{"dashboard", "ac-user-show", user.Username}
+			roleOutput, err := client.NewCephCommand(c.context, c.clusterInfo, args_roles).RunWithTimeout(exec.CephCommandsTimeout)
+			if err != nil {
+				return false, errors.Wrap(err, "Failed to display user and role info")
+			}
+			var dat map[string]interface{}
+			if err := json.Unmarshal(roleOutput, &dat); err != nil {
+				panic(err)
+			}
+			rolesCmdOutput := dat["roles"].([]interface{})
+			rolesCRDs := user.Roles
+			var rolesCmdOutputStr []string
+			for i := 0; i < len(rolesCmdOutput); i++ {
+				rolevar := fmt.Sprintf("%v", rolesCmdOutput[i])
+				rolesCmdOutputStr = append(rolesCmdOutputStr, rolevar)
+			}
+
 			// TODO Check what roles they have and what roles we need to add/ set
 			// use json parse for that to get ther roles list:
 			// {... "roles": ["administrator"], ...}
+
 		} else {
 			args := []string{"dashboard", "ac-user-create", user.Username, "-i", file.Name(), user.Roles[0]}
 			_, err = client.ExecuteCephCommandWithRetry(func() (string, []byte, error) {
