@@ -103,7 +103,7 @@ func (c *Cluster) configureDashboardModules() error {
 		}
 	}
 
-	ssoChanged, err := c.setupSSO()
+	ssoChanged, err := c.configureSSO()
 	if err != nil {
 		return errors.Wrap(err, "Failed to initialize SSO")
 	}
