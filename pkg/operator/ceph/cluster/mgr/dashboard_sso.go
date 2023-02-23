@@ -20,12 +20,10 @@ package mgr
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"os"
 	"strings"
 	"time"
 
-	v1 "github.com/koor-tech/koor/pkg/apis/ceph.rook.io/v1"
 	"github.com/koor-tech/koor/pkg/daemon/ceph/client"
 	"github.com/koor-tech/koor/pkg/util"
 	"github.com/koor-tech/koor/pkg/util/exec"
@@ -36,19 +34,45 @@ const (
 	dashboardUserReadOnlyRole = "read-only"
 )
 
-func (c *Cluster) setupSSO() (bool, error) {
-	logger.Infof("Starting SSO Setup: enabled=%+v", c.spec.Dashboard.SSO.Enabled)
+type DashboardSSOInfo struct {
+	OneLoginSettings OneLoginSettings `json:"onelogin_settings"`
+}
+
+type OneLoginSettings struct {
+	// TODO Check which fields are important to check against the CRD input
+}
+
+func (c *Cluster) configureSSO() (bool, error) {
 	if !c.spec.Dashboard.SSO.Enabled {
-		// Make sure SSO is disabled
-		args := []string{"dashboard", "sso", "disable"}
+		// Check if SSO is still enabled
+		args := []string{"dashboard", "sso", "status"}
 		for i := 0; i < 5; i++ {
-			_, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
+			out, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
 			if err == context.DeadlineExceeded {
 				logger.Warning("SSO disable timed out. trying again")
+				continue
+			}
+			if strings.Contains(string(out), "disabled") {
+				return false, nil
+			}
+
+			logger.Infof("Disabling dashboard SSO")
+			// Make sure SSO is disabled
+			args = []string{"dashboard", "sso", "disable"}
+			for i := 0; i < 5; i++ {
+				_, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
+				if err == context.DeadlineExceeded {
+					logger.Warning("SSO disable timed out. trying again")
+					continue
+				}
+				return true, nil
 			}
 		}
-		return false, nil
+
+		return true, errors.New("failed to disable SSO")
 	}
+
+	logger.Infof("Enabling dashboard SSO")
 
 	// create and build sso setup args command
 	dashboardURL := c.spec.Dashboard.SSO.BaseURL
@@ -56,16 +80,12 @@ func (c *Cluster) setupSSO() (bool, error) {
 	idpUsernameAttribute := c.spec.Dashboard.SSO.IDPAttributes.Username
 	idpEntityID := c.spec.Dashboard.SSO.EntityID
 
-	// TODO this should check if the configuration has changed because otherwise if
-	// SSO is enabled once, it must be disabled first and then re-enabled with the new settings
-	// run `ceph dashboard sso show saml2` and search for the input args
-
+	// TODO check the `ceph dashboard sso show saml2` json output if we need to re-setup the SAML2 config in the dashboard
 	ssout, err := client.NewCephCommand(c.context, c.clusterInfo, []string{"dashboard", "sso", "show", "saml2"}).RunWithTimeout(exec.CephCommandsTimeout)
-	if err == nil {
+	if err != nil {
 		return false, err
 	}
 	_ = ssout
-	// TODO Check the output for the settings if they are all still set the same (simple grep'ing should be enough)
 
 	args := []string{"dashboard", "sso", "setup", "saml2", dashboardURL, idpMetadataURL}
 	if idpUsernameAttribute != "" || idpEntityID != "" {
@@ -97,8 +117,9 @@ func (c *Cluster) setupSSO() (bool, error) {
 	return c.createUsers()
 }
 
-// TODO add function to create the users and set them the accordingly role
-// TODO if an user already exists, the user needs to be checked to only have the roles as specified in the list
+type dashboardUserInfo struct {
+	Roles []string `json:"roles"`
+}
 
 func (c *Cluster) createUsers() (bool, error) {
 	// Generate a password
@@ -122,40 +143,23 @@ func (c *Cluster) createUsers() (bool, error) {
 	if err != nil {
 		return false, errors.Wrap(err, "failed to get users")
 	}
+	var usersParsed []string
+	if err := json.Unmarshal(userOutput, &usersParsed); err != nil {
+		return false, errors.Wrap(err, "failed to parse dashboard user list")
+	}
+	users := map[string]interface{}{}
+	for _, user := range usersParsed {
+		users[user] = nil
+	}
 
+	var changed bool
 	for _, user := range c.spec.Dashboard.SSO.Users {
 		if len(user.Roles) == 0 {
 			user.Roles = append(user.Roles, dashboardUserReadOnlyRole)
 		}
 
-		// TODO Checking/Getting the user (if it exists), create and set/update the roles
-		// TODO Compare the current user roles with the roles from the CR
-
-		// USER EXISTS
-		if strings.Contains(string(userOutput), user.Username) {
-
-			args_roles := []string{"dashboard", "ac-user-show", user.Username}
-			roleOutput, err := client.NewCephCommand(c.context, c.clusterInfo, args_roles).RunWithTimeout(exec.CephCommandsTimeout)
-			if err != nil {
-				return false, errors.Wrap(err, "Failed to display user and role info")
-			}
-			var dat map[string]interface{}
-			if err := json.Unmarshal(roleOutput, &dat); err != nil {
-				panic(err)
-			}
-			rolesCmdOutput := dat["roles"].([]interface{})
-			rolesCRDs := user.Roles
-			var rolesCmdOutputStr []string
-			for i := 0; i < len(rolesCmdOutput); i++ {
-				rolevar := fmt.Sprintf("%v", rolesCmdOutput[i])
-				rolesCmdOutputStr = append(rolesCmdOutputStr, rolevar)
-			}
-
-			// TODO Check what roles they have and what roles we need to add/ set
-			// use json parse for that to get ther roles list:
-			// {... "roles": ["administrator"], ...}
-
-		} else {
+		// If the user already exists we make sure the roles are set accordingly
+		if _, ok := users[user.Username]; !ok {
 			args := []string{"dashboard", "ac-user-create", user.Username, "-i", file.Name(), user.Roles[0]}
 			_, err = client.ExecuteCephCommandWithRetry(func() (string, []byte, error) {
 				output, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
@@ -164,21 +168,69 @@ func (c *Cluster) createUsers() (bool, error) {
 			if err != nil {
 				return false, errors.Wrap(err, "failed to create user")
 			}
+		}
 
-			// If the user already exists, update the role
-			if err := c.setUserRoles(user); err != nil {
-				return false, errors.Wrap(err, "")
-			}
+		// If the user already exists, update the role
+		if changed, err = c.ensureUserRoles(user.Username, user.Roles); err != nil {
+			return false, errors.Wrap(err, "")
 		}
 	}
 
-	logger.Info("successfully created dashboard user")
+	logger.Info("successfully created dashboard sso users")
+	return changed, nil
+}
+
+func (c *Cluster) getUserRoles(username string) ([]string, error) {
+	argsRoles := []string{"dashboard", "ac-user-show", username}
+	roleOutput, err := client.NewCephCommand(c.context, c.clusterInfo, argsRoles).RunWithTimeout(exec.CephCommandsTimeout)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get user and role info")
+	}
+	var userInfo dashboardUserInfo
+	if err := json.Unmarshal(roleOutput, &userInfo); err != nil {
+		return nil, errors.Wrap(err, "failed to parse dashboard user info")
+	}
+
+	return userInfo.Roles, nil
+}
+
+func (c *Cluster) ensureUserRoles(username string, roles []string) (bool, error) {
+	currentRoles, err := c.getUserRoles(username)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to ")
+	}
+
+	// Make the current roles into a map so we just check if the key is set
+	shouldHaveRoles := map[string]interface{}{}
+	for _, role := range roles {
+		shouldHaveRoles[role] = nil
+	}
+	for _, role := range currentRoles {
+		delete(shouldHaveRoles, role)
+	}
+	// Convert back the map to a string slice
+	rolesToAdd := make([]string, len(shouldHaveRoles))
+	i := 0
+	for role := range shouldHaveRoles {
+		rolesToAdd[i] = role
+		i++
+	}
+
+	// Check if we need to set user roles
+	if len(rolesToAdd) == 0 {
+		return false, nil
+	}
+
+	if err := c.setUserRoles(username, roles); err != nil {
+		return false, errors.Wrap(err, "failed to remove user roles")
+	}
+
 	return true, nil
 }
 
-func (c *Cluster) setUserRoles(user v1.UserRef) error {
-	args := []string{"dashboard", "ac-user-set-roles", user.Username}
-	args = append(args, user.Roles...)
+func (c *Cluster) setUserRoles(username string, roles []string) error {
+	args := []string{"dashboard", "ac-user-set-roles", username}
+	args = append(args, roles...)
 	_, err := client.ExecuteCephCommandWithRetry(func() (string, []byte, error) {
 		output, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
 		return "set user role", output, err
