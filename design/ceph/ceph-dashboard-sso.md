@@ -42,7 +42,7 @@ spec:
     # port: 8443
     # serve the dashboard using SSL
     ssl: true
-           # configure sso for the dashboard access
+    # configure sso for the dashboard access
     sso:
       enabled: false # by default it’ll be false
       autoCreateUsers: true # by default true
@@ -64,9 +64,12 @@ spec:
 Use https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.25/#secretreference-v1-core or something similar to target a secret in the same namespace for the spCert.secret and spPrivateKey.secret
 
 **Note:**
+
+The cert and key need to be mounted into the MGR instances.
+
 The issuer value of SAML requests will follow this pattern: `<ceph_dashboard_base_url>/auth/saml2/metadata`
 
 ## References
 
-https://docs.ceph.com/en/latest/mgr/dashboard/#enabling-single-sign-on-sso
-https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.25/
+* https://docs.ceph.com/en/latest/mgr/dashboard/#enabling-single-sign-on-sso
+* https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.25/
