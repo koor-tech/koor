@@ -1,19 +1,6 @@
 /*
-Copyright 2018 The Rook Authors. All rights reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-	http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+Copyright (c) 2023 Koor Technolgies, Inc.
 */
-
 // Package mgr for the Ceph manager.
 package mgr
 
@@ -103,21 +90,6 @@ type dashboardUserInfo struct {
 }
 
 func (c *Cluster) createUsers() (bool, error) {
-	// Generate a password
-	password, err := GeneratePassword(passwordLength)
-	if err != nil {
-		return false, errors.Wrap(err, "failed to generate password")
-	}
-
-	file, err := util.CreateTempFile(password)
-	if err != nil {
-		return false, errors.Wrap(err, "failed to create a temporary dashboard password file")
-	}
-	defer func() {
-		if err := os.Remove(file.Name()); err != nil {
-			logger.Errorf("failed to clean up dashboard password file %q. %v", file.Name(), err)
-		}
-	}()
 
 	args := []string{"dashboard", "ac-user-show"}
 	userOutput, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
@@ -141,6 +113,20 @@ func (c *Cluster) createUsers() (bool, error) {
 
 		// If the user doesn't exist, we create it and make sure the roles are set accordingly
 		if _, ok := users[user.Username]; !ok {
+			password, err := GeneratePassword(passwordLength)
+			if err != nil {
+				return false, errors.Wrap(err, "failed to generate password")
+			}
+
+			file, err := util.CreateTempFile(password)
+			if err != nil {
+				return false, errors.Wrap(err, "failed to create a temporary dashboard password file")
+			}
+			defer func() {
+				if err := os.Remove(file.Name()); err != nil {
+					logger.Errorf("failed to clean up dashboard password file %q. %v", file.Name(), err)
+				}
+			}()
 			args := []string{"dashboard", "ac-user-create", user.Username, "-i", file.Name(), user.Roles[0]}
 			_, err = client.ExecuteCephCommandWithRetry(func() (string, []byte, error) {
 				output, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
