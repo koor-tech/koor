@@ -51,7 +51,8 @@ spec:
            - <role>
       baseUrl: <url_value>
       idpMetadataUrl: <url_value>
-      idpUsernameAttribute: "username"
+      idpAttributes:
+        username: <uid>
       entityID: <entity_id_value>
       spCert:
         key: tls.crt
