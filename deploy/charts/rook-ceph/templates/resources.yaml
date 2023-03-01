@@ -973,6 +973,43 @@ spec:
                     ssl:
                       description: SSL determines whether SSL should be used
                       type: boolean
+                    sso:
+                      description: SSO determines whether to enable SSO for dashboard
+                      properties:
+                        baseUrl:
+                          description: Base URL where the Ceph Dashboard is exposed via an Ingress or other type of Service.
+                          type: string
+                        enabled:
+                          description: Determines whether to enable SSO
+                          type: boolean
+                        entityID:
+                          description: To be used when more than one entity id exists on the IDP metadata
+                          type: string
+                        idpAttributes:
+                          description: IDP Attributes that are used by the dashboard to get certain info about them during login.
+                          properties:
+                            username:
+                              description: It should be used to get the username from the authentication response. Defaults to `uid`.
+                              type: string
+                          type: object
+                        idpMetadataUrl:
+                          description: URL to IDP Metadata
+                          type: string
+                        users:
+                          description: List of users to be created with a respective [Ceph dashboard system role](https://docs.ceph.com/en/latest/mgr/dashboard/#user-roles-and-permissions).
+                          items:
+                            properties:
+                              roles:
+                                description: List of roles. Respective roles of the user which is needed for the same
+                                items:
+                                  type: string
+                                type: array
+                              username:
+                                description: Name of the user created
+                                type: string
+                            type: object
+                          type: array
+                      type: object
                     urlPrefix:
                       description: URLPrefix is a prefix for all URLs to use the dashboard with a reverse proxy
                       type: string

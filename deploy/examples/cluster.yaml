@@ -70,6 +70,13 @@ spec:
     # port: 8443
     # serve the dashboard using SSL
     ssl: true
+    # configure sso for the dashboard access
+    sso:
+      enabled: false
+      #users:
+      #  - username: USERNAME
+      #    roles:
+      #     - administrator
   # enable prometheus alerting for cluster
   monitoring:
     # requires Prometheus to be pre-installed

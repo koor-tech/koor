@@ -102,6 +102,15 @@ func (c *Cluster) configureDashboardModules() error {
 			hasChanged = true
 		}
 	}
+
+	ssoChanged, err := c.configureSSO()
+	if err != nil {
+		return errors.Wrap(err, "failed to initialize SSO")
+	}
+	if ssoChanged {
+		hasChanged = true
+	}
+
 	if hasChanged {
 		logger.Info("dashboard config has changed. restarting the dashboard module")
 		return c.restartDashboard()

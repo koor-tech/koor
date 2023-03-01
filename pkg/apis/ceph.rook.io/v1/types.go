@@ -302,6 +302,43 @@ type DashboardSpec struct {
 	// SSL determines whether SSL should be used
 	// +optional
 	SSL bool `json:"ssl,omitempty"`
+	// SSO determines whether to enable SSO for dashboard
+	// +optional
+	SSO SSOSpec `json:"sso,omitempty"`
+}
+
+type SSOSpec struct {
+	// Determines whether to enable SSO
+	// +optional
+	Enabled bool `json:"enabled,omitempty"`
+	// Base URL where the Ceph Dashboard is exposed via an Ingress or other type of Service.
+	// +optional
+	BaseURL string `json:"baseUrl,omitempty"`
+	// URL to IDP Metadata
+	// +optional
+	IDPMetadataURL string `json:"idpMetadataUrl,omitempty"`
+	// List of users to be created with a respective [Ceph dashboard system role](https://docs.ceph.com/en/latest/mgr/dashboard/#user-roles-and-permissions).
+	// +optional
+	Users []UserRef `json:"users,omitempty"`
+	// IDP Attributes that are used by the dashboard to get certain info about them during login.
+	// +optional
+	IDPAttributes IDPAttributes `json:"idpAttributes,omitempty"`
+	// To be used when more than one entity id exists on the IDP metadata
+	// +optional
+	EntityID string `json:"entityID,omitempty"`
+}
+
+type UserRef struct {
+	// Name of the user created
+	Username string `json:"username,omitempty"`
+	// List of roles. Respective roles of the user which is needed for the same
+	Roles []string `json:"roles,omitempty"`
+}
+
+// Attributes to take into account for SSO and user creation
+type IDPAttributes struct {
+	// It should be used to get the username from the authentication response. Defaults to `uid`.
+	Username string `json:"username,omitempty"`
 }
 
 // MonitoringSpec represents the settings for Prometheus based Ceph monitoring
