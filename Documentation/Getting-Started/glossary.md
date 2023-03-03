@@ -98,6 +98,12 @@ A stretched cluster is a deployment model in which two datacenters with low late
 
 The [Rook toolbox](../Troubleshooting/ceph-toolbox.md) is a container with common tools used for rook debugging and testing.
 
+## Koor 
+
+### Koor Storage Distribution (KSD)
+
+Koor Storage Distribution (KSD) is a product based on Rook Ceph that makes running and maintaining Ceph storage on Kubernetes easier.
+
 ## Ceph
 
 [Ceph](https://docs.ceph.com/en/latest/) is a distributed network storage and file system with distributed metadata management and POSIX semantics. See also the [Ceph Glossary](https://docs.ceph.com/en/latest/glossary/). Here are a few of the important terms to understand:
