@@ -227,6 +227,7 @@ spec:
   #   osd-ssd:
   #   osd-nvme:
   #   prepareosd:
+  #   mgr-sidecar:
   #   crashcollector:
   #   logcollector:
   #   cleanup:
