@@ -18,7 +18,7 @@ permissions:
 jobs:
   push-image-to-container-registry:
     runs-on: ubuntu-20.04
-    if: github.repository == 'rook/rook'
+    if: github.repository == 'koor-tech/koor'
     steps:
       - name: checkout
         uses: actions/checkout@v3
