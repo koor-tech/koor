@@ -1,10 +1,5 @@
 # v1.11 Pending Release Notes
 
-core: added ee folder for koor enterprise code (#36, @ideepika)
-docs: updated KSD definition in glossary (#35, @gauravsitlani)
-gaurav/ksd 112 implementation of sso setup in ksd (#31, @gauravsitlani)
-ci: pull latest rook changes  (#32, @ideepika)
-
 ## Breaking Changes
 
 - Removed support for MachineDisruptionBudgets, including settings removed from the CephCluster CR:
