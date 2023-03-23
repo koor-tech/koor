@@ -33,6 +33,10 @@ endif
 
 DOCS_PREFIX ?= docs/rook
 
+ifeq ($(origin BRANCH_NAME), undefined)
+BRANCH_NAME := $(shell git branch | grep \* | cut -d ' ' -f2)
+endif
+
 ifeq ($(shell echo $(BRANCH_NAME)),master)
 DOCS_VERSION := latest
 else
@@ -45,11 +49,7 @@ else
 DOCS_VERSION_ALIAS :=
 endif
 
-DOCS_GIT_REPO ?= git@github.com:rook/rook.github.io.git
-
-ifeq ($(origin BRANCH_NAME), undefined)
-BRANCH_NAME := $(shell git branch | grep \* | cut -d ' ' -f2)
-endif
+DOCS_GIT_REPO ?= git@github.com:rook/rook.github.io.gitg
 
 ifeq ($(COMMIT_HASH),)
 override COMMIT_HASH := $(shell git rev-parse HEAD)
@@ -137,7 +137,7 @@ publish.docs:
 	if test "$$GITHUB_ACTIONS" = "true"; then git config --unset 'http.https://github.com/.extraheader'; fi
 	git fetch -u docs gh-pages
 	# Switch to root of repo and then run the build and deploy of the documentation
-	cd $(ROOT_DIR) && mike deploy --remote docs --push --rebase --branch gh-pages --update-aliases --prefix $(DOCS_PREFIX) $(DOCS_VERSION) $(DOCS_VERSION_ALIAS)
+	cd $(ROOT_DIR) && mike deploy --remote docs --push --rebase --branch gh-pages --update-aliases --prefix "$(DOCS_PREFIX)" $(DOCS_VERSION) $(DOCS_VERSION_ALIAS)
 
 # ====================================================================================
 # helm
