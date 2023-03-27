@@ -111,3 +111,5 @@ extra:
       link: https://twitter.com/koor_tech
     - icon: fontawesome/brands/medium
       link: https://koor.tech/blog/
+    - icon: fontawesome/brands/comment
+      link: https://github.com/koor-tech/koor/discussions
