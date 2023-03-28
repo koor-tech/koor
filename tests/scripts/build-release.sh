@@ -34,7 +34,8 @@ function promote() {
 # Load dot env file if available
 if [ -f .env ]; then
     # shellcheck disable=SC1091
-    source .env
+    # shellcheck disable=SC2046
+    export $(grep -v '^#' .env | xargs -d '\n')
 fi
 
 # Use Git access token for accessing the docs repo if set

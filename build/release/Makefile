@@ -49,7 +49,7 @@ else
 DOCS_VERSION_ALIAS :=
 endif
 
-DOCS_GIT_REPO ?= git@github.com:rook/rook.github.io.gitg
+DOCS_GIT_REPO ?= git@github.com:rook/rook.github.io.git
 
 ifeq ($(COMMIT_HASH),)
 override COMMIT_HASH := $(shell git rev-parse HEAD)
