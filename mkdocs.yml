@@ -56,6 +56,8 @@ plugins:
   - exclude:
       glob:
         - README.md
+        - "*.gotmpl"
+        - "*.gotmpl.md"
   - awesome-pages
   - macros:
       module_name: .docs/macros/includes/main
