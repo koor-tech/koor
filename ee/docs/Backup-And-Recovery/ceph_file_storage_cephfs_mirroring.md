@@ -74,7 +74,7 @@ spec:
     snapshotRetention:
       - path: /
         duration: "h 24"
-  ```
+```
 
 **Note**: If you are using single node cluster for testing, be sure to change the replicated
 size to `1`.
