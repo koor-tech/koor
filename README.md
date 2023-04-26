@@ -51,9 +51,9 @@ Please use the following to reach members of the community:
 
 ## Office Hours
 
-A regular office hour meeting takes place every other [Wednesday at 10:30 AM PT (Pacific Time)](https://meet.google.com/ido-bbdm-pqc) to answer any questions and help with issues around Koor Storage Distribution, Rook and Ceph. Convert to your [local timezone](http://www.thetimezoneconverter.com/?t=10:30&tz=PT%20%28Pacific%20Time%29).
+A regular office hour meeting takes place every other [Wednesday at 10:00 AM PT (Pacific Time)](https://meet.google.com/ido-bbdm-pqc) to answer any questions and help with issues around Koor Storage Distribution, Rook and Ceph. Convert to your [local timezone](https://dateful.com/convert/coordinated-universal-time-utc?t=5pm).
 
-- You can add the meeting to your calendar using [this link (invite is sent through Google Calendar)](https://calendar.google.com/calendar/event?action=TEMPLATE&tmeid=NHRhMTBqY2Y0ZTFkb2x1MnZkYThma290M2FfMjAyMjExMDlUMTgzMDAwWiBjXzJjY2Y0OWY1NDZlYzRlYzQ0NzhhMmRiMDI1ZmVjYjdmN2U4MDgxMjZkYmViNzY3MWYxMzg1NGVlNjgwNmQyMmRAZw&tmsrc=c_2ccf49f546ec4ec4478a2db025fecb7f7e808126dbeb7671f13854ee6806d22d%40group.calendar.google.com&scp=ALL).
+- You can add the meeting to your calendar using [this link (invite is sent through Google Calendar)](https://calendar.google.com/calendar/event?action=TEMPLATE&tmeid=YXU0ZnB2NDM0ZGozbDhnM25kMjI5cDkxcXRfMjAyMzA1MTBUMTcwMDAwWiBjXzJjY2Y0OWY1NDZlYzRlYzQ0NzhhMmRiMDI1ZmVjYjdmN2U4MDgxMjZkYmViNzY3MWYxMzg1NGVlNjgwNmQyMmRAZw&tmsrc=c_2ccf49f546ec4ec4478a2db025fecb7f7e808126dbeb7671f13854ee6806d22d%40group.calendar.google.com&scp=ALL).
 - Meeting link: <https://meet.google.com/ido-bbdm-pqc>
 - [Current agenda and past meeting notes](https://docs.google.com/document/d/1twakYk3XNZD_1Xmi3GDXojuPPkUp7fb06e_4rtgNWdM/edit?usp=sharing)
 - [Past meeting recordings](https://www.youtube.com/@koor-tech)
