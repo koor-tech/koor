@@ -611,3 +611,24 @@ cephObjectStores:
       #     - objectstore.example.com
       #   secretName: ceph-objectstore-tls
       # ingressClassName: nginx
+
+extendedCephExporter:
+  # -- If enabled the extended-ceph-exporter will be installed
+  enabled: false
+
+  # -- Enable Prometheus ServiceMonitor creation, requires the prometheus-operator to be installed.
+  serviceMonitor:
+    # -- Specifies whether a prometheus-operator ServiceMonitor should be created
+    enabled: false
+    # -- Additional Labels for the ServiceMonitor object
+    additionalLabels: {}
+    #namespace: "monitoring"
+    namespaceSelector:
+    # Default: scrape .Release.Namespace only
+    # To scrape all, use the following:
+    #  matchNames:
+    #    - monitoring
+    #   any: true
+    # -- (duration) Interval at which metrics should be scraped
+    scrapeInterval: 30s
+    # honorLabels: true
