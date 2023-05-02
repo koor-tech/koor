@@ -33,6 +33,7 @@ import (
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 const (
@@ -65,6 +66,8 @@ const (
 	bluestoreMetadataName = "block.db"
 	bluestoreWalName      = "block.wal"
 	tempEtcCephDir        = "/etc/temp-ceph"
+	osdPortv1             = 6801
+	osdPortv2             = 6800
 )
 
 const (
@@ -163,6 +166,15 @@ sys.exit('no disk found with OSD ID $OSD_ID')
 		DEVICE="$(find_device < "$OSD_LIST")"
 	fi
 	[[ -z "$DEVICE" ]] && { echo "no device" ; exit 1 ; }
+
+	# If a kernel device name change happens and a block device file
+	# in the OSD directory becomes missing, this OSD fails to start
+	# continuously. This problem can be resolved by confirming
+	# the validity of the device file and recreating it if necessary.
+	OSD_BLOCK_PATH=/var/lib/ceph/osd/ceph-$OSD_ID/block
+	if [ -L $OSD_BLOCK_PATH -a "$(readlink $OSD_BLOCK_PATH)" != $DEVICE ] ; then
+		rm $OSD_BLOCK_PATH
+	fi
 
 	# ceph-volume raw mode only supports bluestore so we don't need to pass a store flag
 	ceph-volume raw activate --device "$DEVICE" --no-systemd --no-tmpfs
@@ -349,6 +361,7 @@ func (c *Cluster) makeDeployment(osdProps osdProperties, osd OSDInfo, provisionC
 		blockPathEnvVariable(osd.BlockPath),
 		cvModeEnvVariable(osd.CVMode),
 		dataDeviceClassEnvVar(osd.DeviceClass),
+		k8sutil.PodIPEnvVar("ROOK_POD_IP"),
 	}...)
 	configEnvVars := append(c.getConfigEnvVars(osdProps, dataDir, false), []v1.EnvVar{
 		{Name: "ROOK_OSD_ID", Value: osdID},
@@ -464,6 +477,29 @@ func (c *Cluster) makeDeployment(osdProps osdProperties, osd OSDInfo, provisionC
 	// needed for luksOpen synchronization when devices are encrypted and the osd is prepared with LVM
 	hostIPC := osdProps.storeConfig.EncryptedDevice || osdProps.encrypted
 
+	osdLabels := c.getOSDLabels(osd, failureDomainValue, osdProps.portable)
+
+	if osd.ExportService {
+		osdService, err := c.createOSDService(osd, osdLabels)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to configure osd service for osd.%d", osd.ID)
+		}
+
+		exportedIP, err := k8sutil.ExportService(c.clusterInfo.Context, c.context, osdService, c.spec.Network.MultiClusterService.ClusterID)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to export service %q", osdService.Name)
+		}
+
+		logger.Infof("osd.%d exported IP is %q", osd.ID, exportedIP)
+
+		args = append(args, []string{
+			fmt.Sprintf("--public-addr=%s", exportedIP),
+			"--public-bind-addr=$(ROOK_POD_IP)",
+			"--cluster-addr=$(ROOK_POD_IP)",
+		}...)
+
+	}
+
 	initContainers := make([]v1.Container, 0, 4)
 	if doConfigInit {
 		initContainers = append(initContainers,
@@ -550,7 +586,7 @@ func (c *Cluster) makeDeployment(osdProps osdProperties, osd OSDInfo, provisionC
 	podTemplateSpec := v1.PodTemplateSpec{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   AppName,
-			Labels: c.getOSDLabels(osd, failureDomainValue, osdProps.portable),
+			Labels: osdLabels,
 		},
 		Spec: v1.PodSpec{
 			RestartPolicy:      v1.RestartPolicyAlways,
@@ -579,6 +615,11 @@ func (c *Cluster) makeDeployment(osdProps osdProperties, osd OSDInfo, provisionC
 			Volumes:       volumes,
 			SchedulerName: osdProps.schedulerName,
 		},
+	}
+
+	// add OSD container port only if service export is enabled
+	if osd.ExportService {
+		podTemplateSpec.Spec.Containers[0].Ports = c.getOSDContainerPorts()
 	}
 
 	// If the log collector is enabled we add the side-car container
@@ -679,6 +720,39 @@ func (c *Cluster) makeDeployment(osdProps osdProperties, osd OSDInfo, provisionC
 	}
 
 	return deployment, nil
+}
+
+func (c *Cluster) createOSDService(osd OSDInfo, labels map[string]string) (*v1.Service, error) {
+	selectorLabels := map[string]string{
+		k8sutil.AppAttr: AppName,
+		"ceph-osd-id":   strconv.FormatInt(int64(osd.ID), 10),
+	}
+
+	svcDef := &v1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("rook-ceph-osd-%d", osd.ID),
+			Namespace: c.clusterInfo.Namespace,
+			Labels:    labels,
+		},
+		Spec: v1.ServiceSpec{
+			Selector: selectorLabels,
+			Ports:    c.getOSDServicePorts(),
+		},
+	}
+
+	err := c.clusterInfo.OwnerInfo.SetOwnerReference(svcDef)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to set owner reference to osd service %q", svcDef.Name)
+	}
+
+	svc, err := k8sutil.CreateOrUpdateService(c.clusterInfo.Context, c.context.Clientset, c.clusterInfo.Namespace, svcDef)
+	if err != nil {
+		return nil, err
+	}
+
+	logger.Infof("osd.%d cluster IP is %q", osd.ID, svc.Spec.ClusterIP)
+
+	return svc, nil
 }
 
 // applyAllPlacementIfNeeded apply spec.placement.all if OnlyApplyOSDPlacement set to false
@@ -1255,4 +1329,63 @@ func (c *Cluster) getEncryptedStatusPVCInitContainer(mountPath string, osdProps 
 		SecurityContext: controller.PrivilegedContext(true),
 		Resources:       osdProps.resources,
 	}
+}
+
+func (c *Cluster) getOSDContainerPorts() []v1.ContainerPort {
+	var ports []v1.ContainerPort
+	if c.spec.RequireMsgr2() {
+		ports = []v1.ContainerPort{
+			{
+				Name:          "osd-port-v2",
+				ContainerPort: osdPortv2,
+				Protocol:      v1.ProtocolTCP,
+			},
+		}
+	} else {
+		ports = []v1.ContainerPort{
+			{
+				Name:          "osd-port-v1",
+				ContainerPort: osdPortv1,
+				Protocol:      v1.ProtocolTCP,
+			},
+			{
+				Name:          "osd-port-v2",
+				ContainerPort: osdPortv2,
+				Protocol:      v1.ProtocolTCP,
+			},
+		}
+	}
+
+	return ports
+}
+
+func (c *Cluster) getOSDServicePorts() []v1.ServicePort {
+	var ports []v1.ServicePort
+	if c.spec.RequireMsgr2() {
+		ports = []v1.ServicePort{
+			{
+				Name:       "osd-port-v2",
+				Port:       osdPortv2,
+				TargetPort: intstr.FromInt(osdPortv2),
+				Protocol:   v1.ProtocolTCP,
+			},
+		}
+	} else {
+		ports = []v1.ServicePort{
+			{
+				Name:       "osd-port-v1",
+				Port:       osdPortv1,
+				TargetPort: intstr.FromInt(osdPortv1),
+				Protocol:   v1.ProtocolTCP,
+			},
+			{
+				Name:       "osd-port-v2",
+				Port:       osdPortv2,
+				TargetPort: intstr.FromInt(osdPortv2),
+				Protocol:   v1.ProtocolTCP,
+			},
+		}
+	}
+
+	return ports
 }

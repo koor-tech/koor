@@ -26,7 +26,7 @@ Settings can be specified at the global level to apply to the cluster as a whole
 * `external`:
     * `enable`: if `true`, the cluster will not be managed by Rook but via an external entity. This mode is intended to connect to an existing cluster. In this case, Rook will only consume the external cluster. However, Rook will be able to deploy various daemons in Kubernetes such as object gateways, mds and nfs if an image is provided and will refuse otherwise. If this setting is enabled **all** the other options will be ignored except `cephVersion.image` and `dataDirHostPath`. See [external cluster configuration](external-cluster.md). If `cephVersion.image` is left blank, Rook will refuse the creation of extra CRs like object, file and nfs.
 * `cephVersion`: The version information for launching the ceph daemons.
-    * `image`: The image used for running the ceph daemons. For example, `quay.io/ceph/ceph:v16.2.9` or `v17.2.5`. For more details read the [container images section](#ceph-container-images).
+    * `image`: The image used for running the ceph daemons. For example, `quay.io/ceph/ceph:v16.2.11` or `v17.2.6`. For more details read the [container images section](#ceph-container-images).
   For the latest ceph images, see the [Ceph DockerHub](https://hub.docker.com/r/ceph/ceph/tags/).
   To ensure a consistent version of the image is running across all nodes in the cluster, it is recommended to use a very specific image version.
   Tags also exist that would give the latest version, but they are only recommended for test environments. For example, the tag `v17` will be updated each time a new Quincy build is released.
@@ -55,20 +55,24 @@ If this value is empty, each pod will get an ephemeral directory to store their 
             * `username`: It should be used to get the username from the authentication response. Defaults to `uid`.
         * `entityID`: To be used when more than one entity id exists on the IDP metadata
 * `monitoring`: Settings for monitoring Ceph using Prometheus. To enable monitoring on your cluster see the [monitoring guide](../../Storage-Configuration/Monitoring/ceph-monitoring.md#prometheus-alerts).
-    * `enabled`: Whether to enable prometheus based monitoring for this cluster
+    * `enabled`: Whether to enable prometheus based monitoring for external or internal cluster
     * `externalMgrEndpoints`: external cluster manager endpoints
     * `externalMgrPrometheusPort`: external prometheus manager module port. See [external cluster configuration](#external-cluster) for more details.
     * `rulesNamespace`: Namespace to deploy prometheusRule. If empty, namespace of the cluster will be used.
       Recommended:
         * If you have a single Rook cluster, set the `rulesNamespace` to the same namespace as the cluster or keep it empty.
         * If you have multiple Rook clusters in the same Kubernetes cluster, choose the same namespace to set `rulesNamespace` for all the clusters (ideally, namespace with prometheus deployed). Otherwise, you will get duplicate alerts with duplicate alert definitions.
+    * `port`: The internal prometheus manager module port where the prometheus mgr module listens. The port may need to be configured when host networking is enabled.
+    * `interval`: The interval for the prometheus module to to scrape targets.
 * `network`: For the network settings for the cluster, refer to the [network configuration settings](#network-configuration-settings)
 * `mon`: contains mon related options [mon settings](#mon-settings)
 For more details on the mons and when to choose a number other than `3`, see the [mon health doc](../../Storage-Configuration/Advanced/ceph-mon-health.md).
 * `mgr`: manager top level section
     * `count`: set number of ceph managers between `1` to `2`. The default value is 2.
-    If there are two managers, all mgr services will point to the active mgr. Due to a readiness probe,
-	the standby mgr pod stays in the `not-Ready` state until Ceph internally changes it to active state.
+    If there are two managers, it is important for all mgr services point to the active mgr and not the standby mgr. Rook automatically
+	updates the label `mgr_role` on the mgr pods to be either `active` or `standby`. Therefore, services need just to add the label
+    `mgr_role=active` to their selector to point to the active mgr. This applies to all services that rely on the ceph mgr such as
+	the dashboard or the prometheus metrics collector.
     * `modules`: is the list of Ceph manager modules to enable
 * `crashCollector`: The settings for crash collector daemon(s).
     * `disable`: is set to `true`, the crash collector will not run on any node where a Ceph daemon runs
@@ -111,8 +115,8 @@ These are general purpose Ceph container with all necessary daemons and dependen
 | -------------------- | --------------------------------------------------------- |
 | vRELNUM              | Latest release in this series (e.g., *v17* = Quincy)      |
 | vRELNUM.Y            | Latest stable release in this stable series (e.g., v17.2) |
-| vRELNUM.Y.Z          | A specific release (e.g., v17.2.5)                        |
-| vRELNUM.Y.Z-YYYYMMDD | A specific build (e.g., v17.2.5-20221017)                 |
+| vRELNUM.Y.Z          | A specific release (e.g., v17.2.6)                        |
+| vRELNUM.Y.Z-YYYYMMDD | A specific build (e.g., v17.2.6-20230410)                 |
 
 A specific will contain a specific release of Ceph as well as security fixes from the Operating System.
 
@@ -343,7 +347,7 @@ This feature is only available when `useAllNodes` has been set to `false`.
 Below are the settings for host-based cluster. This type of cluster can specify devices for OSDs, both at the cluster and individual node level, for selecting which storage resources will be included in the cluster.
 
 * `useAllDevices`: `true` or `false`, indicating whether all devices found on nodes in the cluster should be automatically consumed by OSDs. **Not recommended** unless you have a very controlled environment where you will not risk formatting of devices with existing data. When `true`, all devices and partitions will be used. Is overridden by `deviceFilter` if specified. LVM logical volumes are not picked by `useAllDevices`.
-    * `deviceFilter`: A regular expression for short kernel names of devices (e.g. `sda`) that allows selection of devices and partitions to be consumed by OSDs.  LVM logical volumes are not picked by `deviceFilter`.If individual devices have been specified for a node then this filter will be ignored.  This field uses [golang regular expression syntax](https://golang.org/pkg/regexp/syntax/). For example:
+* `deviceFilter`: A regular expression for short kernel names of devices (e.g. `sda`) that allows selection of devices and partitions to be consumed by OSDs.  LVM logical volumes are not picked by `deviceFilter`.If individual devices have been specified for a node then this filter will be ignored.  This field uses [golang regular expression syntax](https://golang.org/pkg/regexp/syntax/). For example:
     * `sdb`: Only selects the `sdb` device if found
     * `^sd.`: Selects all devices starting with `sd`
     * `^sd[a-d]`: Selects devices starting with `sda`, `sdb`, `sdc`, and `sdd` if found
@@ -468,7 +472,7 @@ metadata:
   namespace: rook-ceph
 spec:
   cephVersion:
-    image: quay.io/ceph/ceph:v17.2.5
+    image: quay.io/ceph/ceph:v17.2.6
   dataDirHostPath: /var/lib/rook
   mon:
     count: 3
@@ -514,6 +518,9 @@ You can set resource requests/limits for Rook components through the [Resource R
 * `osd-<deviceClass>`: Set resource requests/limits for OSDs on a specific device class. Rook will automatically detect `hdd`,
   `ssd`, or `nvme` device classes. Custom device classes can also be set.
 * `mgr`: Set resource requests/limits for MGRs
+* `mgr-sidecar`: Set resource requests/limits for the MGR sidecar, which is only created when `mgr.count: 2`.
+  The sidecar requires very few resources since it only executes every 15 seconds to query Ceph for the active
+  mgr and update the mgr services if the active mgr changed.
 * `prepareosd`: Set resource requests/limits for OSD prepare job
 * `crashcollector`: Set resource requests/limits for crash. This pod runs wherever there is a Ceph pod running.
 It scrapes for Ceph daemon core dumps and sends them to the Ceph manager crash module so that core dumps are centralized and can be easily listed/accessed.
@@ -528,6 +535,7 @@ If a user configures a limit or request value that is too low, Rook will still r
 * `mgr`: 512MB
 * `osd`: 2048MB
 * `crashcollector`: 60MB
+* `mgr-sidecar`: 100MB limit, 40MB requests
 * `prepareosd`: no limits (see the note)
 
 !!! note
@@ -565,7 +573,7 @@ metadata:
   namespace: rook-ceph
 spec:
   cephVersion:
-    image: quay.io/ceph/ceph:v17.2.5
+    image: quay.io/ceph/ceph:v17.2.6
   dataDirHostPath: /var/lib/rook
   mon:
     count: 3
@@ -694,7 +702,7 @@ kubectl -n rook-ceph get CephCluster -o yaml
       deviceClasses:
       - name: hdd
     version:
-      image: quay.io/ceph/ceph:v17.2.5
+      image: quay.io/ceph/ceph:v17.2.6
       version: 16.2.6-0
     conditions:
     - lastHeartbeatTime: "2021-03-02T21:22:11Z"

@@ -42,6 +42,7 @@ import (
 // +kubebuilder:printcolumn:name="Message",type=string,JSONPath=`.status.message`,description="Message"
 // +kubebuilder:printcolumn:name="Health",type=string,JSONPath=`.status.ceph.health`,description="Ceph Health"
 // +kubebuilder:printcolumn:name="External",type=boolean,JSONPath=`.spec.external.enable`
+// +kubebuilder:printcolumn:name="FSID",type=string,JSONPath=`.status.ceph.fsid`,description="Ceph FSID"
 // +kubebuilder:subresource:status
 type CephCluster struct {
 	metav1.TypeMeta   `json:",inline"`
@@ -242,6 +243,10 @@ type SecuritySpec struct {
 	// +optional
 	// +nullable
 	KeyManagementService KeyManagementServiceSpec `json:"kms,omitempty"`
+	// KeyRotation defines options for Key Rotation.
+	// +optional
+	// +nullable
+	KeyRotation KeyRotationSpec `json:"keyRotation,omitempty"`
 }
 
 // ObjectStoreSecuritySpec is spec to define security features like encryption
@@ -266,6 +271,17 @@ type KeyManagementServiceSpec struct {
 	// TokenSecretName is the kubernetes secret containing the KMS token
 	// +optional
 	TokenSecretName string `json:"tokenSecretName,omitempty"`
+}
+
+// KeyRotationSpec represents the settings for Key Rotation.
+type KeyRotationSpec struct {
+	// Enabled represents whether the key rotation is enabled.
+	// +optional
+	// +kubebuilder:default=false
+	Enabled bool `json:"enabled,omitempty"`
+	// Schedule represents the cron schedule for key rotation.
+	// +optional
+	Schedule string `json:"schedule,omitempty"`
 }
 
 // CephVersionSpec represents the settings for the Ceph version that Rook is orchestrating.
@@ -358,6 +374,16 @@ type MonitoringSpec struct {
 	// +kubebuilder:validation:Maximum=65535
 	// +optional
 	ExternalMgrPrometheusPort uint16 `json:"externalMgrPrometheusPort,omitempty"`
+
+	// Port is the prometheus server port
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=65535
+	// +optional
+	Port int `json:"port,omitempty"`
+
+	// Interval determines prometheus scrape interval
+	// +optional
+	Interval *metav1.Duration `json:"interval,omitempty"`
 }
 
 // ClusterStatus represents the status of a Ceph cluster
@@ -1478,6 +1504,12 @@ type GatewaySpec struct {
 	// +nullable
 	// +optional
 	HostNetwork *bool `json:"hostNetwork,omitempty"`
+
+	// Whether rgw dashboard is enabled for the rgw daemon. If not set, the rgw dashboard will be enabled.
+	// +kubebuilder:pruning:PreserveUnknownFields
+	// +nullable
+	// +optional
+	DashboardEnabled *bool `json:"dashboardEnabled,omitempty"`
 }
 
 // EndpointAddress is a tuple that describes a single IP address or host name. This is a subset of
@@ -2019,6 +2051,11 @@ type GaneshaServerSpec struct {
 	// LogLevel set logging level
 	// +optional
 	LogLevel string `json:"logLevel,omitempty"`
+
+	// Whether host networking is enabled for the Ganesha server. If not set, the network settings from the cluster CR will be applied.
+	// +nullable
+	// +optional
+	HostNetwork *bool `json:"hostNetwork,omitempty"`
 }
 
 // NFSSecuritySpec represents security configurations for an NFS server pod
@@ -2195,8 +2232,23 @@ type NetworkSpec struct {
 	// DualStack determines whether Ceph daemons should listen on both IPv4 and IPv6
 	// +optional
 	DualStack bool `json:"dualStack,omitempty"`
+
+	// Enable multiClusterService to export the Services between peer clusters
+	// +optional
+	MultiClusterService MultiClusterServiceSpec `json:"multiClusterService,omitempty"`
 }
 
+type MultiClusterServiceSpec struct {
+	// Enable multiClusterService to export the mon and OSD services to peer cluster.
+	// Ensure that peer clusters are connected using an MCS API compatible application,
+	// like Globalnet Submariner.
+	// +optional
+	Enabled bool `json:"enabled,omitempty"`
+
+	// ClusterID uniquely identifies a cluster. It is used as a prefix to nslookup exported
+	// services. For example: <clusterid>.<svc>.<ns>.svc.clusterset.local
+	ClusterID string `json:"clusterID,omitempty"`
+}
 type ConnectionsSpec struct {
 	// Encryption settings for the network connections.
 	// +nullable

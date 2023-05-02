@@ -19,11 +19,14 @@ package csi
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/coreos/pkg/capnslog"
 	"github.com/pkg/errors"
+	"github.com/rook/rook/pkg/daemon/ceph/client"
 	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
 	"github.com/rook/rook/pkg/operator/k8sutil"
 	v1 "k8s.io/api/core/v1"
@@ -99,10 +102,20 @@ func formatCsiClusterConfig(cc csiClusterConfig) (string, error) {
 	return string(ccJson), nil
 }
 
-func MonEndpoints(mons map[string]*cephclient.MonInfo) []string {
+func MonEndpoints(mons map[string]*cephclient.MonInfo, requireMsgr2 bool) []string {
 	endpoints := make([]string, 0)
 	for _, m := range mons {
-		endpoints = append(endpoints, m.Endpoint)
+		endpoint := m.Endpoint
+		if requireMsgr2 {
+			logger.Debugf("evaluating mon %q for msgr1 on endpoint %q", m.Name, m.Endpoint)
+			msgr1Suffix := fmt.Sprintf(":%d", client.Msgr1port)
+			if strings.HasSuffix(m.Endpoint, msgr1Suffix) {
+				address := m.Endpoint[0:strings.LastIndex(m.Endpoint, msgr1Suffix)]
+				endpoint = fmt.Sprintf("%s:%d", address, client.Msgr2port)
+				logger.Debugf("mon %q will use the msgrv2 port: %q", m.Name, endpoint)
+			}
+		}
+		endpoints = append(endpoints, endpoint)
 	}
 	return endpoints
 }

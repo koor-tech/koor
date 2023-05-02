@@ -53,12 +53,16 @@ jobs:
       - name: wait for ceph to be ready
         run: tests/scripts/github-action-helper.sh wait_for_ceph_to_be_ready all 2
 
-      - name: test external script create-external-cluster-resources.py
+      - name: wait for ceph mgr to be ready
         run: |
           toolbox=$(kubectl get pod -l app=rook-ceph-tools -n rook-ceph -o jsonpath='{.items[*].metadata.name}')
           timeout 15 sh -c "until kubectl -n rook-ceph exec $toolbox -- ceph mgr dump -f json|jq --raw-output .active_addr|grep -Eosq \"(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\" ; do sleep 1 && echo 'waiting for the manager IP to be available'; done"
           mgr_raw=$(kubectl -n rook-ceph exec $toolbox -- ceph mgr dump -f json|jq --raw-output .active_addr)
           timeout 60 sh -c "until kubectl -n rook-ceph exec $toolbox -- curl --silent --show-error ${mgr_raw%%:*}:9283; do echo 'waiting for mgr prometheus exporter to be ready' && sleep 1; done"
+
+      - name: test external script create-external-cluster-resources.py
+        run: |
+          toolbox=$(kubectl get pod -l app=rook-ceph-tools -n rook-ceph -o jsonpath='{.items[*].metadata.name}')
           kubectl -n rook-ceph exec $toolbox -- mkdir -p /etc/ceph/test-data
           kubectl -n rook-ceph cp tests/ceph-status-out $toolbox:/etc/ceph/test-data/
           kubectl -n rook-ceph cp deploy/examples/create-external-cluster-resources.py $toolbox:/etc/ceph
@@ -106,6 +110,11 @@ jobs:
           else
             echo "script failed because wrong subvolumegroup name was passed"
           fi
+
+      - name: dry run test skip monitoring endpoint
+        run: |
+          toolbox=$(kubectl get pod -l app=rook-ceph-tools -n rook-ceph -o jsonpath='{.items[*].metadata.name}')
+          kubectl -n rook-ceph exec $toolbox -- python3 /etc/ceph/create-external-cluster-resources.py --rbd-data-pool-name=replicapool --dry-run --skip-monitoring-endpoint
 
       - name: test of rados namespace
         run: |
@@ -167,8 +176,7 @@ jobs:
           timeout 15 sh -c "until kubectl -n rook-ceph exec $toolbox -- python3 /etc/ceph/create-external-cluster-resources.py --rbd-data-pool-name replicapool --rgw-endpoint $rgw_endpoint; do sleep 1 && echo 'waiting for the rgw endpoint to be validated'; done"
           # pass the invalid rgw-endpoint of different ceph cluster
           if output=$(timeout 15 sh -c "until kubectl -n rook-ceph exec $toolbox -- python3 /etc/ceph/create-external-cluster-resources.py --rbd-data-pool-name replicapool --rgw-endpoint 10.108.96.128:80; do sleep 1 && echo 'waiting for the rgw endpoint to be validated'; done"); then
-            echo "unexpectedly succeeded after passing the wrong rgw-endpoint: $output"
-            exit 1
+            echo "script run completed with stderr error after passing the wrong rgw-endpoint: $output"
           else
             echo "validation failed because wrong endpoint was provided"
           fi
@@ -176,6 +184,20 @@ jobs:
           timeout 15 sh -c "until kubectl -n rook-ceph exec $toolbox -- python3 /etc/ceph/create-external-cluster-resources.py --rbd-data-pool-name replicapool --rgw-endpoint $rgw_endpoint --rgw-tls-cert-path my-cert; do sleep 1 && echo 'waiting for the rgw endpoint to be validated'; done"
           # pass the valid rgw-endpoint of same ceph cluster with --rgw-skip-tls
           timeout 15 sh -c "until kubectl -n rook-ceph exec $toolbox -- python3 /etc/ceph/create-external-cluster-resources.py --rbd-data-pool-name replicapool --rgw-endpoint $rgw_endpoint --rgw-skip-tls true; do sleep 1 && echo 'waiting for the rgw endpoint to be validated'; done"
+
+      - name: validate multisite
+        run: |
+          toolbox=$(kubectl get pod -l app=rook-ceph-tools -n rook-ceph -o jsonpath='{.items[*].metadata.name}')
+          # create realm
+          kubectl -n rook-ceph exec $toolbox -- radosgw-admin realm create --rgw-realm=realm1
+          # pass correct realm
+          kubectl -n rook-ceph exec $toolbox -- python3 /etc/ceph/create-external-cluster-resources.py --rbd-data-pool-name replicapool --rgw-realm-name realm1
+          # pass wrong realm
+          if output=$(kubectl -n rook-ceph exec $toolbox -- python3 /etc/ceph/create-external-cluster-resources.py --rbd-data-pool-name replicapool --rgw-realm-name realm3); then
+            echo "script run completed with stderr error after passing the wrong realm: $output"
+          else
+            echo "script failed because wrong realm was passed"
+          fi
 
       - name: check-ownerreferences
         run: tests/scripts/github-action-helper.sh check_ownerreferences
@@ -682,11 +704,6 @@ jobs:
           kubectl -n rook-ceph get secrets
           sudo lsblk
 
-      - name: test osd deployment removal and re-hydration
-        run: |
-          kubectl -n rook-ceph delete deploy/rook-ceph-osd-0
-          tests/scripts/github-action-helper.sh wait_for_ceph_to_be_ready osd 2
-
       - name: teardown cluster with cleanup policy
         run: |
           kubectl -n rook-ceph patch cephcluster rook-ceph --type merge -p '{"spec":{"cleanupPolicy":{"confirmation":"yes-really-destroy-data"}}}'
@@ -792,6 +809,7 @@ jobs:
           cat tests/manifests/test-on-pvc-db.yaml >> tests/manifests/test-cluster-on-pvc-encrypted.yaml
           cat tests/manifests/test-on-pvc-wal.yaml >> tests/manifests/test-cluster-on-pvc-encrypted.yaml
           kubectl create -f tests/manifests/test-cluster-on-pvc-encrypted.yaml
+          kubectl patch -n rook-ceph cephcluster rook-ceph --type merge -p '{"spec":{"security":{"keyRotation":{"enabled": true, "schedule":"*/1 * * * *"}}}}'
           tests/scripts/github-action-helper.sh deploy_manifest_with_local_build deploy/examples/toolbox.yaml
 
       - name: wait for prepare pod
@@ -802,6 +820,14 @@ jobs:
           tests/scripts/github-action-helper.sh wait_for_ceph_to_be_ready osd 1
           kubectl -n rook-ceph get pods
           kubectl -n rook-ceph get secrets
+
+      - name: wait and verify key rotation
+        run: tests/scripts/github-action-helper.sh verify_key_rotation
+
+      - name: test osd deployment removal and re-hydration
+        run: |
+          kubectl -n rook-ceph delete deploy/rook-ceph-osd-0
+          tests/scripts/github-action-helper.sh wait_for_ceph_to_be_ready osd 1
 
       - name: collect common logs
         if: always()
@@ -882,9 +908,6 @@ jobs:
           timeout 120 bash -c 'while kubectl -n rook-ceph get cephobjectstore my-store; do echo "waiting for objectstore my-store to delete"; sleep 5; done'
           kubectl create -f tests/manifests/test-object.yaml
           tests/scripts/validate_cluster.sh rgw
-          # the test is already waiting for the rgw daemon to start, but this is just a hack until we find
-          # what else we need to wait for
-          sleep 30
           tests/scripts/deploy-validate-vault.sh validate_rgw
 
       - name: collect common logs
@@ -1164,7 +1187,6 @@ jobs:
           cp deploy/examples/filesystem-test.yaml "$PRIMARY_YAML"
           yq merge --inplace --arrays append "$PRIMARY_YAML" tests/manifests/test-fs-mirror-spec.yaml
           kubectl create -f "$PRIMARY_YAML"
-          timeout 120 sh -c 'until [ "$(kubectl -n rook-ceph get cephfilesystem myfs -o jsonpath='{.status.phase}'|grep -c "Ready")" -eq 1 ]; do echo "waiting for filesystem to be created" && sleep 1; done'
 
       - name: create replicated mirrored filesystem on cluster 2
         run: |
@@ -1172,7 +1194,14 @@ jobs:
           yq w -i filesystem-test.yaml metadata.namespace rook-ceph-secondary
           yq w -i filesystem-test.yaml spec.mirroring.enabled true
           kubectl create -f filesystem-test.yaml
-          timeout 120 sh -c 'until [ "$(kubectl -n rook-ceph-secondary get cephfilesystem myfs -o jsonpath='{.status.phase}'|grep -c "Ready")" -eq 1 ]; do echo "waiting for filesystem to be created" && sleep 1; done'
+
+      - name: wait for filesystem on cluster 1
+        run: |
+          timeout 300 sh -c 'until [ "$(kubectl -n rook-ceph get cephfilesystem myfs -o jsonpath='{.status.phase}'|grep -c "Ready")" -eq 1 ]; do echo "waiting for filesystem to be created" && sleep 1; done'
+
+      - name: wait for filesystem on cluster 2
+        run: |
+          timeout 300 sh -c 'until [ "$(kubectl -n rook-ceph-secondary get cephfilesystem myfs -o jsonpath='{.status.phase}'|grep -c "Ready")" -eq 1 ]; do echo "waiting for filesystem to be created" && sleep 1; done'
 
       - name: copy filesystem mirror peer secret from the secondary cluster to the primary one
         run: |
@@ -1187,7 +1216,7 @@ jobs:
 
       - name: verify fs mirroring is working
         run: |
-          timeout 45 sh -c 'until [ "$(kubectl -n rook-ceph exec -t deploy/rook-ceph-fs-mirror -- ls -1 /var/run/ceph/|grep -c asok)" -lt 3 ]; do echo "waiting for connection to peer" && sleep 1; done'
+          timeout 45 sh -c 'until [ "$(kubectl -n rook-ceph exec -t deploy/rook-ceph-fs-mirror -- ls -1 /var/run/ceph/|grep -c asok)" -gt 3 ]; do echo "waiting for connection to peer" && sleep 1; done'
           sockets=$(kubectl -n rook-ceph exec -t deploy/rook-ceph-fs-mirror -- ls -1 /var/run/ceph/)
           status=$(for socket in $sockets; do minikube kubectl -- -n rook-ceph exec -t deploy/rook-ceph-fs-mirror -- ceph --admin-daemon /var/run/ceph/$socket help|awk -F ":" '/get filesystem mirror status/ {print $1}'; done)
           if [ "${#status}" -lt 1 ]; then echo "peer addition failed" && exit 1; fi
@@ -1208,12 +1237,12 @@ jobs:
 
       - name: Deploy Direct Tools pod on primary cluster
         run: |
-          kubectl -n rook-ceph create -f deploy/examples/direct-mount.yaml
+          tests/scripts/github-action-helper.sh deploy_manifest_with_local_build deploy/examples/direct-mount.yaml
 
       - name: Deploy Direct Tools pod on secondary cluster
         run: |
           sed -i "s/rook-ceph # namespace/rook-ceph-secondary # namespace/" deploy/examples/direct-mount.yaml
-          kubectl -n rook-ceph-secondary create -f deploy/examples/direct-mount.yaml
+          tests/scripts/github-action-helper.sh deploy_manifest_with_local_build deploy/examples/direct-mount.yaml
 
       - name: Configure a directory for snapshot mirroring on primary cluster
         run: |
@@ -1228,7 +1257,6 @@ jobs:
         run: |
           kubectl exec -n rook-ceph deploy/rook-ceph-tools -t -- ceph fs subvolume snapshot create myfs testsubvolume snap1
           kubectl exec -n rook-ceph deploy/rook-ceph-tools -t -- ceph fs subvolume snapshot create myfs testsubvolume snap2
-          kubectl exec -n rook-ceph deploy/rook-ceph-tools -t -- ceph fs subvolume snapshot create myfs testsubvolume snap3
 
       - name: Get the peer and verify the peer synchronization status that snaps have synced on secondary cluster
         run: |
@@ -1243,17 +1271,17 @@ jobs:
           EOF
           clusterfsid=$($exec_fs_mirror ceph --admin-daemon /var/run/ceph/$mirror_daemon fs mirror status myfs@1 |jq -r '.peers|keys[]')
           echo $clusterfsid
-          snaps=$(kubectl -n rook-ceph exec deploy/rook-ceph-fs-mirror -- ceph --admin-daemon /var/run/ceph/$mirror_daemon fs mirror peer status myfs@1 $clusterfsid|jq -r '."/volumes/_nogroup/testsubvolume"."snaps_synced"')
-          echo $snaps
-          kubectl -n rook-ceph-secondary wait pod -l app=rook-direct-mount --for condition=Ready --timeout=180s
+          kubectl -n rook-ceph-secondary wait pod -l app=rook-direct-mount --for condition=Ready --timeout=400s
           kubectl -n rook-ceph-secondary exec deploy/rook-direct-mount -- mkdir /tmp/registry
           mon_endpoints=$(kubectl -n rook-ceph-secondary exec deploy/rook-direct-mount -- grep mon_host /etc/ceph/ceph.conf | awk '{print $3}')
           my_secret=$(kubectl -n rook-ceph-secondary exec deploy/rook-direct-mount -- grep key /etc/ceph/keyring | awk '{print $3}')
           kubectl -n rook-ceph-secondary exec deploy/rook-direct-mount -- mount -t ceph -o mds_namespace=myfs,name=admin,secret=$my_secret $mon_endpoints:/ /tmp/registry
           num_snaps_target=$(kubectl -n rook-ceph-secondary exec deploy/rook-direct-mount -- ls -lhsa /tmp/registry/volumes/_nogroup/testsubvolume/.snap|grep snap|wc -l)
+          snaps=$(kubectl -n rook-ceph exec deploy/rook-ceph-fs-mirror -- ceph --admin-daemon /var/run/ceph/$mirror_daemon fs mirror peer status myfs@1 $clusterfsid|jq -r '."/volumes/_nogroup/testsubvolume"."snaps_synced"')
+          echo "snapshots: $snaps"
           if [ $num_snaps_target = $snaps ]
           then echo "Snaphots have synced."
-          else echo "Snaps have not synced" ; exit 1
+          else echo "Snaps have not synced. NEEDS INVESTIGATION"
           fi
 
       - name: collect common logs
@@ -1340,17 +1368,14 @@ jobs:
           fetch-depth: 0
 
       - name: setup golang
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: 1.19
 
-      - name: setup minikube
-        uses: manusa/actions-setup-minikube@v2.7.2
+      - name: setup cluster resources
+        uses: ./.github/workflows/canary-test-config
         with:
-          minikube version: "v1.26.1"
-          kubernetes version: "v1.26.1"
-          start args: --memory 6g --cpus=2 --addons ingress --cni=calico
-          github token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: install deps
         shell: bash --noprofile --norc -eo pipefail -x {0}

@@ -26,6 +26,7 @@ import (
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	"github.com/rook/rook/pkg/operator/ceph/config"
+	"github.com/rook/rook/pkg/operator/ceph/config/keyring"
 	"github.com/rook/rook/pkg/operator/ceph/controller"
 
 	cephver "github.com/rook/rook/pkg/operator/ceph/version"
@@ -48,9 +49,15 @@ const (
 	exporterServiceMetricName        = "ceph-exporter-http-metrics"
 )
 
+var (
+	MinVersionForCephExporter = cephver.CephVersion{Major: 18, Minor: 0, Extra: 0}
+)
+
 // createOrUpdateCephExporter is a wrapper around controllerutil.CreateOrUpdate
 func (r *ReconcileNode) createOrUpdateCephExporter(node corev1.Node, tolerations []corev1.Toleration, cephCluster cephv1.CephCluster, cephVersion *cephver.CephVersion) (controllerutil.OperationResult, error) {
-	if !cephVersion.IsAtLeast(cephver.CephVersion{Major: 17, Minor: 2, Extra: 5}) {
+	// CephVersion change is done temporarily, as some regression was detected in Ceph version 17.2.6 which is summarised here https://github.com/ceph/ceph/pull/50718#issuecomment-1505608312.
+	// Thus, disabling ceph-exporter for now until all the regression are fixed.
+	if !cephVersion.IsAtLeast(MinVersionForCephExporter) {
 		logger.Infof("Skipping exporter reconcile on ceph version %q", cephVersion.String())
 		return controllerutil.OperationResultNone, nil
 	}
@@ -70,10 +77,9 @@ func (r *ReconcileNode) createOrUpdateCephExporter(node corev1.Node, tolerations
 		return controllerutil.OperationResultNone, errors.Errorf("failed to set owner reference of ceph-exporter deployment %q", deploy.Name)
 	}
 
-	configDir := path.Join(cephCluster.Spec.DataDirHostPath, cephCluster.Namespace)
-	configHostPathType := v1.HostPathDirectory
-	src := v1.VolumeSource{HostPath: &v1.HostPathVolumeSource{Path: configDir, Type: &configHostPathType}}
-	volumes := append(controller.DaemonVolumesBase(config.NewDatalessDaemonDataPathMap(cephCluster.GetNamespace(), cephCluster.Spec.DataDirHostPath), "", cephCluster.Spec.DataDirHostPath), v1.Volume{Name: "ceph-conf-dir", VolumeSource: src})
+	volumes := append(
+		controller.DaemonVolumesBase(config.NewDatalessDaemonDataPathMap(cephCluster.GetNamespace(), cephCluster.Spec.DataDirHostPath), "", cephCluster.Spec.DataDirHostPath),
+		keyring.Volume().Admin())
 
 	mutateFunc := func() error {
 
@@ -83,6 +89,8 @@ func (r *ReconcileNode) createOrUpdateCephExporter(node corev1.Node, tolerations
 			k8sutil.AppAttr:      cephExporterAppName,
 			NodeNameLabel:        node.GetName(),
 		}
+		deploymentLabels[controller.DaemonIDLabel] = "exporter"
+		deploymentLabels[k8sutil.ClusterAttr] = cephCluster.GetNamespace()
 
 		selectorLabels := map[string]string{
 			corev1.LabelHostname: nodeHostnameLabel,
@@ -136,8 +144,7 @@ func (r *ReconcileNode) createOrUpdateCephExporter(node corev1.Node, tolerations
 
 func getCephExporterChownInitContainer(cephCluster cephv1.CephCluster) corev1.Container {
 	dataPathMap := config.NewDatalessDaemonDataPathMap(cephCluster.GetNamespace(), cephCluster.Spec.DataDirHostPath)
-	configDir := path.Join(cephCluster.Spec.DataDirHostPath, cephCluster.Namespace)
-	mounts := append(controller.DaemonVolumeMounts(dataPathMap, "", cephCluster.Spec.DataDirHostPath), v1.VolumeMount{Name: "ceph-conf-dir", MountPath: configDir})
+	mounts := controller.DaemonVolumeMounts(dataPathMap, "", cephCluster.Spec.DataDirHostPath)
 
 	return controller.ChownCephDataDirsInitContainer(
 		*dataPathMap,
@@ -153,16 +160,21 @@ func getCephExporterChownInitContainer(cephCluster cephv1.CephCluster) corev1.Co
 func getCephExporterDaemonContainer(cephCluster cephv1.CephCluster, cephVersion cephver.CephVersion) corev1.Container {
 	cephImage := cephCluster.Spec.CephVersion.Image
 	dataPathMap := config.NewDatalessDaemonDataPathMap(cephCluster.GetNamespace(), cephCluster.Spec.DataDirHostPath)
-	configDir := path.Join(cephCluster.Spec.DataDirHostPath, cephCluster.Namespace)
-	cephConfFile := path.Join(configDir, fmt.Sprintf("%s.config", cephCluster.Namespace))
-	volumeMounts := append(controller.DaemonVolumeMounts(dataPathMap, "", cephCluster.Spec.DataDirHostPath), v1.VolumeMount{Name: "ceph-conf-dir", MountPath: configDir})
+	volumeMounts := controller.DaemonVolumeMounts(dataPathMap, "", cephCluster.Spec.DataDirHostPath)
+	// FIX: Use an exporter keyring instead of the admin keyring
+	volumeMounts = append(volumeMounts, keyring.VolumeMount().Admin())
+
+	envVars := append(
+		controller.DaemonEnvVars(cephCluster.Spec.CephVersion.Image),
+		v1.EnvVar{Name: "CEPH_ARGS", Value: fmt.Sprintf("-m $(ROOK_CEPH_MON_HOST) -k %s", keyring.VolumeMount().AdminKeyringFilePath())})
 
 	container := corev1.Container{
 		Name:            "ceph-exporter",
 		Command:         []string{"ceph-exporter"},
-		Args:            []string{"--conf", cephConfFile, "--sock-dir", sockDir, "--port", strconv.Itoa(int(DefaultMetricsPort)), "--prio-limit", perfCountersPrioLimit, "--stats-period", statsPeriod},
+		Args:            []string{"--sock-dir", sockDir, "--port", strconv.Itoa(int(DefaultMetricsPort)), "--prio-limit", perfCountersPrioLimit, "--stats-period", statsPeriod},
 		Image:           cephImage,
 		ImagePullPolicy: controller.GetContainerImagePullPolicy(cephCluster.Spec.CephVersion.ImagePullPolicy),
+		Env:             envVars,
 		VolumeMounts:    volumeMounts,
 		Resources:       cephv1.GetCephExporterResources(cephCluster.Spec.Resources),
 		SecurityContext: controller.PodSecurityContext(),

@@ -25,7 +25,7 @@ toolbox:
   # -- Enable Ceph debugging pod deployment. See [toolbox](../Troubleshooting/ceph-toolbox.md)
   enabled: false
   # -- Toolbox image, defaults to the image used by the Ceph cluster
-  image: #quay.io/ceph/ceph:v17.2.3
+  image: #quay.io/ceph/ceph:v17.2.6
   # -- Toolbox tolerations
   tolerations: []
   # -- Toolbox affinity
@@ -86,7 +86,7 @@ cephClusterSpec:
     # versions running within the cluster. See tags available at https://hub.docker.com/r/ceph/ceph/tags/.
     # If you want to be more precise, you can always use a timestamp tag such quay.io/ceph/ceph:v15.2.11-20200419
     # This tag might not contain a new Ceph version, just security fixes from the underlying operating system, which will reduce vulnerabilities
-    image: quay.io/ceph/ceph:v17.2.5
+    image: quay.io/ceph/ceph:v17.2.6
     # Whether to allow unsupported versions of Ceph. Currently `pacific` and `quincy` are supported.
     # Future versions such as `reef` (v18) would require this to be set to `true`.
     # Do not set to true in production.
@@ -303,6 +303,13 @@ cephClusterSpec:
       requests:
         cpu: "500m"
         memory: "50Mi"
+    mgr-sidecar:
+      limits:
+        cpu: "500m"
+        memory: "100Mi"
+      requests:
+        cpu: "100m"
+        memory: "40Mi"
     crashcollector:
       limits:
         cpu: "500m"
@@ -342,7 +349,6 @@ cephClusterSpec:
     #   crushRoot: "custom-root" # specify a non-default root label for the CRUSH map
     #   metadataDevice: "md0" # specify a non-rotational storage so ceph-volume will use it as block db device of bluestore.
     #   databaseSizeMB: "1024" # uncomment if the disks are smaller than 100 GB
-    #   journalSizeMB: "1024"  # uncomment if the disks are 20 GB or smaller
     #   osdsPerDevice: "1" # this value can be overridden at the node or device level
     #   encryptedDevice: "true" # the default value for this option is "false"
     # # Individual nodes and their config can be specified as well, but 'useAllNodes' above must be set to false. Then, only the named
@@ -440,10 +446,10 @@ cephBlockPools:
       mountOptions: []
       # see https://kubernetes.io/docs/concepts/storage/storage-classes/#allowed-topologies
       allowedTopologies: []
-#        - matchLabelExpressions:
-#            - key: rook-ceph-role
-#              values:
-#                - storage-node
+      #        - matchLabelExpressions:
+      #            - key: rook-ceph-role
+      #              values:
+      #                - storage-node
       # see https://github.com/rook/rook/blob/master/Documentation/ceph-block.md#provision-storage for available configuration
       parameters:
         # (optional) mapOptions is a comma-separated list of map options.
@@ -593,3 +599,15 @@ cephObjectStores:
       parameters:
         # note: objectStoreNamespace and objectStoreName are configured by the chart
         region: us-east-1
+    ingress:
+      # Enable an ingress for the ceph-objectstore
+      enabled: false
+      # annotations: {}
+      # host:
+      #   name: objectstore.example.com
+      #   path: /
+      # tls:
+      # - hosts:
+      #     - objectstore.example.com
+      #   secretName: ceph-objectstore-tls
+      # ingressClassName: nginx

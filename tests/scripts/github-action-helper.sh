@@ -252,6 +252,12 @@ function deploy_cluster() {
     echo "invalid argument: $*" >&2
     exit 1
   fi
+  # enable monitoring
+  yq w -i -d1 cluster-test.yaml spec.monitoring.enabled true
+  kubectl apply -f https://raw.githubusercontent.com/coreos/prometheus-operator/v0.40.0/bundle.yaml
+  kubectl create -f monitoring/rbac.yaml
+
+  # create the cluster resources
   kubectl create -f cluster-test.yaml
   kubectl create -f object-test.yaml
   kubectl create -f pool-test.yaml
@@ -327,6 +333,31 @@ function wait_for_ceph_to_be_ready() {
   mkdir -p test
   tests/scripts/validate_cluster.sh "$DAEMONS" "$OSD_COUNT"
   kubectl -n rook-ceph get pods
+}
+
+function verify_key_rotation(){
+  pvc_name=$(kubectl get pvc -n rook-ceph -l ceph.rook.io/setIndex=0 -o jsonpath='{.items[0].metadata.name}')
+  old_key=$(kubectl -n rook-ceph get secrets -l "pvc_name=$pvc_name" -o jsonpath='{.items[0].data.'dmcrypt-key'}' | base64 --decode)
+  runtime="3 minutes"
+  endtime=$(date -ud "$runtime" +%s)
+  while [[ $(date -u +%s) -le $endtime ]]
+  do
+      echo "Time Now: `date +%H:%M:%S`"
+      new_key=$(kubectl -n rook-ceph get secrets -l "pvc_name=$pvc_name" -o jsonpath='{.items[0].data.'dmcrypt-key'}' | base64 --decode)
+      if [ "$old_key" != "$new_key" ]; then
+        echo "encryption passphrase is successfully rotated"
+        exit 0
+      fi
+      echo "encryption passphrase is not rotated, sleeping for 10 seconds"
+      sleep 10s
+  done
+  new_key=$(kubectl -n rook-ceph get secrets -l "pvc_name=$pvc_name" -o jsonpath='{.items[0].data.'dmcrypt-key'}' | base64 --decode)
+  if [ "$old_key" == "$new_key" ]; then
+    echo "encryption passphrase is not rotated"
+    exit 1
+  else
+    echo "encryption passphrase is successfully rotated"
+  fi
 }
 
 function check_ownerreferences() {
@@ -509,10 +540,9 @@ function deploy_multus() {
 
   # install whereabouts
   kubectl apply \
-    -f https://raw.githubusercontent.com/k8snetworkplumbingwg/whereabouts/v0.5.3/doc/crds/daemonset-install.yaml \
-    -f https://raw.githubusercontent.com/k8snetworkplumbingwg/whereabouts/v0.5.3/doc/crds/ip-reconciler-job.yaml \
-    -f https://github.com/k8snetworkplumbingwg/whereabouts/raw/v0.5.3/doc/crds/whereabouts.cni.cncf.io_ippools.yaml \
-    -f https://github.com/k8snetworkplumbingwg/whereabouts/raw/v0.5.3/doc/crds/whereabouts.cni.cncf.io_overlappingrangeipreservations.yaml
+    -f https://raw.githubusercontent.com/k8snetworkplumbingwg/whereabouts/master/doc/crds/daemonset-install.yaml \
+    -f https://github.com/k8snetworkplumbingwg/whereabouts/raw/master/doc/crds/whereabouts.cni.cncf.io_ippools.yaml \
+    -f https://github.com/k8snetworkplumbingwg/whereabouts/raw/master/doc/crds/whereabouts.cni.cncf.io_overlappingrangeipreservations.yaml
 
   # create the rook-ceph namespace if it doesn't exist, the NAD will go in this namespace
   kubectl create namespace rook-ceph || true

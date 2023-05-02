@@ -54,6 +54,7 @@ The following table lists the configurable parameters of the rook-operator chart
 | `crds.enabled` | Whether the helm chart should create and update the CRDs. If false, the CRDs must be managed independently with deploy/examples/crds.yaml. **WARNING** Only set during first deployment. If later disabled the cluster may be DESTROYED. If the CRDs are deleted in this case, see [the disaster recovery guide](https://rook.io/docs/rook/latest/Troubleshooting/disaster-recovery/#restoring-crds-after-deletion) to restore them. | `true` |
 | `csi.allowUnsupportedVersion` | Allow starting an unsupported ceph-csi image | `false` |
 | `csi.attacher.image` | Kubernetes CSI Attacher image | `registry.k8s.io/sig-storage/csi-attacher:v4.1.0` |
+| `csi.cephFSAttachRequired` | Whether to skip any attach operation altogether for CephFS PVCs. See more details [here](https://kubernetes-csi.github.io/docs/skip-attach.html#skip-attach-with-csi-driver-object). If cephFSAttachRequired is set to false it skips the volume attachments and makes the creation of pods using the CephFS PVC fast. **WARNING** It's highly discouraged to use this for CephFS RWO volumes. Refer to this [issue](https://github.com/kubernetes/kubernetes/issues/103305) for more details. | `true` |
 | `csi.cephFSFSGroupPolicy` | Policy for modifying a volume's ownership or permissions when the CephFS PVC is being mounted. supported values are documented at https://kubernetes-csi.github.io/docs/support-fsgroup.html | `"File"` |
 | `csi.cephFSKernelMountOptions` | Set CephFS Kernel mount options to use https://docs.ceph.com/en/latest/man/8/mount.ceph/#options. Set to "ms_mode=secure" when connections.encrypted is enabled in CephCluster CR | `nil` |
 | `csi.cephFSPluginUpdateStrategy` | CSI CephFS plugin daemonset update strategy, supported values are OnDelete and RollingUpdate | `RollingUpdate` |
@@ -93,6 +94,7 @@ The following table lists the configurable parameters of the rook-operator chart
 | `csi.kubeletDirPath` | Kubelet root directory path (if the Kubelet uses a different path for the `--root-dir` flag) | `/var/lib/kubelet` |
 | `csi.logLevel` | Set logging level for cephCSI containers maintained by the cephCSI. Supported values from 0 to 5. 0 for general useful logs, 5 for trace level verbosity. | `0` |
 | `csi.nfs.enabled` | Enable the nfs csi driver | `false` |
+| `csi.nfsAttachRequired` | Whether to skip any attach operation altogether for NFS PVCs. See more details [here](https://kubernetes-csi.github.io/docs/skip-attach.html#skip-attach-with-csi-driver-object). If cephFSAttachRequired is set to false it skips the volume attachments and makes the creation of pods using the NFS PVC fast. **WARNING** It's highly discouraged to use this for NFS RWO volumes. Refer to this [issue](https://github.com/kubernetes/kubernetes/issues/103305) for more details. | `true` |
 | `csi.nfsFSGroupPolicy` | Policy for modifying a volume's ownership or permissions when the NFS PVC is being mounted. supported values are documented at https://kubernetes-csi.github.io/docs/support-fsgroup.html | `"File"` |
 | `csi.nfsPluginUpdateStrategy` | CSI NFS plugin daemonset update strategy, supported values are OnDelete and RollingUpdate | `RollingUpdate` |
 | `csi.nfsPodLabels` | Labels to add to the CSI NFS Deployments and DaemonSets Pods | `nil` |
@@ -104,6 +106,7 @@ The following table lists the configurable parameters of the rook-operator chart
 | `csi.provisionerPriorityClassName` | PriorityClassName to be set on csi driver provisioner pods | `"system-cluster-critical"` |
 | `csi.provisionerReplicas` | Set replicas for csi provisioner deployment | `2` |
 | `csi.provisionerTolerations` | Array of tolerations in YAML format which will be added to CSI provisioner deployment | `nil` |
+| `csi.rbdAttachRequired` | Whether to skip any attach operation altogether for RBD PVCs. See more details [here](https://kubernetes-csi.github.io/docs/skip-attach.html#skip-attach-with-csi-driver-object). If set to false it skips the volume attachments and makes the creation of pods using the RBD PVC fast. **WARNING** It's highly discouraged to use this for RWO volumes as it can cause data corruption. csi-addons operations like Reclaimspace and PVC Keyrotation will also not be supported if set to false since we'll have no VolumeAttachments to determine which node the PVC is mounted on. Refer to this [issue](https://github.com/kubernetes/kubernetes/issues/103305) for more details. | `true` |
 | `csi.rbdFSGroupPolicy` | Policy for modifying a volume's ownership or permissions when the RBD PVC is being mounted. supported values are documented at https://kubernetes-csi.github.io/docs/support-fsgroup.html | `"File"` |
 | `csi.rbdGrpcMetricsPort` | Ceph CSI RBD driver GRPC metrics port | `9090` |
 | `csi.rbdLivenessMetricsPort` | Ceph CSI RBD driver metrics port | `8080` |
@@ -142,9 +145,10 @@ The following table lists the configurable parameters of the rook-operator chart
 | `pspEnable` | If true, create & use PSP resources | `false` |
 | `rbacEnable` | If true, create & use RBAC resources | `true` |
 | `resources` | Pod resource requests & limits | `{"limits":{"cpu":"500m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"128Mi"}}` |
+| `scaleDownOperator` | If true, scale down the rook operator. This is useful for administrative actions where the rook operator must be scaled down, while using gitops style tooling to deploy your helm charts. | `false` |
 | `tolerations` | List of Kubernetes [`tolerations`](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/) to add to the Deployment. | `[]` |
 | `unreachableNodeTolerationSeconds` | Delay to use for the `node.kubernetes.io/unreachable` pod failure toleration to override the Kubernetes default of 5 minutes | `5` |
-| `useOperatorHostNetwork` | if true, run rook operator on the host network | `nil` |
+| `useOperatorHostNetwork` | If true, run rook operator on the host network | `nil` |
 
 [^1]: `nodeAffinity` and `*NodeAffinity` options should have the format `"role=storage,rook; storage=ceph"` or `storage=;role=rook-example` or `storage=;` (_checks only for presence of key_)
 

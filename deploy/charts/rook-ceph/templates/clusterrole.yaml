@@ -121,6 +121,7 @@ rules:
   - create
   - update
   - delete
+  - deletecollection
 # The Rook operator must be able to watch all ceph.rook.io resources to reconcile them.
 - apiGroups: ["ceph.rook.io"]
   resources:
@@ -207,6 +208,14 @@ rules:
   - update
   - delete
   - deletecollection
+- apiGroups:
+  - apps
+  resources:
+  # This is to add osd deployment owner ref on key rotation
+  # cron jobs.
+  - deployments/finalizers
+  verbs:
+  - update
 - apiGroups:
   - healthchecking.openshift.io
   resources:
@@ -432,6 +441,12 @@ rules:
   - apiGroups: [""]
     resources: ["persistentvolumeclaims/status"]
     verbs: ["patch"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["volumeattachments"]
+    verbs: ["get", "list", "watch", "patch"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["volumeattachments/status"]
+    verbs: ["patch"]
 ---
 # TODO: remove this, once https://github.com/rook/rook/issues/10141
 # is resolved.
@@ -583,7 +598,7 @@ rules:
     verbs: ["create"]
   - apiGroups: [""]
     resources: ["nodes"]
-    verbs: ["get", "list", watch"]
+    verbs: ["get", "list", "watch"]
   - apiGroups: ["storage.k8s.io"]
     resources: ["csinodes"]
     verbs: ["get", "list", "watch"]

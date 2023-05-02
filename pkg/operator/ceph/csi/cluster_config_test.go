@@ -17,8 +17,10 @@ limitations under the License.
 package csi
 
 import (
+	"strings"
 	"testing"
 
+	cephclient "github.com/rook/rook/pkg/daemon/ceph/client"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -335,4 +337,57 @@ func contains(src, dest []string) bool {
 	}
 
 	return false
+}
+
+func TestMonEndpoints(t *testing.T) {
+	monInfo := map[string]*cephclient.MonInfo{
+		"a": {Name: "a", Endpoint: "1.2.3.4:6789"},
+		"b": {Name: "b", Endpoint: "1.2.3.5:6789"},
+		"c": {Name: "c", Endpoint: "1.2.3.6:6789"},
+	}
+
+	t.Run("msgrv1 when not require msgr2", func(t *testing.T) {
+		endpoints := MonEndpoints(monInfo, false)
+		assert.Equal(t, 3, len(endpoints))
+		verifyEndpointPort(t, endpoints, "6789")
+	})
+
+	t.Run("convert to msgr2", func(t *testing.T) {
+		endpoints := MonEndpoints(monInfo, true)
+		assert.Equal(t, 3, len(endpoints))
+		verifyEndpointPort(t, endpoints, "3300")
+	})
+
+	t.Run("remains msgr2", func(t *testing.T) {
+		monInfo := map[string]*cephclient.MonInfo{
+			"a": {Name: "a", Endpoint: "1.2.3.4:3300"},
+			"b": {Name: "b", Endpoint: "1.2.3.5:3300"},
+			"c": {Name: "c", Endpoint: "1.2.3.6:3300"},
+		}
+		endpoints := MonEndpoints(monInfo, false)
+		assert.Equal(t, 3, len(endpoints))
+		verifyEndpointPort(t, endpoints, "3300")
+	})
+
+	t.Run("ipv6 endpoint conversion", func(t *testing.T) {
+		monInfo := map[string]*cephclient.MonInfo{
+			"a": {Name: "a", Endpoint: "[fd07:aaaa:bbbb:cccc::11]:6789"},
+			"b": {Name: "a", Endpoint: "[1234:6789:bbbb:cccc::11]:6789"},
+		}
+		endpoints := MonEndpoints(monInfo, true)
+		assert.Equal(t, 2, len(endpoints))
+		verifyEndpointPort(t, endpoints, "3300")
+		for _, endpoint := range endpoints {
+			// Verify that the v1 port inside the ipv6 address will not be replaced
+			if strings.HasPrefix(endpoint, "[1234") {
+				assert.True(t, strings.HasPrefix(endpoint, "[1234:6789"))
+			}
+		}
+	})
+}
+
+func verifyEndpointPort(t *testing.T, endpoints []string, expectedPort string) {
+	for _, endpoint := range endpoints {
+		assert.True(t, strings.HasSuffix(endpoint, expectedPort))
+	}
 }

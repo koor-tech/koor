@@ -144,25 +144,6 @@ func WaitForDeploymentToStart(ctx context.Context, clusterdContext *clusterd.Con
 	return fmt.Errorf("gave up waiting for deployment %q to update", deployment.Name)
 }
 
-func WaitForPodsWithLabelToRun(ctx context.Context, clientset kubernetes.Interface, namespace, label string) error {
-	// wait for the pods to run for a maximum of 300 sec
-	sleepTime := 5
-	attempts := 60
-	for i := 0; i < attempts; i++ {
-		logger.Infof("waiting for all pods with label %s to be in running state", label)
-		time.Sleep(time.Duration(sleepTime) * time.Second)
-		allRunning, err := PodsWithLabelAreAllRunning(ctx, clientset, namespace, label)
-		if err != nil {
-			return errors.Wrapf(err, "failed to query pods with label %s to be in running state", label)
-		}
-		if allRunning {
-			logger.Infof("all pods with label %s are running", label)
-			return nil
-		}
-	}
-	return fmt.Errorf("gave up waiting for all pods with label %s to run", label)
-}
-
 // DeploymentNames returns a list of the names of deployments in the deployment list
 func DeploymentNames(deployments *appsv1.DeploymentList) (names []string) {
 	for _, d := range deployments.Items {
@@ -541,6 +522,17 @@ func CreateDeployment(ctx context.Context, clientset kubernetes.Interface, dep *
 	return clientset.AppsV1().Deployments(dep.Namespace).Create(ctx, dep, metav1.CreateOptions{})
 }
 
+// createCronJob creates a cron job with a last applied hash annotation added
+func createCronJob(ctx context.Context, clientset kubernetes.Interface, cj *batchv1.CronJob) (*batchv1.CronJob, error) {
+	// Set hash annotation to the newly generated deployment
+	err := patch.DefaultAnnotator.SetLastAppliedAnnotation(cj)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to set hash annotation on cron job %q", cj.Name)
+	}
+
+	return clientset.BatchV1().CronJobs(cj.Namespace).Create(ctx, cj, metav1.CreateOptions{})
+}
+
 func CreateOrUpdateDeployment(ctx context.Context, clientset kubernetes.Interface, dep *appsv1.Deployment) (*appsv1.Deployment, error) {
 	newDep, err := CreateDeployment(ctx, clientset, dep)
 	if err != nil {
@@ -553,6 +545,20 @@ func CreateOrUpdateDeployment(ctx context.Context, clientset kubernetes.Interfac
 		}
 	}
 	return newDep, nil
+}
+
+func CreateOrUpdateCronJob(ctx context.Context, clientset kubernetes.Interface, cj *batchv1.CronJob) (*batchv1.CronJob, error) {
+	newCJ, err := createCronJob(ctx, clientset, cj)
+	if err != nil {
+		if k8serrors.IsAlreadyExists(err) {
+			// annotation was added in CreateCronJob to cj passed by reference
+			newCJ, err = clientset.BatchV1().CronJobs(cj.Namespace).Update(ctx, cj, metav1.UpdateOptions{})
+		}
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to create or update cronjob %q: %+v", cj.Name, cj)
+		}
+	}
+	return newCJ, nil
 }
 
 func maxInt32Ptr(a, b *int32) *int32 {

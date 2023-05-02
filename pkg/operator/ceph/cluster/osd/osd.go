@@ -110,6 +110,7 @@ type OSDInfo struct {
 	// Ensure the OSD daemon has affinity with the same topology from the OSD prepare pod
 	TopologyAffinity string `json:"topologyAffinity"`
 	Encrypted        bool   `json:"encrypted"`
+	ExportService    bool   `json:"exportService"`
 }
 
 // OrchestrationStatus represents the status of an OSD orchestration
@@ -239,6 +240,11 @@ func (c *Cluster) Start() error {
 
 	// The following block is used to apply any command(s) required by an upgrade
 	c.applyUpgradeOSDFunctionality()
+
+	err = c.reconcileKeyRotationCronJob()
+	if err != nil {
+		return errors.Wrapf(err, "failed to reconcile key rotation cron jobs")
+	}
 
 	logger.Infof("finished running OSDs in namespace %q", namespace)
 	return nil

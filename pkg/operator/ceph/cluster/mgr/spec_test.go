@@ -118,7 +118,11 @@ func TestServiceSpec(t *testing.T) {
 	assert.Equal(t, "rook-mgr", s.Name)
 	assert.Equal(t, 1, len(s.Spec.Ports))
 	assert.Equal(t, 2, len(s.Labels))
-	assert.Equal(t, 2, len(s.Spec.Selector))
+	// Check service selector
+	assert.Equal(t, 3, len(s.Spec.Selector))
+	assert.Equal(t, s.Spec.Selector["app"], "rook-ceph-mgr")
+	assert.Equal(t, s.Spec.Selector["mgr_role"], "active")
+	assert.Equal(t, s.Spec.Selector["rook_cluster"], "ns")
 }
 
 func TestHostNetwork(t *testing.T) {
