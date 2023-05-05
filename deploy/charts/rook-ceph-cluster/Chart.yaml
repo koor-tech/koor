@@ -7,6 +7,10 @@ icon: https://rook.io/images/rook-logo.svg
 sources:
   - https://github.com/rook/rook
 dependencies:
-- name: library
-  version: "0.0.1"
-  repository: "file://../library"
+  - name: library
+    version: "0.0.1"
+    repository: "file://../library"
+  - name: extended-ceph-exporter
+    version: "1.2.5"
+    repository: "https://koor-tech.github.io/extended-ceph-exporter"
+    condition: extendedCephExporter.enabled

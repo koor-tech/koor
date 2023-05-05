@@ -66,6 +66,11 @@ The following table lists the configurable parameters of the rook-operator chart
 | `cephObjectStores` | A list of CephObjectStore configurations to deploy | See [below](#ceph-object-stores) |
 | `clusterName` | The metadata.name of the CephCluster CR | The same as the namespace |
 | `configOverride` | Cluster ceph.conf override | `nil` |
+| `extendedCephExporter.enabled` | If enabled the extended-ceph-exporter will be installed | `false` |
+| `extendedCephExporter.serviceMonitor` | Enable Prometheus ServiceMonitor creation, requires the prometheus-operator to be installed. | `{"additionalLabels":{},"enabled":false,"namespaceSelector":null,"scrapeInterval":"30s"}` |
+| `extendedCephExporter.serviceMonitor.additionalLabels` | Additional Labels for the ServiceMonitor object | `{}` |
+| `extendedCephExporter.serviceMonitor.enabled` | Specifies whether a prometheus-operator ServiceMonitor should be created | `false` |
+| `extendedCephExporter.serviceMonitor.scrapeInterval` | Interval at which metrics should be scraped | `"30s"` |
 | `ingress.dashboard` | Enable an ingress for the ceph-dashboard | `{}` |
 | `kubeVersion` | Optional override of the target kubernetes version | `nil` |
 | `monitoring.createPrometheusRules` | Whether to create the Prometheus rules for Ceph alerts | `false` |
