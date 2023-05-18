@@ -21,7 +21,7 @@ specified in the Ceph custom resources (CRs) and apply the changes.
 
 Rook automatically configures the Ceph-CSI driver to mount the storage to your pods.
 
-![Rook Components on Kubernetes](ceph-storage/kubernetes.png)
+![Rook Components on Kubernetes](ceph-storage/architecture.png)
 
 The `rook/ceph` image includes all necessary tools to manage the cluster. Rook is not in the Ceph data path.
 Many of the Ceph concepts like placement groups and crush maps
