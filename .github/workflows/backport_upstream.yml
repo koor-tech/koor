@@ -1,42 +1,63 @@
 name: Backport rook/rook upstream cronjob
+# on:
+#   # Triggers the workflow every 5 minutes
+#   schedule:
+#     - cron: "0 11 * * *"
 on:
-  # Triggers the workflow every 5 minutes
-  schedule:
-    - cron: "0 11 * * *"
+  push:
+    tags:
+      - v*
+    branches:
+      - master
+      - release-*
+  pull_request:
+    branches:
+      - master
+      - release-*
 defaults:
   run:
     # reference: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#using-a-specific-shell
     shell: bash --noprofile --norc -eo pipefail -x {0}
 
-permissions:
-  contents: read
+permissions: write-all
+  #  contents: write
+  #  actions: write
+  #  pull-requests: write
 
 jobs:
   push-commits-to-koor-repo:
-    runs-on: ubuntu-20.04
+    name: Push commits to Koor Repository
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     if: github.repository == 'koor-tech/koor'
     steps:
       - name: checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: Configure git user
+        run: |
+          # Use our Rook "service account"
+          git config user.name Rook
+          git config user.email "cncf-rook-info@lists.cncf.io"
+
       - name: pull rook upstream commits from latest master and create a PR
         env:
-          GITHUB_TOKEN: ${{ secrets.GIT_API_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ee/scripts/rebase_rook_master.sh
+          ee/scripts/merge_rook_master.sh
           # if PR already exists, we simply push to it other open a PR
           prs=$(gh pr list \
           --repo "$GITHUB_REPOSITORY" \
           --json baseRefName,headRefName \
-          --jq '
-              map(select(.baseRefName == "master" and .headRefName == "rebase-rook-master"))
-              | length
-          ')
+          --jq 'map(select(.baseRefName == "master" and .headRefName == "merge-rook-master")) | length')
           if ((prs > 0)); then
-            echo "skip=true" >> "$GITHUB_OUTPUT
+            echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
           gh pr create --title 'Rebase Rook upstream to Koor' --body 'Created by Github action'
+
       - name: consider debugging
         if: failure()
         timeout-minutes: 60
