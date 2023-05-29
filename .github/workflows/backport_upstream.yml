@@ -17,7 +17,7 @@ jobs:
   push-commits-to-koor-repo:
     name: Push commits to Koor Repository
     runs-on: ubuntu-latest
-    if: github.repository == 'koor-tech/koor' && github.event_name == 'pull_request'
+    if: github.repository == 'koor-tech/koor'
     steps:
       - name: checkout
         uses: actions/checkout@v3

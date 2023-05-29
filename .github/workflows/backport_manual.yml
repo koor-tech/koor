@@ -1,6 +1,9 @@
 name: Backport rook/rook upstream cronjob 2
+
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      feature/ksd-72
 
 defaults:
   run:
@@ -16,7 +19,7 @@ jobs:
   push-commits-to-koor-repo-2:
     name: Push commits to Koor Repository
     runs-on: ubuntu-latest
-    if: github.repository == 'koor-tech/koor' && github.event_name == 'pull_request'
+    if: github.repository == 'koor-tech/koor'
     steps:
       - name: checkout
         uses: actions/checkout@v3
