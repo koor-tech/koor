@@ -36,7 +36,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/util/uuid"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -48,14 +47,14 @@ const (
 )
 
 var RootCmd = &cobra.Command{
-	Use: "rook",
+	Use:    "rook",
+	Short:  "Rook (rook.io) Kubernetes operator and user tools",
+	Hidden: false,
 }
 
 var (
-	logLevelRaw        string
-	operatorImage      string
-	serviceAccountName string
-	logger             = capnslog.NewPackageLogger("github.com/rook/rook", "rookcmd")
+	logLevelRaw string
+	logger      = capnslog.NewPackageLogger("github.com/rook/rook", "rookcmd")
 )
 
 // Initialize the configuration parameters. The precedence from lowest to highest is:
@@ -64,8 +63,9 @@ var (
 //  3. command line parameter
 func init() {
 	RootCmd.PersistentFlags().StringVar(&logLevelRaw, "log-level", "INFO", "logging level for logging/tracing output (valid values: ERROR,WARNING,INFO,DEBUG)")
-	RootCmd.PersistentFlags().StringVar(&operatorImage, "operator-image", "", "Override the image url that the operator uses. The default is read from the operator pod.")
-	RootCmd.PersistentFlags().StringVar(&serviceAccountName, "service-account", "", "Override the service account that the operator uses. The default is read from the operator pod.")
+	RootCmd.InitDefaultHelpCmd()
+	RootCmd.InitDefaultHelpFlag()
+	RootCmd.InitDefaultCompletionCmd()
 
 	// load the environment variables
 	flags.SetFlagsFromEnv(RootCmd.Flags(), RookEnvVarPrefix)
@@ -97,44 +97,7 @@ func NewContext() *clusterd.Context {
 	// Try to read config from in-cluster env
 	context.KubeConfig, err = rest.InClusterConfig()
 	if err != nil {
-
-		// **Not** running inside a cluster - running the operator outside of the cluster.
-		// This mode is for developers running the operator on their dev machines
-		// for faster development, or to run operator cli tools manually to a remote cluster.
-		// We setup the API server config from default user file locations (most notably ~/.kube/config),
-		// and also change the executor to work remotely and run kubernetes jobs.
-		logger.Info("setting up the context to outside of the cluster")
-
-		// Try to read config from user config files
-		context.KubeConfig, err = clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
-			clientcmd.NewDefaultClientConfigLoadingRules(),
-			&clientcmd.ConfigOverrides{}).ClientConfig()
-		TerminateOnError(err, "failed to get k8s config")
-
-		// When running outside, we need to setup an executor that runs the commands as kubernetes jobs.
-		// This allows the operator code to execute tools that are available in the operator image
-		// or just have to be run inside the cluster in order to talk to the pods and services directly.
-		context.Executor = &exec.TranslateCommandExecutor{
-			Executor: context.Executor,
-			Translator: func(
-				command string,
-				arg ...string,
-			) (string, []string) {
-				jobName := "rook-exec-job-" + string(uuid.NewUUID())
-				transCommand := "kubectl"
-				transArgs := append([]string{
-					"run", jobName,
-					"--image=" + operatorImage,
-					"--serviceaccount=" + serviceAccountName,
-					"--restart=Never",
-					"--attach",
-					"--rm",
-					"--quiet",
-					"--command", "--",
-					command}, arg...)
-				return transCommand, transArgs
-			},
-		}
+		TerminateOnError(err, "failed to get k8s cluster config")
 	}
 
 	context.Clientset, err = kubernetes.NewForConfig(context.KubeConfig)
@@ -153,12 +116,6 @@ func NewContext() *clusterd.Context {
 }
 
 func GetOperatorImage(ctx context.Context, clientset kubernetes.Interface, containerName string) string {
-
-	// If provided as a flag then use that value
-	if operatorImage != "" {
-		return operatorImage
-	}
-
 	// Getting the info of the operator pod
 	pod, err := k8sutil.GetRunningPod(ctx, clientset)
 	TerminateOnError(err, "failed to get pod")
@@ -171,12 +128,6 @@ func GetOperatorImage(ctx context.Context, clientset kubernetes.Interface, conta
 }
 
 func GetOperatorServiceAccount(ctx context.Context, clientset kubernetes.Interface) string {
-
-	// If provided as a flag then use that value
-	if serviceAccountName != "" {
-		return serviceAccountName
-	}
-
 	// Getting the info of the operator pod
 	pod, err := k8sutil.GetRunningPod(ctx, clientset)
 	TerminateOnError(err, "failed to get pod")
@@ -230,4 +181,35 @@ func GetOperatorBaseImageCephVersion(context *clusterd.Context) (string, error) 
 	}
 
 	return output, nil
+}
+
+// GetInternalOrExternalClient will get a Kubernetes client interface from the KUBECONFIG variable
+// if it is set, or from the operator pod environment otherwise.
+func GetInternalOrExternalClient() kubernetes.Interface {
+	kubeconfig := os.Getenv("KUBECONFIG")
+
+	var (
+		config *rest.Config
+		err    error = fmt.Errorf("did not attempt to load a client") // just in case
+	)
+
+	if kubeconfig != "" {
+		for _, kConf := range strings.Split(kubeconfig, ":") {
+			config, err = clientcmd.BuildConfigFromFlags("", kConf)
+			if err == nil {
+				break
+			}
+		}
+	} else {
+		config, err = rest.InClusterConfig()
+	}
+	if err != nil {
+		TerminateOnError(err, "error creating client")
+	}
+
+	client, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		TerminateOnError(err, "could not get Kubernetes client interface")
+	}
+	return client
 }
