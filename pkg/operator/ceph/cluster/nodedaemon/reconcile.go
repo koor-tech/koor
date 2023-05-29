@@ -218,7 +218,7 @@ func (r *ReconcileNode) createOrUpdateNodeDaemons(node corev1.Node, tolerations 
 			logger.Debugf("crash collector successfully reconciled for node %q. operation: %q", node.Name, op)
 		}
 	}
-	if cephCluster.Spec.Monitoring.Enabled {
+	if !cephCluster.Spec.Monitoring.MetricsDisabled {
 		op, err := r.createOrUpdateCephExporter(node, tolerations, cephCluster, cephVersion)
 		if err != nil {
 			if op == "unchanged" {
@@ -240,10 +240,12 @@ func (r *ReconcileNode) createOrUpdateNodeDaemons(node corev1.Node, tolerations 
 					return errors.Wrap(err, "failed to create ceph-exporter metrics service")
 				}
 
-				if err := EnableCephExporterServiceMonitor(cephCluster, r.scheme, r.opManagerContext); err != nil {
-					return errors.Wrap(err, "failed to enable service monitor")
+				if cephCluster.Spec.Monitoring.Enabled {
+					if err := EnableCephExporterServiceMonitor(cephCluster, r.scheme, r.opManagerContext); err != nil {
+						return errors.Wrap(err, "failed to enable service monitor")
+					}
+					logger.Debug("service monitor for ceph exporter was enabled successfully")
 				}
-				logger.Debug("service monitor for ceph exporter was enabled successfully")
 			}
 
 		}
@@ -263,11 +265,11 @@ func (r *ReconcileNode) removeDisabledCrashCollectorDaemons(spec cephv1.ClusterS
 
 func (r *ReconcileNode) removeDisabledCephExporterDaemons(spec cephv1.ClusterSpec, namespace string) bool {
 	// If the ceph-exporter daemons are disabled in the spec let's remove them
-	if !spec.Monitoring.Enabled {
+	if spec.Monitoring.MetricsDisabled {
 		r.deleteNodeDaemon(cephExporterAppName, namespace)
 	}
 
-	return !spec.Monitoring.Enabled
+	return spec.Monitoring.MetricsDisabled
 }
 
 func (r *ReconcileNode) listDeploymentAndDelete(appName, nodeName, ns string) error {
