@@ -4,12 +4,6 @@ name: Backport rook/rook upstream cronjob
 #   schedule:
 #     - cron: "0 11 * * *"
 on:
-  push:
-    tags:
-      - v*
-    branches:
-      - master
-      - release-*
   pull_request:
     branches:
       - master
@@ -19,33 +13,31 @@ defaults:
     # reference: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#using-a-specific-shell
     shell: bash --noprofile --norc -eo pipefail -x {0}
 
-permissions: write-all
-  #  contents: write
-  #  actions: write
-  #  pull-requests: write
+permissions:
+  contents: write
+  actions: write
+  pull-requests: write
 
 jobs:
   push-commits-to-koor-repo:
     name: Push commits to Koor Repository
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    if: github.repository == 'koor-tech/koor'
+    if: github.repository == 'koor-tech/koor' && github.event_name == 'pull_request'
     steps:
       - name: checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN }}
 
       - name: Configure git user
         run: |
-          # Use our Rook "service account"
-          git config user.name Rook
-          git config user.email "cncf-rook-info@lists.cncf.io"
+          git config --global user.name "Koor Bot"
+          git config --global user.email "info@koor.tech"
 
       - name: pull rook upstream commits from latest master and create a PR
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           ee/scripts/merge_rook_master.sh
           # if PR already exists, we simply push to it other open a PR
