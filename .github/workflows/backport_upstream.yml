@@ -40,11 +40,9 @@ jobs:
           --repo "$GITHUB_REPOSITORY" \
           --json baseRefName,headRefName \
           --jq 'map(select(.baseRefName == "master" and .headRefName == "merge-rook-master")) | length')
-          if ((prs > 0)); then
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            exit 0
+          if ((prs == 0)); then
+            gh pr create --title 'Merge Rook upstream to Koor' --body 'Created by Github action Backport rook/rook upstream cronjob'
           fi
-          gh pr create --title 'Merge Rook upstream to Koor' --body 'Created by Github action Backport rook/rook upstream cronjob'
 
       - name: consider debugging
         if: failure()
