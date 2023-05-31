@@ -4626,6 +4626,20 @@ bool
 <p>SSL determines whether SSL should be used</p>
 </td>
 </tr>
+<tr>
+<td>
+<code>sso</code><br/>
+<em>
+<a href="#ceph.rook.io/v1.SSOSpec">
+SSOSpec
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>SSO determines whether to enable SSO for dashboard</p>
+</td>
+</tr>
 </tbody>
 </table>
 <h3 id="ceph.rook.io/v1.Device">Device
@@ -6240,6 +6254,35 @@ string
 </td>
 <td>
 <p>SecondaryDeviceClass represents low performance tier (for example HDDs) for remaining OSDs</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ceph.rook.io/v1.IDPAttributes">IDPAttributes
+</h3>
+<p>
+(<em>Appears on:</em><a href="#ceph.rook.io/v1.SSOSpec">SSOSpec</a>)
+</p>
+<div>
+<p>Attributes to take into account for SSO and user creation</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<code>username</code><br/>
+<em>
+string
+</em>
+</td>
+<td>
+<p>It should be used to get the username from the authentication response. Defaults to <code>uid</code>.</p>
 </td>
 </tr>
 </tbody>
@@ -9709,6 +9752,99 @@ HybridStorageSpec
 <div>
 <p>ResourceSpec is a collection of ResourceRequirements that describes the compute resource requirements</p>
 </div>
+<h3 id="ceph.rook.io/v1.SSOSpec">SSOSpec
+</h3>
+<p>
+(<em>Appears on:</em><a href="#ceph.rook.io/v1.DashboardSpec">DashboardSpec</a>)
+</p>
+<div>
+</div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<code>enabled</code><br/>
+<em>
+bool
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Determines whether to enable SSO</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>baseUrl</code><br/>
+<em>
+string
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Base URL where the Ceph Dashboard is exposed via an Ingress or other type of Service.</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>idpMetadataUrl</code><br/>
+<em>
+string
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>URL to IDP Metadata</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>users</code><br/>
+<em>
+<a href="#ceph.rook.io/v1.UserRef">
+[]UserRef
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>List of users to be created with a respective <a href="https://docs.ceph.com/en/latest/mgr/dashboard/#user-roles-and-permissions">Ceph dashboard system role</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>idpAttributes</code><br/>
+<em>
+<a href="#ceph.rook.io/v1.IDPAttributes">
+IDPAttributes
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>IDP Attributes that are used by the dashboard to get certain info about them during login.</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>entityID</code><br/>
+<em>
+string
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>To be used when more than one entity id exists on the IDP metadata</p>
+</td>
+</tr>
+</tbody>
+</table>
 <h3 id="ceph.rook.io/v1.SSSDSidecar">SSSDSidecar
 </h3>
 <p>
@@ -11010,6 +11146,45 @@ KafkaEndpointSpec
 </tr>
 </tbody>
 </table>
+<h3 id="ceph.rook.io/v1.UserRef">UserRef
+</h3>
+<p>
+(<em>Appears on:</em><a href="#ceph.rook.io/v1.SSOSpec">SSOSpec</a>)
+</p>
+<div>
+</div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<code>username</code><br/>
+<em>
+string
+</em>
+</td>
+<td>
+<p>Name of the user created</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>roles</code><br/>
+<em>
+[]string
+</em>
+</td>
+<td>
+<p>List of roles. Respective roles of the user which is needed for the same</p>
+</td>
+</tr>
+</tbody>
+</table>
 <h3 id="ceph.rook.io/v1.ZoneSpec">ZoneSpec
 </h3>
 <p>
@@ -11042,5 +11217,5 @@ string
 <hr/>
 <p><em>
 Generated with <code>gen-crd-api-reference-docs</code>
-on git commit <code>f8f8a3375</code>.
+on git commit <code>e8b79d184</code>.
 </em></p>
