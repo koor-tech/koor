@@ -18,6 +18,7 @@ We follow the release process of Rook upstream and also sync our latest releases
   tag_name=<release version> # e.g., v1.10.9
   git tag -a "$tag_name" -m "$tag_name release tag"
   git push upstream "$tag_name"
+  git push upstream <branch> #e.g. release-1.10
   ```
 
 * Follow the steps documented in [Rook release process](https://github.com/rook/rook/tree/master/build/release) from step 5 i.e. about generating release notes.
