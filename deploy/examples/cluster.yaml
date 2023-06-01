@@ -81,6 +81,9 @@ spec:
   monitoring:
     # requires Prometheus to be pre-installed
     enabled: false
+    # Whether to disable the metrics reported by Ceph. If false, the prometheus mgr module and Ceph exporter are enabled.
+    # If true, the prometheus mgr module and Ceph exporter are both disabled. Default is false.
+    metricsDisabled: false
   network:
     connections:
       # Whether to encrypt the data in transit across the wire to prevent eavesdropping the data on the network.
@@ -231,6 +234,7 @@ spec:
   #   crashcollector:
   #   logcollector:
   #   cleanup:
+  #   exporter:
   # The option to automatically remove OSDs that are out and are safe to destroy.
   removeOSDsIfOutAndSafeToRemove: false
   priorityClassNames:

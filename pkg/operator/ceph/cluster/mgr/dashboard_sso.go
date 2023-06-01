@@ -34,7 +34,7 @@ func (c *Cluster) configureSSO() (bool, error) {
 		output, err := client.ExecuteCephCommandWithRetry(func() (string, []byte, error) {
 			output, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
 			return "checking dashboard sso status", output, err
-		}, c.exitCode, 5, invalidArgErrorCode, dashboardInitWaitTime)
+		}, 5, dashboardInitWaitTime)
 		if err != nil {
 			return false, errors.Wrap(err, "failed to check dashboard sso status")
 		}
@@ -50,7 +50,7 @@ func (c *Cluster) configureSSO() (bool, error) {
 		_, err = client.ExecuteCephCommandWithRetry(func() (string, []byte, error) {
 			output, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
 			return "disable dashboard sso", output, err
-		}, c.exitCode, 5, invalidArgErrorCode, dashboardInitWaitTime)
+		}, 5, dashboardInitWaitTime)
 		return true, err
 	}
 
@@ -77,7 +77,7 @@ func (c *Cluster) configureSSO() (bool, error) {
 	_, err = client.ExecuteCephCommandWithRetry(func() (string, []byte, error) {
 		output, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
 		return "setup dashboard sso", output, err
-	}, c.exitCode, 5, invalidArgErrorCode, dashboardInitWaitTime)
+	}, 5, dashboardInitWaitTime)
 	if err != nil {
 		return false, err
 	}
@@ -131,7 +131,7 @@ func (c *Cluster) createUsers() (bool, error) {
 			_, err = client.ExecuteCephCommandWithRetry(func() (string, []byte, error) {
 				output, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
 				return "create dashboard user", output, err
-			}, c.exitCode, 5, invalidArgErrorCode, dashboardInitWaitTime)
+			}, 5, dashboardInitWaitTime)
 			if err != nil {
 				return false, errors.Wrap(err, "failed to create user")
 			}
@@ -202,7 +202,7 @@ func (c *Cluster) setUserRoles(username string, roles []string) error {
 	_, err := client.ExecuteCephCommandWithRetry(func() (string, []byte, error) {
 		output, err := client.NewCephCommand(c.context, c.clusterInfo, args).RunWithTimeout(exec.CephCommandsTimeout)
 		return "set user role", output, err
-	}, c.exitCode, 5, invalidArgErrorCode, dashboardInitWaitTime)
+	}, 5, dashboardInitWaitTime)
 	if err != nil {
 		return errors.Wrap(err, "failed to set user roles")
 	}

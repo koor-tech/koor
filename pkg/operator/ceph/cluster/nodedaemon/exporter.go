@@ -19,7 +19,6 @@ package nodedaemon
 import (
 	"context"
 	"fmt"
-	"path"
 	"strconv"
 
 	"github.com/pkg/errors"
@@ -59,6 +58,10 @@ func (r *ReconcileNode) createOrUpdateCephExporter(node corev1.Node, tolerations
 	// Thus, disabling ceph-exporter for now until all the regression are fixed.
 	if !cephVersion.IsAtLeast(MinVersionForCephExporter) {
 		logger.Infof("Skipping exporter reconcile on ceph version %q", cephVersion.String())
+		return controllerutil.OperationResultNone, nil
+	}
+	if cephCluster.Spec.Monitoring.MetricsDisabled {
+		logger.Info("Skipping exporter reconcile since monitoring.metricsDisabled is true")
 		return controllerutil.OperationResultNone, nil
 	}
 
@@ -114,6 +117,7 @@ func (r *ReconcileNode) createOrUpdateCephExporter(node corev1.Node, tolerations
 		if cephVersion != nil {
 			controller.AddCephVersionLabelToDeployment(*cephVersion, deploy)
 		}
+		var terminationGracePeriodSeconds int64 = 2
 		deploy.Spec.Template = corev1.PodTemplateSpec{
 			ObjectMeta: metav1.ObjectMeta{
 				Labels: deploymentLabels,
@@ -126,11 +130,12 @@ func (r *ReconcileNode) createOrUpdateCephExporter(node corev1.Node, tolerations
 				Containers: []corev1.Container{
 					getCephExporterDaemonContainer(cephCluster, *cephVersion),
 				},
-				Tolerations:       tolerations,
-				RestartPolicy:     corev1.RestartPolicyAlways,
-				HostNetwork:       cephCluster.Spec.Network.IsHost(),
-				Volumes:           volumes,
-				PriorityClassName: cephv1.GetCephExporterPriorityClassName(cephCluster.Spec.PriorityClassNames),
+				Tolerations:                   tolerations,
+				RestartPolicy:                 corev1.RestartPolicyAlways,
+				HostNetwork:                   cephCluster.Spec.Network.IsHost(),
+				Volumes:                       volumes,
+				PriorityClassName:             cephv1.GetCephExporterPriorityClassName(cephCluster.Spec.PriorityClassNames),
+				TerminationGracePeriodSeconds: &terminationGracePeriodSeconds,
 			},
 		}
 		cephv1.GetCephExporterAnnotations(cephCluster.Spec.Annotations).ApplyToObjectMeta(&deploy.Spec.Template.ObjectMeta)
@@ -215,19 +220,13 @@ func MakeCephExporterMetricsService(cephCluster cephv1.CephCluster, servicePortM
 
 // EnableCephExporterServiceMonitor add a servicemonitor that allows prometheus to scrape from the monitoring endpoint of the exporter
 func EnableCephExporterServiceMonitor(cephCluster cephv1.CephCluster, scheme *runtime.Scheme, opManagerContext context.Context) error {
-	serviceMonitor, err := k8sutil.GetServiceMonitor(path.Join(monitoringPath, serviceMonitorFile))
-	if err != nil {
-		return errors.Wrap(err, "service monitor could not be enabled")
-	}
-	serviceMonitor.SetName(cephExporterAppName)
-	serviceMonitor.SetNamespace(cephCluster.Namespace)
+	serviceMonitor := k8sutil.GetServiceMonitor(cephExporterAppName, cephCluster.Namespace)
 	cephv1.GetCephExporterLabels(cephCluster.Spec.Labels).OverwriteApplyToObjectMeta(&serviceMonitor.ObjectMeta)
 
-	err = controllerutil.SetControllerReference(&cephCluster, serviceMonitor, scheme)
+	err := controllerutil.SetControllerReference(&cephCluster, serviceMonitor, scheme)
 	if err != nil {
 		return errors.Wrapf(err, "failed to set owner reference to service monitor %q", serviceMonitor.Name)
 	}
-	serviceMonitor.Spec.NamespaceSelector.MatchNames = []string{cephCluster.Namespace}
 	serviceMonitor.Spec.Selector.MatchLabels = controller.AppLabels(cephExporterAppName, cephCluster.Namespace)
 	applyCephExporterLabels(cephCluster, serviceMonitor)
 
