@@ -378,10 +378,6 @@ func (r *ReconcileObjectStoreUser) initializeObjectStoreContext(u *cephv1.CephOb
 		return errors.Wrapf(err, "Multisite failed to set on object context for object store user")
 	}
 
-	// The object store context needs the CephCluster spec to read networkinfo
-	// Otherwise GetAdminOPSUserCredentials() will fail detecting the network provider when running RunAdminCommandNoMultisite()
-	objContext.CephClusterSpec = *r.cephClusterSpec
-
 	opsContext, err := newMultisiteAdminOpsCtxFunc(objContext, &store.Spec)
 	if err != nil {
 		return errors.Wrap(err, "failed to initialized rgw admin ops client api")
@@ -433,6 +429,33 @@ func generateUserConfig(user *cephv1.CephObjectStoreUser) admin.User {
 		}
 		if user.Spec.Capabilities.Zone != "" {
 			userConfig.UserCaps += fmt.Sprintf("zone=%s;", user.Spec.Capabilities.Zone)
+		}
+		if user.Spec.Capabilities.Roles != "" {
+			userConfig.UserCaps += fmt.Sprintf("roles=%s;", user.Spec.Capabilities.Roles)
+		}
+		if user.Spec.Capabilities.AMZCache != "" {
+			userConfig.UserCaps += fmt.Sprintf("amz-cache=%s;", user.Spec.Capabilities.AMZCache)
+		}
+		if user.Spec.Capabilities.BiLog != "" {
+			userConfig.UserCaps += fmt.Sprintf("bilog=%s;", user.Spec.Capabilities.BiLog)
+		}
+		if user.Spec.Capabilities.Info != "" {
+			userConfig.UserCaps += fmt.Sprintf("info=%s;", user.Spec.Capabilities.Info)
+		}
+		if user.Spec.Capabilities.MdLog != "" {
+			userConfig.UserCaps += fmt.Sprintf("mdlog=%s;", user.Spec.Capabilities.MdLog)
+		}
+		if user.Spec.Capabilities.DataLog != "" {
+			userConfig.UserCaps += fmt.Sprintf("datalog=%s;", user.Spec.Capabilities.DataLog)
+		}
+		if user.Spec.Capabilities.UserPolicy != "" {
+			userConfig.UserCaps += fmt.Sprintf("user-policy=%s;", user.Spec.Capabilities.UserPolicy)
+		}
+		if user.Spec.Capabilities.OidcProvider != "" {
+			userConfig.UserCaps += fmt.Sprintf("oidc-provider=%s;", user.Spec.Capabilities.OidcProvider)
+		}
+		if user.Spec.Capabilities.RateLimit != "" {
+			userConfig.UserCaps += fmt.Sprintf("ratelimit=%s;", user.Spec.Capabilities.RateLimit)
 		}
 	}
 

@@ -55,13 +55,11 @@ If this value is empty, each pod will get an ephemeral directory to store their 
             * `username`: It should be used to get the username from the authentication response. Defaults to `uid`.
         * `entityID`: To be used when more than one entity id exists on the IDP metadata
 * `monitoring`: Settings for monitoring Ceph using Prometheus. To enable monitoring on your cluster see the [monitoring guide](../../Storage-Configuration/Monitoring/ceph-monitoring.md#prometheus-alerts).
-    * `enabled`: Whether to enable prometheus based monitoring for external or internal cluster
+    * `enabled`: Whether to enable the prometheus service monitor for an internal cluster. For an external cluster, whether to create an endpoint port for the metrics. Default is false.
+    * `metricsDisabled`: Whether to disable the metrics reported by Ceph. If false, the prometheus mgr module and Ceph exporter are enabled.
+    If true, the prometheus mgr module and Ceph exporter are both disabled. Default is false.
     * `externalMgrEndpoints`: external cluster manager endpoints
     * `externalMgrPrometheusPort`: external prometheus manager module port. See [external cluster configuration](#external-cluster) for more details.
-    * `rulesNamespace`: Namespace to deploy prometheusRule. If empty, namespace of the cluster will be used.
-      Recommended:
-        * If you have a single Rook cluster, set the `rulesNamespace` to the same namespace as the cluster or keep it empty.
-        * If you have multiple Rook clusters in the same Kubernetes cluster, choose the same namespace to set `rulesNamespace` for all the clusters (ideally, namespace with prometheus deployed). Otherwise, you will get duplicate alerts with duplicate alert definitions.
     * `port`: The internal prometheus manager module port where the prometheus mgr module listens. The port may need to be configured when host networking is enabled.
     * `interval`: The interval for the prometheus module to to scrape targets.
 * `network`: For the network settings for the cluster, refer to the [network configuration settings](#network-configuration-settings)
@@ -232,7 +230,7 @@ Based on the configuration, the operator will do the following:
           public: rook-ceph/rook-public-nw
     ```
 
-2. If only the `cluster` selector is specified, the internal cluster traffic* will happen on that network. All other traffic to mons, OSDs, and other daemons will be on the default network.
+2. If only the `cluster` selector is specified, the internal cluster traffic\* will happen on that network. All other traffic to mons, OSDs, and other daemons will be on the default network.
 
     ```yaml
       network:
@@ -241,7 +239,7 @@ Based on the configuration, the operator will do the following:
           cluster: rook-ceph/rook-cluster-nw
     ```
 
-3. If both `public` and `cluster` selectors are specified the first one will run all the communication network and the second the internal cluster network*
+3. If both `public` and `cluster` selectors are specified the first one will run all the communication network and the second the internal cluster network\*
 
     ```yaml
       network:
@@ -285,7 +283,7 @@ spec:
 ```
 
 * Ensure that `master` matches the network interface of the host that you want to use.
-* Ipam type `whereabouts` is required because it makes sure that all the pods get a unique IP address from the multus network.
+* IPAM type `whereabouts` is required because it makes sure that all the pods get a unique IP address from the multus network.
 * The NetworkAttachmentDefinition should be referenced along with the namespace in which it is present like `public: <namespace>/<name of NAD>`.
   e.g., the network attachment definition are in `default` namespace:
 
@@ -297,7 +295,22 @@ spec:
     * This format is required in order to use the NetworkAttachmentDefinition across namespaces.
     * In Openshift, to use a NetworkAttachmentDefinition (NAD) across namespaces, the NAD must be deployed in the `default` namespace. The NAD is then referenced with the namespace: `default/rook-public-nw`
 
-#### Known limitations with Multus
+##### Validating Multus configuration
+
+We **highly** recommend validating your Multus configuration before you install Rook. A tool exists
+to facilitate validating the Multus configuration. After installing the Rook operator and before
+installing any Custom Resources, run the tool from the operator pod.
+
+The tool's CLI is designed to be as helpful as possible. Get help text for the multus validation
+tool like so:
+```console
+kubectl --namespace rook-ceph exec -it deploy/rook-ceph-operator -- rook ctl multus validation run --help
+```
+
+If the tool fails, it will suggest what things may be preventing Multus networks from working
+properly, and it will request the logs and outputs that will help debug issues.
+
+##### Known limitations with Multus
 
 Daemons leveraging Kubernetes service IPs (Monitors, Managers, Rados Gateways) are not listening on the NAD specified in the `selectors`.
 Instead the daemon listens on the default network, however the NAD is attached to the container,
@@ -527,6 +540,7 @@ It scrapes for Ceph daemon core dumps and sends them to the Ceph manager crash m
 You can read more about the [Ceph Crash module](https://docs.ceph.com/docs/master/mgr/crash/).
 * `logcollector`: Set resource requests/limits for the log collector. When enabled, this container runs as side-car to each Ceph daemons.
 * `cleanup`: Set resource requests/limits for cleanup job, responsible for wiping cluster's data after uninstall
+* `exporter`: Set resource requests/limits for Ceph exporter.
 
 In order to provide the best possible experience running Ceph in containers, Rook internally recommends minimum memory limits if resource limits are passed.
 If a user configures a limit or request value that is too low, Rook will still run the pod(s) and print a warning to the operator log.
@@ -537,6 +551,7 @@ If a user configures a limit or request value that is too low, Rook will still r
 * `crashcollector`: 60MB
 * `mgr-sidecar`: 100MB limit, 40MB requests
 * `prepareosd`: no limits (see the note)
+* `exporter`: 128MB limit, 50MB requests
 
 !!! note
     We recommend not setting memory limits on the OSD prepare job to prevent OSD provisioning failure due to memory constraints.
