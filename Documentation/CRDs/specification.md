@@ -6483,6 +6483,18 @@ See <a href="https://github.com/nfs-ganesha/nfs-ganesha/wiki/RPCSEC_GSS">https:/
 </tr>
 <tr>
 <td>
+<code>domainName</code><br/>
+<em>
+string
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>DomainName should be set to the Kerberos Realm.</p>
+</td>
+</tr>
+<tr>
+<td>
 <code>configFiles</code><br/>
 <em>
 <a href="#ceph.rook.io/v1.KerberosConfigFiles">
@@ -11217,5 +11229,5 @@ string
 <hr/>
 <p><em>
 Generated with <code>gen-crd-api-reference-docs</code>
-on git commit <code>e8b79d184</code>.
+on git commit <code>37c95ad66</code>.
 </em></p>
