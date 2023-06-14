@@ -216,11 +216,11 @@ docs-preview: ## Preview the documentation through mkdocs
 docs-build:  ## Build the documentation to the `site/` directory
 	mkdocs build --strict
 
-generate-docs-crds: ## Build the documentation for CRD
-	@build/crds/generate-crd-docs.sh
+generate-docs-crds: $(GEN_CRD_API_REFERENCE_DOCS) ## Build the documentation for CRD
+	GEN_CRD_API_REFERENCE_DOCS="$(GEN_CRD_API_REFERENCE_DOCS)" build/crds/generate-crd-docs.sh
 
-validate-and-gen-docs-crds: ## Force generation of CRD documentation
-	build/crds/generate-crd-docs.sh --force
+validate-and-gen-docs-crds: $(GEN_CRD_API_REFERENCE_DOCS) ## Force generation of CRD documentation
+	GEN_CRD_API_REFERENCE_DOCS="$(GEN_CRD_API_REFERENCE_DOCS)" build/crds/generate-crd-docs.sh --force
 
 .PHONY: all build.common
 .PHONY: build build.all install test check vet fmt codegen mod.check clean distclean prune

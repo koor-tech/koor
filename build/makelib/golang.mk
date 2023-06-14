@@ -236,3 +236,22 @@ export CODE_GENERATOR=$(TOOLS_HOST_DIR)/code-generator-$(CODE_GENERATOR_VERSION)
 $(CODE_GENERATOR):
 	mkdir -p $(TOOLS_HOST_DIR)
 	curl -sL https://github.com/kubernetes/code-generator/archive/refs/tags/v${CODE_GENERATOR_VERSION}.tar.gz | tar -xz -C $(TOOLS_HOST_DIR)
+
+export GEN_CRD_API_REFERENCE_DOC_VERSION=v0.3.0
+GEN_CRD_API_REFERENCE_DOCS := $(TOOLS_HOST_DIR)/gen-crd-api-reference-docs
+
+$(GEN_CRD_API_REFERENCE_DOCS):
+	{ \
+		set -e ;\
+		mkdir -p $(TOOLS_HOST_DIR) ;\
+		GEN_CRD_API_REFERENCE_DOCS_TMP_DIR=$$(mktemp -d) ;\
+		cd $$GEN_CRD_API_REFERENCE_DOCS_TMP_DIR ;\
+		go mod init tmp;\
+		unset GOOS GOARCH ;\
+		export CGO_ENABLED=$(CGO_ENABLED_VALUE) ;\
+		export GOBIN=$$GEN_CRD_API_REFERENCE_DOCS_TMP_DIR ;\
+		echo === installing gen-crd-api-reference-docs ;\
+		go install github.com/ahmetb/gen-crd-api-reference-docs@$(GEN_CRD_API_REFERENCE_DOC_VERSION); \
+		mv $$GEN_CRD_API_REFERENCE_DOCS_TMP_DIR/gen-crd-api-reference-docs $(GEN_CRD_API_REFERENCE_DOCS) ;\
+		rm -rf $$GEN_CRD_API_REFERENCE_DOCS_TMP_DIR ;\
+	}
