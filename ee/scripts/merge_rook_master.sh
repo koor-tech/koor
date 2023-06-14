@@ -40,13 +40,13 @@ for OUR_FILE in "${OUR_FILES[@]}"; do
         "$REMOTE_NAME/master" -- "$OUR_FILE"
 done
 
-# Make sure to re-generate CRDs, Helm Chart Docs, etc., to be up-to-date with custom changes
-make crds helm-docs validate-and-gen-docs-crds
-# Stage the re-generated files
-git add \
-    deploy/charts/ \
-    deploy/olm/ \
-    Documentation/
+# Make sure to re-generate CRDs, Helm Chart Docs, etc., twice to be certain everything is really
+# up-to-date with custom changes
+make crds helm-docs generate-docs-crds
+make crds helm-docs generate-docs-crds
+
+# Stage all changed files
+git add --all
 
 git \
     -c core.editor=/bin/true \
