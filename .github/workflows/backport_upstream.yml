@@ -23,6 +23,11 @@ jobs:
     runs-on: ubuntu-latest
     if: github.repository == 'koor-tech/koor'
     steps:
+      - name: Set up Golang
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.19
+
       - name: checkout
         uses: actions/checkout@v3
         with:
