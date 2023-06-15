@@ -98,7 +98,7 @@ A stretched cluster is a deployment model in which two datacenters with low late
 
 The [Rook toolbox](../Troubleshooting/ceph-toolbox.md) is a container with common tools used for rook debugging and testing.
 
-## Koor 
+## Koor
 
 ### Koor Storage Distribution (KSD)
 
