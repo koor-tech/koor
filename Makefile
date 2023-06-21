@@ -121,6 +121,7 @@ build.version:
 # Change how CRDs are generated for CSVs
 build.common: export NO_OB_OBC_VOL_GEN=true
 build.common: export MAX_DESC_LEN=0
+build.common: export SKIP_GEN_CRD_DOCS=true
 build.common: build.version helm.build mod.check crds gen-rbac
 	@$(MAKE) go.init
 	@$(MAKE) go.validate
@@ -134,7 +135,6 @@ do.build.parallel: $(foreach p,$(PLATFORMS_TO_BUILD_FOR), do.build.platform.$(p)
 build: csv-clean build.common ## Only build for linux platform
 	@$(MAKE) go.build PLATFORM=linux_$(GOHOSTARCH)
 	@$(MAKE) -C images PLATFORM=linux_$(GOHOSTARCH)
-	@$(MAKE) generate-docs-crds
 
 build.all: build.common ## Build source code for all platforms.
 ifneq ($(GOHOSTARCH),amd64)
@@ -193,6 +193,7 @@ csv-clean: ## Remove existing OLM files.
 crds: $(CONTROLLER_GEN) $(YQ)
 	@echo Updating CRD manifests
 	@build/crds/build-crds.sh $(CONTROLLER_GEN) $(YQ)
+	@GOBIN=$(GOBIN) build/crds/generate-crd-docs.sh
 
 gen-rbac: $(HELM) $(YQ) ## Generate RBAC from Helm charts
 	@# output only stdout to the file; stderr for debugging should keep going to stderr
@@ -216,11 +217,8 @@ docs-preview: ## Preview the documentation through mkdocs
 docs-build:  ## Build the documentation to the `site/` directory
 	mkdocs build --strict
 
-generate-docs-crds: $(GEN_CRD_API_REFERENCE_DOCS) ## Build the documentation for CRD
-	GEN_CRD_API_REFERENCE_DOCS="$(GEN_CRD_API_REFERENCE_DOCS)" build/crds/generate-crd-docs.sh
-
-validate-and-gen-docs-crds: $(GEN_CRD_API_REFERENCE_DOCS) ## Force generation of CRD documentation
-	GEN_CRD_API_REFERENCE_DOCS="$(GEN_CRD_API_REFERENCE_DOCS)" build/crds/generate-crd-docs.sh --force
+generate-docs-crds: ## Build the documentation for CRD
+	@GOBIN=$(GOBIN) build/crds/generate-crd-docs.sh
 
 .PHONY: all build.common
 .PHONY: build build.all install test check vet fmt codegen mod.check clean distclean prune
