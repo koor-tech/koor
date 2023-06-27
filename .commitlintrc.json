@@ -23,6 +23,7 @@
         "mgr",
         "mon",
         "monitoring",
+        "multus",
         "nfs",
         "object",
         "operator",
@@ -34,7 +35,8 @@
         "subvolumegroup",
         "namespace",
         "test",
-        "webhook"
+        "webhook",
+        "chore"
       ]
     ],
     "body-leading-blank": [

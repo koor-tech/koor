@@ -37,7 +37,7 @@ declare -a OUR_FILES=(
 for OUR_FILE in "${OUR_FILES[@]}"; do
     git checkout \
         --ours \
-        "$REMOTE_NAME/master" -- "$OUR_FILE"
+        origin/master -- "$OUR_FILE"
 done
 
 # Make sure to re-generate CRDs, Helm Chart Docs, etc., twice to be certain everything is really
