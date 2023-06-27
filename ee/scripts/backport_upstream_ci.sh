@@ -20,7 +20,7 @@ prs=$(echo "$pr_list" | jq -r '. | length')
 
 # Create rebase PR if none exist yet
 if (( prs == 0 )); then
-    if pr_url=$(gh pr create --title 'Merge Rook upstream to Koor' --body 'Created by Github action Backport rook/rook upstream cronjob'); then
+    if pr_url=$(gh pr create --repo "$TARGET_REPO" --title 'Merge Rook upstream to Koor' --body 'Created by Github action Backport rook/rook upstream cronjob' --reviewer koor-tech/koor-team); then
         echo ":new_moon: Rebase PR opened $pr_url" >> $GITHUB_STEP_SUMMARY
     else
         echo "gh pr create Output: $pr_url"
