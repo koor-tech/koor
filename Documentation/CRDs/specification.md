@@ -6258,6 +6258,35 @@ string
 </tr>
 </tbody>
 </table>
+<h3 id="ceph.rook.io/v1.IDPAttributes">IDPAttributes
+</h3>
+<p>
+(<em>Appears on:</em><a href="#ceph.rook.io/v1.SSOSpec">SSOSpec</a>)
+</p>
+<div>
+<p>Attributes to take into account for SSO and user creation</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<code>username</code><br/>
+<em>
+string
+</em>
+</td>
+<td>
+<p>It should be used to get the username from the authentication response. Defaults to <code>uid</code>.</p>
+</td>
+</tr>
+</tbody>
+</table>
 <h3 id="ceph.rook.io/v1.IPFamilyType">IPFamilyType
 (<code>string</code> alias)</h3>
 <p>
@@ -11199,5 +11228,5 @@ string
 </table>
 <hr/>
 <p><em>
-Generated with <code>gen-crd-api-reference-docs</code>
+Generated with <code>gen-crd-api-reference-docs</code>.
 </em></p>
