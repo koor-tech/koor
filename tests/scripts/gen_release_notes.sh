@@ -23,6 +23,7 @@ function release_notes() {
   for pr in $pr_list; do
   # get PR title
   backport_pr=$(curl -s -u "${GITHUB_USER}":"${GITHUB_TOKEN}" "https://api.github.com/repos/koor-tech/koor/pulls/${pr}" | jq '.title')
+  backport_pr=$(curl -s -u "${GITHUB_USER}":"${GITHUB_TOKEN}" "https://api.github.com/repos/rook/rook/pulls/${pr}" | jq '.title')
   # with upstream/release-1.6 v1.6.8, it was giving extra PR numbers, so removing after PR for changing tag is merged.
   if [[ "$backport_pr" =~ ./*"build: Update build version to $TO_TAG"* ]]; then
     break
@@ -37,6 +38,7 @@ function release_notes() {
   fi
   # get the PR title and PR owner in required format
   title_with_user=$(curl -s -u "${GITHUB_USER}":"${GITHUB_TOKEN}" "https://api.github.com/repos/koor-tech/koor/pulls/${original_pr}" |  jq '.title+ " (#, @"+.user.login+")"')
+  title_with_user=$(curl -s -u "${GITHUB_USER}":"${GITHUB_TOKEN}" "https://api.github.com/repos/rook/rook/pulls/${original_pr}" |  jq '.title+ " (#, @"+.user.login+")"')
   # add PR number after "#"
   result=$(echo "$title_with_user" | sed "s/(#/(#$original_pr/" |tail -c +2)
   # remove last `"`
