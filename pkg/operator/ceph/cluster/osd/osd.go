@@ -246,6 +246,10 @@ func (c *Cluster) Start() error {
 		return errors.Wrapf(err, "failed to reconcile key rotation cron jobs")
 	}
 
+	if err := c.ConfigureOSDScrubbing(); err != nil {
+		return errors.Wrap(err, "failed to reconcile osd scrubbing schedule")
+	}
+
 	logger.Infof("finished running OSDs in namespace %q", namespace)
 	return nil
 }

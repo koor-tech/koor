@@ -10170,6 +10170,170 @@ int32
 </td>
 </tr></tbody>
 </table>
+<h3 id="ceph.rook.io/v1.Scrubbing">Scrubbing
+</h3>
+<p>
+(<em>Appears on:</em><a href="#ceph.rook.io/v1.StorageScopeSpec">StorageScopeSpec</a>)
+</p>
+<div>
+</div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<code>applySchedule</code><br/>
+<em>
+bool
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>ApplySchedule whether the scrubbing schedule specified should be applied to the cluster</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>maxScrubOps</code><br/>
+<em>
+int64
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Max scrubbing operations at the same time</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>beginHour</code><br/>
+<em>
+int32
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Begin hour of scrubbing schedule
+Setting both <code>BeginHour</code> and <code>EndHour</code> to <code>0</code>, will allow scrubbing the entire day.
+Default: <code>0</code></p>
+</td>
+</tr>
+<tr>
+<td>
+<code>endHour</code><br/>
+<em>
+int32
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>End hour of scrubbing schedule
+Default: <code>0</code></p>
+</td>
+</tr>
+<tr>
+<td>
+<code>beginWeekDay</code><br/>
+<em>
+int32
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Begin week day of scrubbing schedule
+<code>0</code> = Sunday, <code>1</code> = Monday, etc.
+Default: <code>0</code> = Sunday</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>endWeekDay</code><br/>
+<em>
+int32
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>End week day of scrubbing schedule
+<code>0</code> = Sunday, <code>1</code> = Monday, etc.
+Default: <code>0</code> = Sunday</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>minScrubInterval</code><br/>
+<em>
+<a href="https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Duration">
+Kubernetes meta/v1.Duration
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Minimum interval to wait before scrubbing again
+Default: <code>24h</code> (1 day)
+Note: due to discrepancies in validation vs parsing, we use a Pattern instead of <code>Format=duration</code>. Thanks to
+<a href="https://github.com/openshift/hive/pull/1684">https://github.com/openshift/hive/pull/1684</a> for showing a way to fix it.</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>maxScrubInterval</code><br/>
+<em>
+<a href="https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Duration">
+Kubernetes meta/v1.Duration
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Maximum interval to wait before scrubbing is forced
+Default: <code>168h</code> (7 days)
+Note: due to discrepancies in validation vs parsing, we use a Pattern instead of <code>Format=duration</code>. Thanks to
+<a href="https://github.com/openshift/hive/pull/1684">https://github.com/openshift/hive/pull/1684</a> for showing a way to fix it.</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>deepScrubInterval</code><br/>
+<em>
+<a href="https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Duration">
+Kubernetes meta/v1.Duration
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Interval at which to do deeb scrubbing instead of a &ldquo;light&rdquo; scrubbing
+Default: <code>168h</code> (7 days)
+Note: due to discrepancies in validation vs parsing, we use a Pattern instead of <code>Format=duration</code>. Thanks to
+<a href="https://github.com/openshift/hive/pull/1684">https://github.com/openshift/hive/pull/1684</a> for showing a way to fix it.</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>scrubSleepSeconds</code><br/>
+<em>
+<a href="https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Duration">
+Kubernetes meta/v1.Duration
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Set the scrub sleep as a duration
+Default <code>0ms</code>, recommended if you are impacted by scrubbing <code>100ms</code>
+Note: due to discrepancies in validation vs parsing, we use a Pattern instead of <code>Format=duration</code>. Thanks to
+<a href="https://github.com/openshift/hive/pull/1684">https://github.com/openshift/hive/pull/1684</a> for showing a way to fix it.</p>
+</td>
+</tr>
+</tbody>
+</table>
 <h3 id="ceph.rook.io/v1.SecuritySpec">SecuritySpec
 </h3>
 <p>
@@ -10977,6 +11141,19 @@ Selection
 <em>
 <a href="#ceph.rook.io/v1.StorageClassDeviceSet">
 []StorageClassDeviceSet
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+</td>
+</tr>
+<tr>
+<td>
+<code>scrubbing</code><br/>
+<em>
+<a href="#ceph.rook.io/v1.Scrubbing">
+Scrubbing
 </a>
 </em>
 </td>

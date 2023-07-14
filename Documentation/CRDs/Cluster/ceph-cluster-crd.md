@@ -77,6 +77,7 @@ For more details on the mons and when to choose a number other than `3`, see the
     * `useAllNodes`: `true` or `false`, indicating if all nodes in the cluster should be used for storage according to the cluster level storage selection and configuration values.
   If individual nodes are specified under the `nodes` field, then `useAllNodes` must be set to `false`.
     * `nodes`: Names of individual nodes in the cluster that should have their storage included in accordance with either the cluster level configuration specified above or any node specific overrides described in the next section below.
+    * `scrubbing`: OSD Scrubbing schedule configuration, see [OSD Scrubbing schedule](#osd-scrubbing-schedule).
   `useAllNodes` must be set to `false` to use specific nodes and their config.
   See [node settings](#node-settings) below.
     * `config`: Config settings applied to all OSDs on the node unless overridden by `devices`. See the [config settings](#osd-configuration-settings) below.
@@ -418,6 +419,23 @@ The following storage selection settings are specific to Ceph and do not apply t
 * `osdsPerDevice`**: The number of OSDs to create on each device. High performance devices such as NVMe can handle running multiple OSDs. If desired, this can be overridden for each node and each device.
 * `encryptedDevice`**: Encrypt OSD volumes using dmcrypt ("true" or "false"). By default this option is disabled. See [encryption](http://docs.ceph.com/docs/master/ceph-volume/lvm/encryption/) for more information on encryption in Ceph.
 * `crushRoot`: The value of the `root` CRUSH map label. The default is `default`. Generally, you should not need to change this. However, if any of your topology labels may have the value `default`, you need to change `crushRoot` to avoid conflicts, since CRUSH map values need to be unique.
+
+### OSD Scrubbing Schedule
+
+These options can be used to set a custom OSD scrubbing schedule easily instead of having to use the Ceph config override:
+
+* `applySchedule`: Whether the scrubbing schedule specified should be applied to the cluster.
+* `maxScrubOps`: Max scrubbing operations happening at the same time. Default: `3`.
+* `beginHour`: Begin hour of scrubbing schedule. Default `0`. Setting both `BeginHour` and `EndHour` to `0`, will allow scrubbing the entire day.
+* `endHour`: End hour of scrubbing schedule. Default `0`.
+* `beginWeekDay`: Begin week day of scrubbing schedule. `0` = Sunday, `1` = Monday, etc. Default: `0`.
+* `endWeekDay`: End week day of scrubbing schedule. `0` = Sunday, `1` = Monday, etc. Default: `0`.
+* `minScrubInterval`: Minimum interval to wait before scrubbing again. Default: `24h` (1 day).
+* `maxScrubInterval`: Maximum interval to wait before scrubbing is forced. Default: `168h` (7 days).
+* `deepScrubInterval`: Interval at which to do deeb scrubbing instead of a "light" scrubbing. Default: `168h` (7 days).
+* `scrubSleepSeconds`: Set the scrub sleep as a duration. Default: `0ms`, if you are impacted by scrubbing causing performance issues, it is recommended to set it to at least `100ms`.
+
+For more information about Ceph OSD scrubbing checkout [OSD Config Reference - Scrubbing - Ceph Documentation](https://docs.ceph.com/en/latest/rados/configuration/osd-config-ref/#scrubbing).
 
 ### Annotations and Labels
 

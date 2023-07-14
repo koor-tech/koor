@@ -2970,6 +2970,59 @@ spec:
                       type: array
                     onlyApplyOSDPlacement:
                       type: boolean
+                    scrubbing:
+                      nullable: true
+                      properties:
+                        applySchedule:
+                          description: ApplySchedule whether the scrubbing schedule specified should be applied to the cluster
+                          type: boolean
+                        beginHour:
+                          default: 0
+                          description: 'Begin hour of scrubbing schedule Setting both `BeginHour` and `EndHour` to `0`, will allow scrubbing the entire day. Default: `0`'
+                          format: int32
+                          minimum: 0
+                          type: integer
+                        beginWeekDay:
+                          default: 0
+                          description: 'Begin week day of scrubbing schedule `0` = Sunday, `1` = Monday, etc. Default: `0` = Sunday'
+                          format: int32
+                          minimum: 0
+                          type: integer
+                        deepScrubInterval:
+                          description: 'Interval at which to do deeb scrubbing instead of a "light" scrubbing Default: `168h` (7 days) Note: due to discrepancies in validation vs parsing, we use a Pattern instead of `Format=duration`. Thanks to https://github.com/openshift/hive/pull/1684 for showing a way to fix it.'
+                          pattern: ^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$
+                          type: string
+                        endHour:
+                          default: 0
+                          description: 'End hour of scrubbing schedule Default: `0`'
+                          format: int32
+                          minimum: 0
+                          type: integer
+                        endWeekDay:
+                          default: 0
+                          description: 'End week day of scrubbing schedule `0` = Sunday, `1` = Monday, etc. Default: `0` = Sunday'
+                          format: int32
+                          minimum: 0
+                          type: integer
+                        maxScrubInterval:
+                          description: 'Maximum interval to wait before scrubbing is forced Default: `168h` (7 days) Note: due to discrepancies in validation vs parsing, we use a Pattern instead of `Format=duration`. Thanks to https://github.com/openshift/hive/pull/1684 for showing a way to fix it.'
+                          pattern: ^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$
+                          type: string
+                        maxScrubOps:
+                          default: 3
+                          description: Max scrubbing operations at the same time
+                          format: int64
+                          minimum: 1
+                          type: integer
+                        minScrubInterval:
+                          description: 'Minimum interval to wait before scrubbing again Default: `24h` (1 day) Note: due to discrepancies in validation vs parsing, we use a Pattern instead of `Format=duration`. Thanks to https://github.com/openshift/hive/pull/1684 for showing a way to fix it.'
+                          pattern: ^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$
+                          type: string
+                        scrubSleepSeconds:
+                          description: 'Set the scrub sleep as a duration Default `0ms`, recommended if you are impacted by scrubbing `100ms` Note: due to discrepancies in validation vs parsing, we use a Pattern instead of `Format=duration`. Thanks to https://github.com/openshift/hive/pull/1684 for showing a way to fix it.'
+                          pattern: ^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$
+                          type: string
+                      type: object
                     storageClassDeviceSets:
                       items:
                         description: StorageClassDeviceSet is a storage class device set
