@@ -19,15 +19,17 @@ spec:
   # [...]
   storage:
     # [...]
-    scrubbingSchedule:
-      maxScrubsOps: 3
+    scrubbing:
+      applySchedule: true
+      maxScrubOps: 3
       beginHour: 8
-      beginWeekDay: 1
       endHour: 17
+      beginWeekDay: 1
       endWeekDay: 5
-      minScrubInterval: 1d
-      maxScrubInterval: 7d
-      deepScrubInterval: 7d
+      minScrubInterval: 24h
+      maxScrubInterval: 168h
+      deepScrubInterval: 168h
+      scrubSleepSeconds: 100ms
   # [...]
 ```
 

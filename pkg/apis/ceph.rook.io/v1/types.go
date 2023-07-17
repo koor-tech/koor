@@ -2604,6 +2604,9 @@ type StorageScopeSpec struct {
 	// +nullable
 	// +optional
 	StorageClassDeviceSets []StorageClassDeviceSet `json:"storageClassDeviceSets,omitempty"`
+	// +nullable
+	// +optional
+	Scrubbing Scrubbing `json:"scrubbing"`
 }
 
 // Node is a storage nodes
@@ -2860,4 +2863,74 @@ type ConfigFileVolumeSource struct {
 	ConfigMap *v1.ConfigMapVolumeSource `json:"configMap,omitempty" protobuf:"bytes,19,opt,name=configMap"`
 	// projected items for all in one resources secrets, configmaps, and downward API
 	Projected *v1.ProjectedVolumeSource `json:"projected,omitempty" protobuf:"bytes,26,opt,name=projected"`
+}
+
+type Scrubbing struct {
+	// ApplySchedule whether the scrubbing schedule specified should be applied to the cluster
+	// +optional
+	ApplySchedule bool `json:"applySchedule,omitempty"`
+	// Max scrubbing operations at the same time
+	// +optional
+	// +kubebuilder:default=3
+	// +kubebuilder:validation:Minimum=1
+	MaxScrubOps int64 `json:"maxScrubOps,omitempty"`
+	// Begin hour of scrubbing schedule
+	// Setting both `BeginHour` and `EndHour` to `0`, will allow scrubbing the entire day.
+	// Default: `0`
+	// +optional
+	// +kubebuilder:default=0
+	// +kubebuilder:validation:Minimum=0
+	BeginHour int32 `json:"beginHour,omitempty"`
+	// End hour of scrubbing schedule
+	// Default: `0`
+	// +optional
+	// +kubebuilder:default=0
+	// +kubebuilder:validation:Minimum=0
+	EndHour int32 `json:"endHour,omitempty"`
+	// Begin week day of scrubbing schedule
+	// `0` = Sunday, `1` = Monday, etc.
+	// Default: `0` = Sunday
+	// +optional
+	// +kubebuilder:default=0
+	// +kubebuilder:validation:Minimum=0
+	BeginWeekDay int32 `json:"beginWeekDay,omitempty"`
+	// End week day of scrubbing schedule
+	// `0` = Sunday, `1` = Monday, etc.
+	// Default: `0` = Sunday
+	// +optional
+	// +kubebuilder:default=0
+	// +kubebuilder:validation:Minimum=0
+	EndWeekDay int32 `json:"endWeekDay,omitempty"`
+	// Minimum interval to wait before scrubbing again
+	// Default: `24h` (1 day)
+	// Note: due to discrepancies in validation vs parsing, we use a Pattern instead of `Format=duration`. Thanks to
+	// https://github.com/openshift/hive/pull/1684 for showing a way to fix it.
+	// +optional
+	// +kubebuilder:validation:Type=string
+	// +kubebuilder:validation:Pattern=^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$
+	MinScrubInterval *metav1.Duration `json:"minScrubInterval,omitempty"`
+	// Maximum interval to wait before scrubbing is forced
+	// Default: `168h` (7 days)
+	// Note: due to discrepancies in validation vs parsing, we use a Pattern instead of `Format=duration`. Thanks to
+	// https://github.com/openshift/hive/pull/1684 for showing a way to fix it.
+	// +optional
+	// +kubebuilder:validation:Type=string
+	// +kubebuilder:validation:Pattern=^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$
+	MaxScrubInterval *metav1.Duration `json:"maxScrubInterval,omitempty"`
+	// Interval at which to do deeb scrubbing instead of a "light" scrubbing
+	// Default: `168h` (7 days)
+	// Note: due to discrepancies in validation vs parsing, we use a Pattern instead of `Format=duration`. Thanks to
+	// https://github.com/openshift/hive/pull/1684 for showing a way to fix it.
+	// +optional
+	// +kubebuilder:validation:Type=string
+	// +kubebuilder:validation:Pattern=^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$
+	DeepScrubInterval *metav1.Duration `json:"deepScrubInterval,omitempty"`
+	// Set the scrub sleep as a duration
+	// Default `0ms`, recommended if you are impacted by scrubbing `100ms`
+	// Note: due to discrepancies in validation vs parsing, we use a Pattern instead of `Format=duration`. Thanks to
+	// https://github.com/openshift/hive/pull/1684 for showing a way to fix it.
+	// +optional
+	// +kubebuilder:validation:Type=string
+	// +kubebuilder:validation:Pattern=^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$
+	ScrubSleepSeconds *metav1.Duration `json:"scrubSleepSeconds,omitempty"`
 }

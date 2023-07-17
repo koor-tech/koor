@@ -268,6 +268,19 @@ spec:
     #     deviceFilter: "^sd."
     # when onlyApplyOSDPlacement is false, will merge both placement.All() and placement.osd
     onlyApplyOSDPlacement: false
+    # OSD scrubbing schedule config, see Ceph Cluster CRD documentation section `OSD Scrubbing Schedule`
+    scrubbing:
+      # Whether the scrubbing schedule specified should be applied to the cluster
+      applySchedule: false
+      maxScrubOps: 3
+      beginHour: 0
+      endHour: 0
+      beginWeekDay: 1
+      endWeekDay: 0
+      minScrubInterval: 24h
+      maxScrubInterval: 168h
+      deepScrubInterval: 168h
+      scrubSleepSeconds: 100ms
   # The section for configuring management of daemon disruptions during upgrade or fencing.
   disruptionManagement:
     # If true, the operator will create and manage PodDisruptionBudgets for OSD, Mon, RGW, and MDS daemons. OSD PDBs are managed dynamically
