@@ -4,7 +4,7 @@
 
 image:
   # -- Image
-  repository: rook/ceph
+  repository: koorinc/ceph
   # -- Image tag
   # @default -- `master`
   tag: VERSION
