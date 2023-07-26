@@ -18,6 +18,8 @@ Resource Types:
 </li><li>
 <a href="#ceph.rook.io/v1.CephBucketTopic">CephBucketTopic</a>
 </li><li>
+<a href="#ceph.rook.io/v1.CephCOSIDriver">CephCOSIDriver</a>
+</li><li>
 <a href="#ceph.rook.io/v1.CephClient">CephClient</a>
 </li><li>
 <a href="#ceph.rook.io/v1.CephCluster">CephCluster</a>
@@ -1992,6 +1994,9 @@ include the port in the definition. For example: &ldquo;<a href="https://my-obje
 In many cases, you should set this to the endpoint of the ingress resource that makes the
 CephObjectStore associated with this CephObjectStoreZone reachable to peer clusters.
 The list can have one or more endpoints pointing to different RGW servers in the zone.</p>
+<p>If a CephObjectStore endpoint is omitted from this list, that object store&rsquo;s gateways will
+not receive multisite replication data
+(see CephObjectStore.spec.gateway.disableMultisiteSyncTraffic).</p>
 </td>
 </tr>
 <tr>
@@ -2553,6 +2558,32 @@ int64
 </tr>
 </tbody>
 </table>
+<h3 id="ceph.rook.io/v1.COSIDeploymentStrategy">COSIDeploymentStrategy
+(<code>string</code> alias)</h3>
+<p>
+(<em>Appears on:</em><a href="#ceph.rook.io/v1.CephCOSIDriverSpec">CephCOSIDriverSpec</a>)
+</p>
+<div>
+<p>COSIDeploymentStrategy represents the strategy to use to deploy the Ceph COSI driver</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr><td><p>&#34;Always&#34;</p></td>
+<td><p>Always means the Ceph COSI driver will be deployed even if the object store is not present</p>
+</td>
+</tr><tr><td><p>&#34;Auto&#34;</p></td>
+<td><p>Auto means the Ceph COSI driver will be deployed automatically if object store is present</p>
+</td>
+</tr><tr><td><p>&#34;Never&#34;</p></td>
+<td><p>Never means the Ceph COSI driver will never deployed</p>
+</td>
+</tr></tbody>
+</table>
 <h3 id="ceph.rook.io/v1.Capacity">Capacity
 </h3>
 <p>
@@ -2785,6 +2816,90 @@ int64
 </em>
 </td>
 <td>
+</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ceph.rook.io/v1.CephCOSIDriverSpec">CephCOSIDriverSpec
+</h3>
+<p>
+(<em>Appears on:</em><a href="#ceph.rook.io/v1.CephCOSIDriver">CephCOSIDriver</a>)
+</p>
+<div>
+<p>CephCOSIDriverSpec represents the specification of a Ceph COSI Driver</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<code>image</code><br/>
+<em>
+string
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Image is the container image to run the Ceph COSI driver</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>objectProvisionerImage</code><br/>
+<em>
+string
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>ObjectProvisionerImage is the container image to run the COSI driver sidecar</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>deploymentStrategy</code><br/>
+<em>
+<a href="#ceph.rook.io/v1.COSIDeploymentStrategy">
+COSIDeploymentStrategy
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>DeploymentStrategy is the strategy to use to deploy the COSI driver.</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>placement</code><br/>
+<em>
+<a href="#ceph.rook.io/v1.Placement">
+Placement
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Placement is the placement strategy to use for the COSI driver</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>resources</code><br/>
+<em>
+<a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#resourcerequirements-v1-core">
+Kubernetes core/v1.ResourceRequirements
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Resources is the resource requirements for the COSI driver</p>
 </td>
 </tr>
 </tbody>
@@ -4626,20 +4741,6 @@ bool
 <p>SSL determines whether SSL should be used</p>
 </td>
 </tr>
-<tr>
-<td>
-<code>sso</code><br/>
-<em>
-<a href="#ceph.rook.io/v1.SSOSpec">
-SSOSpec
-</a>
-</em>
-</td>
-<td>
-<em>(Optional)</em>
-<p>SSO determines whether to enable SSO for dashboard</p>
-</td>
-</tr>
 </tbody>
 </table>
 <h3 id="ceph.rook.io/v1.Device">Device
@@ -6254,35 +6355,6 @@ string
 </td>
 <td>
 <p>SecondaryDeviceClass represents low performance tier (for example HDDs) for remaining OSDs</p>
-</td>
-</tr>
-</tbody>
-</table>
-<h3 id="ceph.rook.io/v1.IDPAttributes">IDPAttributes
-</h3>
-<p>
-(<em>Appears on:</em><a href="#ceph.rook.io/v1.SSOSpec">SSOSpec</a>)
-</p>
-<div>
-<p>Attributes to take into account for SSO and user creation</p>
-</div>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<code>username</code><br/>
-<em>
-string
-</em>
-</td>
-<td>
-<p>It should be used to get the username from the authentication response. Defaults to <code>uid</code>.</p>
 </td>
 </tr>
 </tbody>
@@ -7964,6 +8036,36 @@ string
 </tr>
 </tbody>
 </table>
+<h3 id="ceph.rook.io/v1.OSDStore">OSDStore
+</h3>
+<p>
+(<em>Appears on:</em><a href="#ceph.rook.io/v1.StorageScopeSpec">StorageScopeSpec</a>)
+</p>
+<div>
+<p>OSDStore is the backend storage type used for creating the OSDs</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<code>type</code><br/>
+<em>
+string
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Type of backend storage to be used while creating OSDs. If empty, then bluestore will be used</p>
+</td>
+</tr>
+</tbody>
+</table>
 <h3 id="ceph.rook.io/v1.ObjectEndpoints">ObjectEndpoints
 </h3>
 <p>
@@ -8476,7 +8578,31 @@ string
 </tr>
 <tr>
 <td>
+<code>users</code><br/>
+<em>
+string
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Admin capabilities to read/write Ceph object store users. Documented in <a href="https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities">https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities</a></p>
+</td>
+</tr>
+<tr>
+<td>
 <code>bucket</code><br/>
+<em>
+string
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Admin capabilities to read/write Ceph object store buckets. Documented in <a href="https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities">https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities</a></p>
+</td>
+</tr>
+<tr>
+<td>
+<code>buckets</code><br/>
 <em>
 string
 </em>
@@ -8976,7 +9102,7 @@ string
 <h3 id="ceph.rook.io/v1.Placement">Placement
 </h3>
 <p>
-(<em>Appears on:</em><a href="#ceph.rook.io/v1.FilesystemMirroringSpec">FilesystemMirroringSpec</a>, <a href="#ceph.rook.io/v1.GaneshaServerSpec">GaneshaServerSpec</a>, <a href="#ceph.rook.io/v1.GatewaySpec">GatewaySpec</a>, <a href="#ceph.rook.io/v1.MetadataServerSpec">MetadataServerSpec</a>, <a href="#ceph.rook.io/v1.RBDMirroringSpec">RBDMirroringSpec</a>, <a href="#ceph.rook.io/v1.StorageClassDeviceSet">StorageClassDeviceSet</a>)
+(<em>Appears on:</em><a href="#ceph.rook.io/v1.CephCOSIDriverSpec">CephCOSIDriverSpec</a>, <a href="#ceph.rook.io/v1.FilesystemMirroringSpec">FilesystemMirroringSpec</a>, <a href="#ceph.rook.io/v1.GaneshaServerSpec">GaneshaServerSpec</a>, <a href="#ceph.rook.io/v1.GatewaySpec">GatewaySpec</a>, <a href="#ceph.rook.io/v1.MetadataServerSpec">MetadataServerSpec</a>, <a href="#ceph.rook.io/v1.RBDMirroringSpec">RBDMirroringSpec</a>, <a href="#ceph.rook.io/v1.StorageClassDeviceSet">StorageClassDeviceSet</a>)
 </p>
 <div>
 <p>Placement is the placement for an object</p>
@@ -9764,99 +9890,6 @@ HybridStorageSpec
 <div>
 <p>ResourceSpec is a collection of ResourceRequirements that describes the compute resource requirements</p>
 </div>
-<h3 id="ceph.rook.io/v1.SSOSpec">SSOSpec
-</h3>
-<p>
-(<em>Appears on:</em><a href="#ceph.rook.io/v1.DashboardSpec">DashboardSpec</a>)
-</p>
-<div>
-</div>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<code>enabled</code><br/>
-<em>
-bool
-</em>
-</td>
-<td>
-<em>(Optional)</em>
-<p>Determines whether to enable SSO</p>
-</td>
-</tr>
-<tr>
-<td>
-<code>baseUrl</code><br/>
-<em>
-string
-</em>
-</td>
-<td>
-<em>(Optional)</em>
-<p>Base URL where the Ceph Dashboard is exposed via an Ingress or other type of Service.</p>
-</td>
-</tr>
-<tr>
-<td>
-<code>idpMetadataUrl</code><br/>
-<em>
-string
-</em>
-</td>
-<td>
-<em>(Optional)</em>
-<p>URL to IDP Metadata</p>
-</td>
-</tr>
-<tr>
-<td>
-<code>users</code><br/>
-<em>
-<a href="#ceph.rook.io/v1.UserRef">
-[]UserRef
-</a>
-</em>
-</td>
-<td>
-<em>(Optional)</em>
-<p>List of users to be created with a respective <a href="https://docs.ceph.com/en/latest/mgr/dashboard/#user-roles-and-permissions">Ceph dashboard system role</a>.</p>
-</td>
-</tr>
-<tr>
-<td>
-<code>idpAttributes</code><br/>
-<em>
-<a href="#ceph.rook.io/v1.IDPAttributes">
-IDPAttributes
-</a>
-</em>
-</td>
-<td>
-<em>(Optional)</em>
-<p>IDP Attributes that are used by the dashboard to get certain info about them during login.</p>
-</td>
-</tr>
-<tr>
-<td>
-<code>entityID</code><br/>
-<em>
-string
-</em>
-</td>
-<td>
-<em>(Optional)</em>
-<p>To be used when more than one entity id exists on the IDP metadata</p>
-</td>
-</tr>
-</tbody>
-</table>
 <h3 id="ceph.rook.io/v1.SSSDSidecar">SSSDSidecar
 </h3>
 <p>
@@ -10169,170 +10202,6 @@ int32
 <td><p>SanitizeMethodQuick will sanitize metadata only on the disk</p>
 </td>
 </tr></tbody>
-</table>
-<h3 id="ceph.rook.io/v1.Scrubbing">Scrubbing
-</h3>
-<p>
-(<em>Appears on:</em><a href="#ceph.rook.io/v1.StorageScopeSpec">StorageScopeSpec</a>)
-</p>
-<div>
-</div>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<code>applySchedule</code><br/>
-<em>
-bool
-</em>
-</td>
-<td>
-<em>(Optional)</em>
-<p>ApplySchedule whether the scrubbing schedule specified should be applied to the cluster</p>
-</td>
-</tr>
-<tr>
-<td>
-<code>maxScrubOps</code><br/>
-<em>
-int64
-</em>
-</td>
-<td>
-<em>(Optional)</em>
-<p>Max scrubbing operations at the same time</p>
-</td>
-</tr>
-<tr>
-<td>
-<code>beginHour</code><br/>
-<em>
-int32
-</em>
-</td>
-<td>
-<em>(Optional)</em>
-<p>Begin hour of scrubbing schedule
-Setting both <code>BeginHour</code> and <code>EndHour</code> to <code>0</code>, will allow scrubbing the entire day.
-Default: <code>0</code></p>
-</td>
-</tr>
-<tr>
-<td>
-<code>endHour</code><br/>
-<em>
-int32
-</em>
-</td>
-<td>
-<em>(Optional)</em>
-<p>End hour of scrubbing schedule
-Default: <code>0</code></p>
-</td>
-</tr>
-<tr>
-<td>
-<code>beginWeekDay</code><br/>
-<em>
-int32
-</em>
-</td>
-<td>
-<em>(Optional)</em>
-<p>Begin week day of scrubbing schedule
-<code>0</code> = Sunday, <code>1</code> = Monday, etc.
-Default: <code>0</code> = Sunday</p>
-</td>
-</tr>
-<tr>
-<td>
-<code>endWeekDay</code><br/>
-<em>
-int32
-</em>
-</td>
-<td>
-<em>(Optional)</em>
-<p>End week day of scrubbing schedule
-<code>0</code> = Sunday, <code>1</code> = Monday, etc.
-Default: <code>0</code> = Sunday</p>
-</td>
-</tr>
-<tr>
-<td>
-<code>minScrubInterval</code><br/>
-<em>
-<a href="https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Duration">
-Kubernetes meta/v1.Duration
-</a>
-</em>
-</td>
-<td>
-<em>(Optional)</em>
-<p>Minimum interval to wait before scrubbing again
-Default: <code>24h</code> (1 day)
-Note: due to discrepancies in validation vs parsing, we use a Pattern instead of <code>Format=duration</code>. Thanks to
-<a href="https://github.com/openshift/hive/pull/1684">https://github.com/openshift/hive/pull/1684</a> for showing a way to fix it.</p>
-</td>
-</tr>
-<tr>
-<td>
-<code>maxScrubInterval</code><br/>
-<em>
-<a href="https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Duration">
-Kubernetes meta/v1.Duration
-</a>
-</em>
-</td>
-<td>
-<em>(Optional)</em>
-<p>Maximum interval to wait before scrubbing is forced
-Default: <code>168h</code> (7 days)
-Note: due to discrepancies in validation vs parsing, we use a Pattern instead of <code>Format=duration</code>. Thanks to
-<a href="https://github.com/openshift/hive/pull/1684">https://github.com/openshift/hive/pull/1684</a> for showing a way to fix it.</p>
-</td>
-</tr>
-<tr>
-<td>
-<code>deepScrubInterval</code><br/>
-<em>
-<a href="https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Duration">
-Kubernetes meta/v1.Duration
-</a>
-</em>
-</td>
-<td>
-<em>(Optional)</em>
-<p>Interval at which to do deeb scrubbing instead of a &ldquo;light&rdquo; scrubbing
-Default: <code>168h</code> (7 days)
-Note: due to discrepancies in validation vs parsing, we use a Pattern instead of <code>Format=duration</code>. Thanks to
-<a href="https://github.com/openshift/hive/pull/1684">https://github.com/openshift/hive/pull/1684</a> for showing a way to fix it.</p>
-</td>
-</tr>
-<tr>
-<td>
-<code>scrubSleepSeconds</code><br/>
-<em>
-<a href="https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Duration">
-Kubernetes meta/v1.Duration
-</a>
-</em>
-</td>
-<td>
-<em>(Optional)</em>
-<p>Set the scrub sleep as a duration
-Default <code>0ms</code>, recommended if you are impacted by scrubbing <code>100ms</code>
-Note: due to discrepancies in validation vs parsing, we use a Pattern instead of <code>Format=duration</code>. Thanks to
-<a href="https://github.com/openshift/hive/pull/1684">https://github.com/openshift/hive/pull/1684</a> for showing a way to fix it.</p>
-</td>
-</tr>
-</tbody>
 </table>
 <h3 id="ceph.rook.io/v1.SecuritySpec">SecuritySpec
 </h3>
@@ -11162,6 +11031,25 @@ Scrubbing
 </td>
 </tr>
 </tbody>
+</table>
+<h3 id="ceph.rook.io/v1.StoreType">StoreType
+(<code>string</code> alias)</h3>
+<div>
+</div>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr><td><p>&#34;bluestore&#34;</p></td>
+<td><p>StoreTypeBlueStore is the bluestore backend storage for OSDs</p>
+</td>
+</tr><tr><td><p>&#34;bluestore-rdr&#34;</p></td>
+<td><p>StoreTypeBlueStoreRDR is the bluestore-rdr backed storage for OSDs</p>
+</td>
+</tr></tbody>
 </table>
 <h3 id="ceph.rook.io/v1.StretchClusterSpec">StretchClusterSpec
 </h3>

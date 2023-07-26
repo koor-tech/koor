@@ -35,7 +35,7 @@ python3 create-external-cluster-resources.py --rbd-data-pool-name <pool_name> --
 - `--format bash`: The format of the output
 - `--rbd-data-pool-name`: The name of the RBD data pool
 - `--alias-rbd-data-pool-name`: Provides an alias for the  RBD data pool name, necessary if a special character is present in the pool name such as a period or underscore
-- `--rgw-endpoint`: (optional) The RADOS Gateway endpoint in the format `<IP>:<PORT>`
+- `--rgw-endpoint`: (optional) The RADOS Gateway endpoint in the format `<IP>:<PORT>` or `<FQDN>:<PORT>`.
 - `--rgw-pool-prefix`: (optional) The prefix of the RGW pools. If not specified, the default prefix is `default`
 - `--rgw-tls-cert-path`: (optional) RADOS Gateway endpoint TLS certificate file path
 - `--rgw-skip-tls`: (optional) Ignore TLS certification validation when a self-signed certificate is provided (NOT RECOMMENDED)
@@ -44,6 +44,7 @@ python3 create-external-cluster-resources.py --rbd-data-pool-name <pool_name> --
 - `--monitoring-endpoint-port`: (optional) Ceph Manager prometheus exporter port
 - `--skip-monitoring-endpoint`: (optional) Skip prometheus exporter endpoints, even if they are available. Useful if the prometheus module is not enabled
 - `--ceph-conf`: (optional) Provide a Ceph conf file
+- `--keyring`: (optional) Path to Ceph keyring file, to be used with `--ceph-conf`
 - `--cluster-name`: (optional) Ceph cluster name
 - `--output`: (optional) Output will be stored into the provided file
 - `--dry-run`: (optional) Prints the executed commands without running them
@@ -140,12 +141,12 @@ To install with Helm, the rook cluster helm chart will configure the necessary r
 
 ```console
     clusterNamespace=rook-ceph
-    operatorNamesapce=rook-ceph
+    operatorNamespace=rook-ceph
     cd deploy/examples/charts/rook-ceph-cluster
     helm repo add rook-release https://charts.rook.io/release
     helm install --create-namespace --namespace $clusterNamespace rook-ceph rook-release/rook-ceph -f values.yaml
     helm install --create-namespace --namespace $clusterNamespace rook-ceph-cluster \
-    --set operatorNamespace=$operatorNamesapce rook-release/rook-ceph-cluster -f values-external.yaml
+    --set operatorNamespace=$operatorNamespace rook-release/rook-ceph-cluster -f values-external.yaml
 ```
 
 Skip the manifest installation section and continue with [Cluster Verification](#cluster-verification).
@@ -179,6 +180,7 @@ If not installing with Helm, here are the steps to install with manifests.
 ### Connect to an External Object Store
 
 Create the object store resources:
+
 1. Create the [external object store CR](https://github.com/rook/rook/blob/master/deploy/examples/object-external.yaml) to configure connection to external gateways.
 2. Create an [Object store user](https://github.com/rook/rook/blob/master/deploy/examples/object-user.yaml) for credentials to access the S3 endpoint.
 3. Create a [bucket storage class](https://github.com/rook/rook/blob/master/deploy/examples/storageclass-bucket-delete.yaml) where a client can request creating buckets.

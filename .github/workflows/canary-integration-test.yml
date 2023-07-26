@@ -34,6 +34,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: consider debugging
+        uses: ./.github/workflows/tmate_debug
+        with:
+          use-tmate: ${{ secrets.USE_TMATE }}
+
       - name: setup cluster resources
         uses: ./.github/workflows/canary-test-config
         with:
@@ -106,13 +111,8 @@ jobs:
           toolbox=$(kubectl get pod -l app=rook-ceph-tools -n rook-ceph -o jsonpath='{.items[*].metadata.name}')
           # pass the correct subvolumegroup and cephfs_filesystem flag name
           kubectl -n rook-ceph exec $toolbox -- python3 /etc/ceph/create-external-cluster-resources.py --rbd-data-pool-name replicapool --subvolume-group group-a --cephfs-filesystem-name myfs
-          # pass the wrong subvolumegroup name
-          if output=$(kubectl -n rook-ceph exec $toolbox -- python3 /etc/ceph/create-external-cluster-resources.py --rbd-data-pool-name replicapool --subvolume-group false-test-subvolume-group); then
-            echo "unexpectedly succeeded after passing the wrong subvolumegroup name: $output"
-            exit 1
-          else
-            echo "script failed because wrong subvolumegroup name was passed"
-          fi
+          # pass the subvolumegroup name which doesn't exist
+          kubectl -n rook-ceph exec $toolbox -- python3 /etc/ceph/create-external-cluster-resources.py --rbd-data-pool-name replicapool --subvolume-group false-test-subvolume-group
 
       - name: dry run test skip monitoring endpoint
         run: |
@@ -237,13 +237,6 @@ jobs:
         with:
           name: canary
 
-      - name: consider debugging
-        if: failure() && github.event_name == 'pull_request'
-        timeout-minutes: 60
-        uses: ./.github/workflows/tmate_debug
-        with:
-          use-tmate: ${{ secrets.USE_TMATE }}
-          limit-access-to-actor: true
 
   raw-disk:
     runs-on: ubuntu-20.04
@@ -253,6 +246,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: consider debugging
+        uses: ./.github/workflows/tmate_debug
+        with:
+          use-tmate: ${{ secrets.USE_TMATE }}
 
       - name: setup cluster resources
         uses: ./.github/workflows/canary-test-config
@@ -292,13 +290,6 @@ jobs:
         with:
           name: canary
 
-      - name: consider debugging
-        if: failure() && github.event_name == 'pull_request'
-        timeout-minutes: 60
-        uses: ./.github/workflows/tmate_debug
-        with:
-          use-tmate: ${{ secrets.USE_TMATE }}
-          limit-access-to-actor: true
 
   two-osds-in-device:
     runs-on: ubuntu-20.04
@@ -308,6 +299,10 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: consider debugging
+        uses: ./.github/workflows/tmate_debug
+        with:
+          use-tmate: ${{ secrets.USE_TMATE }}
 
       - name: setup cluster resources
         uses: ./.github/workflows/canary-test-config
@@ -341,13 +336,6 @@ jobs:
         with:
           name: canary
 
-      - name: consider debugging
-        if: failure() && github.event_name == 'pull_request'
-        timeout-minutes: 60
-        uses: ./.github/workflows/tmate_debug
-        with:
-          use-tmate: ${{ secrets.USE_TMATE }}
-          limit-access-to-actor: true
 
   osd-with-metadata-device:
     runs-on: ubuntu-20.04
@@ -357,6 +345,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: consider debugging
+        uses: ./.github/workflows/tmate_debug
+        with:
+          use-tmate: ${{ secrets.USE_TMATE }}
 
       - name: setup cluster resources
         uses: ./.github/workflows/canary-test-config
@@ -396,13 +389,6 @@ jobs:
         with:
           name: canary
 
-      - name: consider debugging
-        if: failure() && github.event_name == 'pull_request'
-        timeout-minutes: 60
-        uses: ./.github/workflows/tmate_debug
-        with:
-          use-tmate: ${{ secrets.USE_TMATE }}
-          limit-access-to-actor: true
 
   encryption:
     runs-on: ubuntu-20.04
@@ -412,6 +398,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: consider debugging
+        uses: ./.github/workflows/tmate_debug
+        with:
+          use-tmate: ${{ secrets.USE_TMATE }}
 
       - name: setup cluster resources
         uses: ./.github/workflows/canary-test-config
@@ -445,11 +436,6 @@ jobs:
         with:
           name: canary
 
-      - name: setup tmate session for debugging when event is PR
-        if: failure() && github.event_name == 'pull_request'
-        uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 60
-
   lvm:
     runs-on: ubuntu-20.04
     if: "!contains(github.event.pull_request.labels.*.name, 'skip-ci')"
@@ -458,6 +444,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: consider debugging
+        uses: ./.github/workflows/tmate_debug
+        with:
+          use-tmate: ${{ secrets.USE_TMATE }}
 
       - name: setup cluster resources
         uses: ./.github/workflows/canary-test-config
@@ -496,13 +487,6 @@ jobs:
         with:
           name: canary
 
-      - name: consider debugging
-        if: failure() && github.event_name == 'pull_request'
-        timeout-minutes: 60
-        uses: ./.github/workflows/tmate_debug
-        with:
-          use-tmate: ${{ secrets.USE_TMATE }}
-          limit-access-to-actor: true
 
   pvc:
     runs-on: ubuntu-20.04
@@ -512,6 +496,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: consider debugging
+        uses: ./.github/workflows/tmate_debug
+        with:
+          use-tmate: ${{ secrets.USE_TMATE }}
 
       - name: setup cluster resources
         uses: ./.github/workflows/canary-test-config
@@ -571,13 +560,6 @@ jobs:
         with:
           name: pvc
 
-      - name: consider debugging
-        if: failure() && github.event_name == 'pull_request'
-        timeout-minutes: 60
-        uses: ./.github/workflows/tmate_debug
-        with:
-          use-tmate: ${{ secrets.USE_TMATE }}
-          limit-access-to-actor: true
 
   pvc-db:
     runs-on: ubuntu-20.04
@@ -587,6 +569,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: consider debugging
+        uses: ./.github/workflows/tmate_debug
+        with:
+          use-tmate: ${{ secrets.USE_TMATE }}
 
       - name: setup cluster resources
         uses: ./.github/workflows/canary-test-config
@@ -622,13 +609,6 @@ jobs:
         with:
           name: pvc-db
 
-      - name: consider debugging
-        if: failure() && github.event_name == 'pull_request'
-        timeout-minutes: 60
-        uses: ./.github/workflows/tmate_debug
-        with:
-          use-tmate: ${{ secrets.USE_TMATE }}
-          limit-access-to-actor: true
 
   pvc-db-wal:
     runs-on: ubuntu-20.04
@@ -638,6 +618,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: consider debugging
+        uses: ./.github/workflows/tmate_debug
+        with:
+          use-tmate: ${{ secrets.USE_TMATE }}
 
       - name: setup cluster resources
         uses: ./.github/workflows/canary-test-config
@@ -676,13 +661,6 @@ jobs:
         with:
           name: pvc-db-wal
 
-      - name: consider debugging
-        if: failure() && github.event_name == 'pull_request'
-        timeout-minutes: 60
-        uses: ./.github/workflows/tmate_debug
-        with:
-          use-tmate: ${{ secrets.USE_TMATE }}
-          limit-access-to-actor: true
 
   encryption-pvc:
     runs-on: ubuntu-20.04
@@ -692,6 +670,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: consider debugging
+        uses: ./.github/workflows/tmate_debug
+        with:
+          use-tmate: ${{ secrets.USE_TMATE }}
 
       - name: setup cluster resources
         uses: ./.github/workflows/canary-test-config
@@ -742,13 +725,6 @@ jobs:
         with:
           name: encryption-pvc
 
-      - name: consider debugging
-        if: failure() && github.event_name == 'pull_request'
-        timeout-minutes: 60
-        uses: ./.github/workflows/tmate_debug
-        with:
-          use-tmate: ${{ secrets.USE_TMATE }}
-          limit-access-to-actor: true
 
   encryption-pvc-db:
     runs-on: ubuntu-20.04
@@ -758,6 +734,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: consider debugging
+        uses: ./.github/workflows/tmate_debug
+        with:
+          use-tmate: ${{ secrets.USE_TMATE }}
 
       - name: setup cluster resources
         uses: ./.github/workflows/canary-test-config
@@ -795,13 +776,6 @@ jobs:
         with:
           name: encryption-pvc-db
 
-      - name: consider debugging
-        if: failure() && github.event_name == 'pull_request'
-        timeout-minutes: 60
-        uses: ./.github/workflows/tmate_debug
-        with:
-          use-tmate: ${{ secrets.USE_TMATE }}
-          limit-access-to-actor: true
 
   encryption-pvc-db-wal:
     runs-on: ubuntu-20.04
@@ -811,6 +785,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: consider debugging
+        uses: ./.github/workflows/tmate_debug
+        with:
+          use-tmate: ${{ secrets.USE_TMATE }}
 
       - name: setup cluster resources
         uses: ./.github/workflows/canary-test-config
@@ -858,13 +837,6 @@ jobs:
         with:
           name: encryption-pvc-db-wal
 
-      - name: consider debugging
-        if: failure() && github.event_name == 'pull_request'
-        timeout-minutes: 60
-        uses: ./.github/workflows/tmate_debug
-        with:
-          use-tmate: ${{ secrets.USE_TMATE }}
-          limit-access-to-actor: true
 
   encryption-pvc-kms-vault-token-auth:
     runs-on: ubuntu-20.04
@@ -874,6 +846,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: consider debugging
+        uses: ./.github/workflows/tmate_debug
+        with:
+          use-tmate: ${{ secrets.USE_TMATE }}
 
       - name: setup cluster resources
         uses: ./.github/workflows/canary-test-config
@@ -930,6 +907,8 @@ jobs:
           kubectl delete -f tests/manifests/test-object.yaml
           yq write -i tests/manifests/test-object.yaml "spec.security.kms.connectionDetails.VAULT_SECRET_ENGINE" transit
           timeout 120 bash -c 'while kubectl -n rook-ceph get cephobjectstore my-store; do echo "waiting for objectstore my-store to delete"; sleep 5; done'
+          echo "wait for rgw pod to be deleted"
+          kubectl wait --for=delete pod -l app=rook-ceph-rgw -n rook-ceph --timeout=100s
           kubectl create -f tests/manifests/test-object.yaml
           tests/scripts/validate_cluster.sh rgw
           tests/scripts/deploy-validate-vault.sh validate_rgw
@@ -940,13 +919,6 @@ jobs:
         with:
           name: encryption-pvc-kms-vault-token-auth
 
-      - name: consider debugging
-        if: failure() && github.event_name == 'pull_request'
-        timeout-minutes: 60
-        uses: ./.github/workflows/tmate_debug
-        with:
-          use-tmate: ${{ secrets.USE_TMATE }}
-          limit-access-to-actor: true
 
   encryption-pvc-kms-vault-k8s-auth:
     runs-on: ubuntu-20.04
@@ -956,6 +928,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: consider debugging
+        uses: ./.github/workflows/tmate_debug
+        with:
+          use-tmate: ${{ secrets.USE_TMATE }}
 
       - name: setup cluster resources
         uses: ./.github/workflows/canary-test-config
@@ -1004,13 +981,6 @@ jobs:
         with:
           name: encryption-pvc-kms-vault-k8s-auth
 
-      - name: consider debugging
-        if: failure() && github.event_name == 'pull_request'
-        timeout-minutes: 60
-        uses: ./.github/workflows/tmate_debug
-        with:
-          use-tmate: ${{ secrets.USE_TMATE }}
-          limit-access-to-actor: true
 
   lvm-pvc:
     runs-on: ubuntu-20.04
@@ -1020,6 +990,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: consider debugging
+        uses: ./.github/workflows/tmate_debug
+        with:
+          use-tmate: ${{ secrets.USE_TMATE }}
 
       - name: setup cluster resources
         uses: ./.github/workflows/canary-test-config
@@ -1060,13 +1035,6 @@ jobs:
         with:
           name: lvm-pvc
 
-      - name: consider debugging
-        if: failure() && github.event_name == 'pull_request'
-        timeout-minutes: 60
-        uses: ./.github/workflows/tmate_debug
-        with:
-          use-tmate: ${{ secrets.USE_TMATE }}
-          limit-access-to-actor: true
 
   multi-cluster-mirroring:
     runs-on: ubuntu-20.04
@@ -1076,6 +1044,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: consider debugging
+        uses: ./.github/workflows/tmate_debug
+        with:
+          use-tmate: ${{ secrets.USE_TMATE }}
 
       - name: setup cluster resources
         uses: ./.github/workflows/canary-test-config
@@ -1317,13 +1290,7 @@ jobs:
         with:
           name: multi-cluster-mirroring
 
-      - name: consider debugging
-        if: failure() && github.event_name == 'pull_request'
-        timeout-minutes: 60
-        uses: ./.github/workflows/tmate_debug
-        with:
-          use-tmate: ${{ secrets.USE_TMATE }}
-          limit-access-to-actor: true
+
 
   rgw-multisite-testing:
     runs-on: ubuntu-20.04
@@ -1333,6 +1300,12 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: consider debugging
+
+        uses: ./.github/workflows/tmate_debug
+        with:
+          use-tmate: ${{ secrets.USE_TMATE }}
 
       - name: run RGW multisite test
         uses: ./.github/workflows/rgw-multisite-test
@@ -1347,13 +1320,7 @@ jobs:
           name: rgw-multisite-testing
           path: test
 
-      - name: consider debugging
-        if: failure() && github.event_name == 'pull_request'
-        timeout-minutes: 60
-        uses: ./.github/workflows/tmate_debug
-        with:
-          use-tmate: ${{ secrets.USE_TMATE }}
-          limit-access-to-actor: true
+
 
   encryption-pvc-kms-ibm-kp:
     runs-on: ubuntu-20.04
@@ -1361,6 +1328,12 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: consider debugging
+
+        uses: ./.github/workflows/tmate_debug
+        with:
+          use-tmate: ${{ secrets.USE_TMATE }}
 
       - name: run encryption KMS IBM Key Protect
         uses: ./.github/workflows/encryption-pvc-kms-ibm-kp
@@ -1380,13 +1353,7 @@ jobs:
           name: encryption-pvc-kms-ibm-kp
           path: test
 
-      - name: consider debugging
-        if: failure() && github.event_name == 'pull_request'
-        timeout-minutes: 60
-        uses: ./.github/workflows/tmate_debug
-        with:
-          use-tmate: ${{ secrets.USE_TMATE }}
-          limit-access-to-actor: true
+
 
   multus-cluster-network:
     runs-on: ubuntu-20.04
@@ -1396,6 +1363,12 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: consider debugging
+
+        uses: ./.github/workflows/tmate_debug
+        with:
+          use-tmate: ${{ secrets.USE_TMATE }}
 
       - name: setup golang
         uses: actions/setup-go@v4
@@ -1460,13 +1433,7 @@ jobs:
         with:
           name: canary-multus
 
-      - name: consider debugging
-        if: failure() && github.event_name == 'pull_request'
-        timeout-minutes: 60
-        uses: ./.github/workflows/tmate_debug
-        with:
-          use-tmate: ${{ secrets.USE_TMATE }}
-          limit-access-to-actor: true
+
 
   csi-hostnetwork-disabled:
     runs-on: ubuntu-20.04
@@ -1476,6 +1443,12 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: consider debugging
+
+        uses: ./.github/workflows/tmate_debug
+        with:
+          use-tmate: ${{ secrets.USE_TMATE }}
 
       - name: setup cluster resources
         uses: ./.github/workflows/canary-test-config
@@ -1513,11 +1486,3 @@ jobs:
         uses: ./.github/workflows/collect-logs
         with:
           name: csi-hostnetwork-disabled
-
-      - name: consider debugging
-        if: failure() && github.event_name == 'pull_request'
-        timeout-minutes: 60
-        uses: ./.github/workflows/tmate_debug
-        with:
-          use-tmate: ${{ secrets.USE_TMATE }}
-          limit-access-to-actor: true

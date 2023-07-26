@@ -27,19 +27,17 @@ import (
 	v1 "k8s.io/client-go/kubernetes/typed/storage/v1"
 )
 
-type csiDriver interface {
-	createCSIDriverInfo(ctx context.Context, clientset kubernetes.Interface, name, fsGroupPolicy string, attachRequired bool) error
-	reCreateCSIDriverInfo(ctx context.Context) error
-	deleteCSIDriverInfo(ctx context.Context, clientset kubernetes.Interface, name string) error
-}
-
 type v1CsiDriver struct {
 	csiDriver *v1k8scsi.CSIDriver
 	csiClient v1.CSIDriverInterface
 }
 
 // createCSIDriverInfo Registers CSI driver by creating a CSIDriver object
-func (d v1CsiDriver) createCSIDriverInfo(ctx context.Context, clientset kubernetes.Interface, name, fsGroupPolicy string, attachRequired bool) error {
+func (d v1CsiDriver) createCSIDriverInfo(
+	ctx context.Context,
+	clientset kubernetes.Interface,
+	name, fsGroupPolicy string,
+	attachRequired, seLinuxMountRequired bool) error {
 	mountInfo := false
 	// Create CSIDriver object
 	csiDriver := &v1k8scsi.CSIDriver{
@@ -50,6 +48,10 @@ func (d v1CsiDriver) createCSIDriverInfo(ctx context.Context, clientset kubernet
 			AttachRequired: &attachRequired,
 			PodInfoOnMount: &mountInfo,
 		},
+	}
+	if seLinuxMountRequired {
+		selinuxMount := true
+		csiDriver.Spec.SELinuxMount = &selinuxMount
 	}
 	if fsGroupPolicy != "" {
 		policy := v1k8scsi.FSGroupPolicy(fsGroupPolicy)
