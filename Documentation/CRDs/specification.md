@@ -483,6 +483,135 @@ BucketTopicStatus
 </tr>
 </tbody>
 </table>
+<h3 id="ceph.rook.io/v1.CephCOSIDriver">CephCOSIDriver
+</h3>
+<div>
+<p>CephCOSIDriver represents the CRD for the Ceph COSI Driver Deployment</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<code>apiVersion</code><br/>
+string</td>
+<td>
+<code>
+ceph.rook.io/v1
+</code>
+</td>
+</tr>
+<tr>
+<td>
+<code>kind</code><br/>
+string
+</td>
+<td><code>CephCOSIDriver</code></td>
+</tr>
+<tr>
+<td>
+<code>metadata</code><br/>
+<em>
+<a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#objectmeta-v1-meta">
+Kubernetes meta/v1.ObjectMeta
+</a>
+</em>
+</td>
+<td>
+Refer to the Kubernetes API documentation for the fields of the
+<code>metadata</code> field.
+</td>
+</tr>
+<tr>
+<td>
+<code>spec</code><br/>
+<em>
+<a href="#ceph.rook.io/v1.CephCOSIDriverSpec">
+CephCOSIDriverSpec
+</a>
+</em>
+</td>
+<td>
+<p>Spec represents the specification of a Ceph COSI Driver</p>
+<br/>
+<br/>
+<table>
+<tr>
+<td>
+<code>image</code><br/>
+<em>
+string
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Image is the container image to run the Ceph COSI driver</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>objectProvisionerImage</code><br/>
+<em>
+string
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>ObjectProvisionerImage is the container image to run the COSI driver sidecar</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>deploymentStrategy</code><br/>
+<em>
+<a href="#ceph.rook.io/v1.COSIDeploymentStrategy">
+COSIDeploymentStrategy
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>DeploymentStrategy is the strategy to use to deploy the COSI driver.</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>placement</code><br/>
+<em>
+<a href="#ceph.rook.io/v1.Placement">
+Placement
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Placement is the placement strategy to use for the COSI driver</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>resources</code><br/>
+<em>
+<a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.24/#resourcerequirements-v1-core">
+Kubernetes core/v1.ResourceRequirements
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Resources is the resource requirements for the COSI driver</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
 <h3 id="ceph.rook.io/v1.CephClient">CephClient
 </h3>
 <div>
@@ -4741,6 +4870,20 @@ bool
 <p>SSL determines whether SSL should be used</p>
 </td>
 </tr>
+<tr>
+<td>
+<code>sso</code><br/>
+<em>
+<a href="#ceph.rook.io/v1.SSOSpec">
+SSOSpec
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>SSO determines whether to enable SSO for dashboard</p>
+</td>
+</tr>
 </tbody>
 </table>
 <h3 id="ceph.rook.io/v1.Device">Device
@@ -6103,6 +6246,22 @@ Placement
 </tr>
 <tr>
 <td>
+<code>disableMultisiteSyncTraffic</code><br/>
+<em>
+bool
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>DisableMultisiteSyncTraffic, when true, prevents this object store&rsquo;s gateways from
+transmitting multisite replication data. Note that this value does not affect whether
+gateways receive multisite replication traffic: see ObjectZone.spec.customEndpoints for that.
+If false or unset, this object store&rsquo;s gateways will be able to transmit multisite
+replication data.</p>
+</td>
+</tr>
+<tr>
+<td>
 <code>annotations</code><br/>
 <em>
 <a href="#ceph.rook.io/v1.Annotations">
@@ -6355,6 +6514,35 @@ string
 </td>
 <td>
 <p>SecondaryDeviceClass represents low performance tier (for example HDDs) for remaining OSDs</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ceph.rook.io/v1.IDPAttributes">IDPAttributes
+</h3>
+<p>
+(<em>Appears on:</em><a href="#ceph.rook.io/v1.SSOSpec">SSOSpec</a>)
+</p>
+<div>
+<p>Attributes to take into account for SSO and user creation</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<code>username</code><br/>
+<em>
+string
+</em>
+</td>
+<td>
+<p>It should be used to get the username from the authentication response. Defaults to <code>uid</code>.</p>
 </td>
 </tr>
 </tbody>
@@ -8910,6 +9098,9 @@ include the port in the definition. For example: &ldquo;<a href="https://my-obje
 In many cases, you should set this to the endpoint of the ingress resource that makes the
 CephObjectStore associated with this CephObjectStoreZone reachable to peer clusters.
 The list can have one or more endpoints pointing to different RGW servers in the zone.</p>
+<p>If a CephObjectStore endpoint is omitted from this list, that object store&rsquo;s gateways will
+not receive multisite replication data
+(see CephObjectStore.spec.gateway.disableMultisiteSyncTraffic).</p>
 </td>
 </tr>
 <tr>
@@ -9890,6 +10081,99 @@ HybridStorageSpec
 <div>
 <p>ResourceSpec is a collection of ResourceRequirements that describes the compute resource requirements</p>
 </div>
+<h3 id="ceph.rook.io/v1.SSOSpec">SSOSpec
+</h3>
+<p>
+(<em>Appears on:</em><a href="#ceph.rook.io/v1.DashboardSpec">DashboardSpec</a>)
+</p>
+<div>
+</div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<code>enabled</code><br/>
+<em>
+bool
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Determines whether to enable SSO</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>baseUrl</code><br/>
+<em>
+string
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Base URL where the Ceph Dashboard is exposed via an Ingress or other type of Service.</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>idpMetadataUrl</code><br/>
+<em>
+string
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>URL to IDP Metadata</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>users</code><br/>
+<em>
+<a href="#ceph.rook.io/v1.UserRef">
+[]UserRef
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>List of users to be created with a respective <a href="https://docs.ceph.com/en/latest/mgr/dashboard/#user-roles-and-permissions">Ceph dashboard system role</a>.</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>idpAttributes</code><br/>
+<em>
+<a href="#ceph.rook.io/v1.IDPAttributes">
+IDPAttributes
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>IDP Attributes that are used by the dashboard to get certain info about them during login.</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>entityID</code><br/>
+<em>
+string
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>To be used when more than one entity id exists on the IDP metadata</p>
+</td>
+</tr>
+</tbody>
+</table>
 <h3 id="ceph.rook.io/v1.SSSDSidecar">SSSDSidecar
 </h3>
 <p>
@@ -10202,6 +10486,170 @@ int32
 <td><p>SanitizeMethodQuick will sanitize metadata only on the disk</p>
 </td>
 </tr></tbody>
+</table>
+<h3 id="ceph.rook.io/v1.Scrubbing">Scrubbing
+</h3>
+<p>
+(<em>Appears on:</em><a href="#ceph.rook.io/v1.StorageScopeSpec">StorageScopeSpec</a>)
+</p>
+<div>
+</div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<code>applySchedule</code><br/>
+<em>
+bool
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>ApplySchedule whether the scrubbing schedule specified should be applied to the cluster</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>maxScrubOps</code><br/>
+<em>
+int64
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Max scrubbing operations at the same time</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>beginHour</code><br/>
+<em>
+int32
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Begin hour of scrubbing schedule
+Setting both <code>BeginHour</code> and <code>EndHour</code> to <code>0</code>, will allow scrubbing the entire day.
+Default: <code>0</code></p>
+</td>
+</tr>
+<tr>
+<td>
+<code>endHour</code><br/>
+<em>
+int32
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>End hour of scrubbing schedule
+Default: <code>0</code></p>
+</td>
+</tr>
+<tr>
+<td>
+<code>beginWeekDay</code><br/>
+<em>
+int32
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Begin week day of scrubbing schedule
+<code>0</code> = Sunday, <code>1</code> = Monday, etc.
+Default: <code>0</code> = Sunday</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>endWeekDay</code><br/>
+<em>
+int32
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>End week day of scrubbing schedule
+<code>0</code> = Sunday, <code>1</code> = Monday, etc.
+Default: <code>0</code> = Sunday</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>minScrubInterval</code><br/>
+<em>
+<a href="https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Duration">
+Kubernetes meta/v1.Duration
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Minimum interval to wait before scrubbing again
+Default: <code>24h</code> (1 day)
+Note: due to discrepancies in validation vs parsing, we use a Pattern instead of <code>Format=duration</code>. Thanks to
+<a href="https://github.com/openshift/hive/pull/1684">https://github.com/openshift/hive/pull/1684</a> for showing a way to fix it.</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>maxScrubInterval</code><br/>
+<em>
+<a href="https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Duration">
+Kubernetes meta/v1.Duration
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Maximum interval to wait before scrubbing is forced
+Default: <code>168h</code> (7 days)
+Note: due to discrepancies in validation vs parsing, we use a Pattern instead of <code>Format=duration</code>. Thanks to
+<a href="https://github.com/openshift/hive/pull/1684">https://github.com/openshift/hive/pull/1684</a> for showing a way to fix it.</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>deepScrubInterval</code><br/>
+<em>
+<a href="https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Duration">
+Kubernetes meta/v1.Duration
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Interval at which to do deeb scrubbing instead of a &ldquo;light&rdquo; scrubbing
+Default: <code>168h</code> (7 days)
+Note: due to discrepancies in validation vs parsing, we use a Pattern instead of <code>Format=duration</code>. Thanks to
+<a href="https://github.com/openshift/hive/pull/1684">https://github.com/openshift/hive/pull/1684</a> for showing a way to fix it.</p>
+</td>
+</tr>
+<tr>
+<td>
+<code>scrubSleepSeconds</code><br/>
+<em>
+<a href="https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#Duration">
+Kubernetes meta/v1.Duration
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+<p>Set the scrub sleep as a duration
+Default <code>0ms</code>, recommended if you are impacted by scrubbing <code>100ms</code>
+Note: due to discrepancies in validation vs parsing, we use a Pattern instead of <code>Format=duration</code>. Thanks to
+<a href="https://github.com/openshift/hive/pull/1684">https://github.com/openshift/hive/pull/1684</a> for showing a way to fix it.</p>
+</td>
+</tr>
+</tbody>
 </table>
 <h3 id="ceph.rook.io/v1.SecuritySpec">SecuritySpec
 </h3>
@@ -11023,6 +11471,19 @@ Selection
 <em>
 <a href="#ceph.rook.io/v1.Scrubbing">
 Scrubbing
+</a>
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+</td>
+</tr>
+<tr>
+<td>
+<code>store</code><br/>
+<em>
+<a href="#ceph.rook.io/v1.OSDStore">
+OSDStore
 </a>
 </em>
 </td>
