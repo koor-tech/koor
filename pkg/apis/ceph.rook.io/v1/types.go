@@ -2627,7 +2627,7 @@ type StorageScopeSpec struct {
 	// +nullable
 	// +optional
 	Scrubbing Scrubbing `json:"scrubbing"`
-        // +optional
+	// +optional
 	Store OSDStore `json:"store,omitempty"`
 }
 
