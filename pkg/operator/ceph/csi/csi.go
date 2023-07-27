@@ -155,10 +155,9 @@ func (r *ReconcileCSI) setParams(ver *version.Info) error {
 		CSIParam.EnableOMAPGenerator = true
 	}
 
-	// SA token projection is stable only from kubernetes version 1.20.
-	CSIParam.EnableOIDCTokenProjection = false
-	if ver.Major == KubeMinMajor && ver.Minor >= KubeMinVerForOIDCTokenProjection {
-		CSIParam.EnableOIDCTokenProjection = true
+	// CSIDriver SeLinuxMount option is only available from kubernetes version 1.25.
+	if ver.Major == kubeMinMajor && ver.Minor >= kubeMinVerForCSIDriverSeLinuxMount {
+		CSIParam.EnableCSIDriverSeLinuxMount = true
 	}
 
 	CSIParam.EnableRBDSnapshotter = true

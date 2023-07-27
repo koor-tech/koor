@@ -73,7 +73,7 @@ type Param struct {
 	EnableNFSSnapshotter                  bool
 	EnableCSIAddonsSideCar                bool
 	MountCustomCephConf                   bool
-	EnableOIDCTokenProjection             bool
+	EnableCSIDriverSeLinuxMount           bool
 	EnableCSIEncryption                   bool
 	EnableCSITopology                     bool
 	EnableLiveness                        bool
@@ -127,8 +127,6 @@ var (
 	// configuration map for csi
 	ConfigName = "rook-ceph-csi-config"
 	ConfigKey  = "csi-cluster-config-json"
-
-	csiDriverobj csiDriver
 )
 
 // Specify default images as var instead of const so that they can be overridden with the Go
@@ -137,13 +135,13 @@ var (
 // manually challenging.
 var (
 	// image names
-	DefaultCSIPluginImage   = "quay.io/cephcsi/cephcsi:v3.8.0"
-	DefaultRegistrarImage   = "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.7.0"
-	DefaultProvisionerImage = "registry.k8s.io/sig-storage/csi-provisioner:v3.4.0"
-	DefaultAttacherImage    = "registry.k8s.io/sig-storage/csi-attacher:v4.1.0"
-	DefaultSnapshotterImage = "registry.k8s.io/sig-storage/csi-snapshotter:v6.2.1"
-	DefaultResizerImage     = "registry.k8s.io/sig-storage/csi-resizer:v1.7.0"
-	DefaultCSIAddonsImage   = "quay.io/csiaddons/k8s-sidecar:v0.5.0"
+	DefaultCSIPluginImage   = "quay.io/cephcsi/cephcsi:v3.9.0"
+	DefaultRegistrarImage   = "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.8.0"
+	DefaultProvisionerImage = "registry.k8s.io/sig-storage/csi-provisioner:v3.5.0"
+	DefaultAttacherImage    = "registry.k8s.io/sig-storage/csi-attacher:v4.3.0"
+	DefaultSnapshotterImage = "registry.k8s.io/sig-storage/csi-snapshotter:v6.2.2"
+	DefaultResizerImage     = "registry.k8s.io/sig-storage/csi-resizer:v1.8.0"
+	DefaultCSIAddonsImage   = "quay.io/csiaddons/k8s-sidecar:v0.7.0"
 
 	// image pull policy
 	DefaultCSIImagePullPolicy = string(v1.PullIfNotPresent)
@@ -178,9 +176,8 @@ var (
 )
 
 const (
-	KubeMinMajor                     = "1"
-	KubeMinVerForOIDCTokenProjection = "20"
-	kubeMaxVerForBeta1csiDriver      = "21"
+	kubeMinMajor                       = "1"
+	kubeMinVerForCSIDriverSeLinuxMount = "25"
 
 	// common tolerations and node affinity
 	provisionerTolerationsEnv  = "CSI_PROVISIONER_TOLERATIONS"
@@ -294,6 +291,7 @@ func (r *ReconcileCSI) startDrivers(ver *version.Info, ownerInfo *k8sutil.OwnerI
 		rbdPlugin, cephfsPlugin, nfsPlugin                                              *apps.DaemonSet
 		rbdProvisionerDeployment, cephfsProvisionerDeployment, nfsProvisionerDeployment *apps.Deployment
 		rbdService, cephfsService                                                       *corev1.Service
+		csiDriverobj                                                                    v1CsiDriver
 	)
 
 	enabledDrivers := make([]driverDetails, 0)
@@ -309,28 +307,7 @@ func (r *ReconcileCSI) startDrivers(ver *version.Info, ownerInfo *k8sutil.OwnerI
 	RBDDriverName = tp.DriverNamePrefix + rbdDriverSuffix
 	NFSDriverName = tp.DriverNamePrefix + "nfs.csi.ceph.com"
 
-	if CustomCSICephConfigExists {
-		tp.Param.MountCustomCephConf = v.SupportsCustomCephConf()
-	}
-
-	csiDriverobj = v1CsiDriver{}
-	// In case of an k8s version upgrade, delete the beta CSIDriver object;
-	// before the creation of updated v1 object to avoid conflicts.
-	// Also, attempt betav1 driver object deletion only if version is less
-	// than maximum supported version for betav1 object.(unavailable in v1.22+)
-	// Ignore if not found.
-	if EnableRBD && ver.Minor <= kubeMaxVerForBeta1csiDriver {
-		err = beta1CsiDriver{}.deleteCSIDriverInfo(r.opManagerContext, r.context.Clientset, RBDDriverName)
-		if err != nil {
-			logger.Errorf("failed to delete %q Driver Info. %v", RBDDriverName, err)
-		}
-	}
-	if EnableCephFS && ver.Minor <= kubeMaxVerForBeta1csiDriver {
-		err = beta1CsiDriver{}.deleteCSIDriverInfo(r.opManagerContext, r.context.Clientset, CephFSDriverName)
-		if err != nil {
-			logger.Errorf("failed to delete %q Driver Info. %v", CephFSDriverName, err)
-		}
-	}
+	tp.Param.MountCustomCephConf = CustomCSICephConfigExists
 
 	if EnableRBD {
 		rbdPlugin, err = templateToDaemonSet("rbdplugin", RBDPluginTemplatePath, tp)
@@ -423,10 +400,6 @@ func (r *ReconcileCSI) startDrivers(ver *version.Info, ownerInfo *k8sutil.OwnerI
 	// get common plugin tolerations and node affinity
 	pluginTolerations := getToleration(r.opConfig.Parameters, pluginTolerationsEnv, []corev1.Toleration{})
 	pluginNodeAffinity := getNodeAffinity(r.opConfig.Parameters, pluginNodeAffinityEnv, &corev1.NodeAffinity{})
-
-	if holderEnabled && !v.SupportsNsenter() {
-		return errors.Errorf("multus/csi pod networking is applied but the csi version %q does not support it, need at least %q", v.String(), nsenterSupportedVersion.String())
-	}
 
 	// Deploy the CSI Holder DaemonSet if Multus is enabled or
 	// EnableCSIHostNetwork is disabled.
@@ -647,19 +620,27 @@ func (r *ReconcileCSI) startDrivers(ver *version.Info, ownerInfo *k8sutil.OwnerI
 	}
 
 	if EnableRBD {
-		err = csiDriverobj.createCSIDriverInfo(r.opManagerContext, r.context.Clientset, RBDDriverName, k8sutil.GetValue(r.opConfig.Parameters, "CSI_RBD_FSGROUPPOLICY", string(k8scsi.FileFSGroupPolicy)), tp.Param.RBDAttachRequired)
+		err = csiDriverobj.createCSIDriverInfo(
+			r.opManagerContext, r.context.Clientset,
+			RBDDriverName, k8sutil.GetValue(r.opConfig.Parameters, "CSI_RBD_FSGROUPPOLICY", string(k8scsi.FileFSGroupPolicy)),
+			tp.Param.RBDAttachRequired, CSIParam.EnableCSIDriverSeLinuxMount)
 		if err != nil {
 			return errors.Wrapf(err, "failed to create CSI driver object for %q", RBDDriverName)
 		}
 	}
 	if EnableCephFS {
-		err = csiDriverobj.createCSIDriverInfo(r.opManagerContext, r.context.Clientset, CephFSDriverName, k8sutil.GetValue(r.opConfig.Parameters, "CSI_CEPHFS_FSGROUPPOLICY", string(k8scsi.FileFSGroupPolicy)), tp.Param.CephFSAttachRequired)
+		err = csiDriverobj.createCSIDriverInfo(
+			r.opManagerContext, r.context.Clientset,
+			CephFSDriverName, k8sutil.GetValue(r.opConfig.Parameters, "CSI_CEPHFS_FSGROUPPOLICY", string(k8scsi.FileFSGroupPolicy)),
+			tp.Param.CephFSAttachRequired, CSIParam.EnableCSIDriverSeLinuxMount)
 		if err != nil {
 			return errors.Wrapf(err, "failed to create CSI driver object for %q", CephFSDriverName)
 		}
 	}
 	if EnableNFS {
-		err = csiDriverobj.createCSIDriverInfo(r.opManagerContext, r.context.Clientset, NFSDriverName, k8sutil.GetValue(r.opConfig.Parameters, "CSI_NFS_FSGROUPPOLICY", string(k8scsi.FileFSGroupPolicy)), tp.Param.NFSAttachRequired)
+		err = csiDriverobj.createCSIDriverInfo(r.opManagerContext, r.context.Clientset,
+			NFSDriverName, k8sutil.GetValue(r.opConfig.Parameters, "CSI_NFS_FSGROUPPOLICY", string(k8scsi.FileFSGroupPolicy)),
+			tp.Param.NFSAttachRequired, CSIParam.EnableCSIDriverSeLinuxMount)
 		if err != nil {
 			return errors.Wrapf(err, "failed to create CSI driver object for %q", NFSDriverName)
 		}
@@ -704,7 +685,7 @@ func (r *ReconcileCSI) stopDrivers(ver *version.Info) error {
 }
 
 func (r *ReconcileCSI) deleteCSIDriverResources(ver *version.Info, daemonset, deployment, service, driverName string) error {
-	csiDriverobj = v1CsiDriver{}
+	csiDriverobj := v1CsiDriver{}
 	err := k8sutil.DeleteDaemonset(r.opManagerContext, r.context.Clientset, r.opConfig.OperatorNamespace, daemonset)
 	if err != nil {
 		return errors.Wrapf(err, "failed to delete the %q", daemonset)
@@ -870,7 +851,11 @@ func (r *ReconcileCSI) configureHolder(driver driverDetails, c ClusterDetail, tp
 	_, err = r.context.Clientset.AppsV1().DaemonSets(r.opConfig.OperatorNamespace).Create(r.opManagerContext, cephPluginHolder, metav1.CreateOptions{})
 	if err != nil {
 		if kerrors.IsAlreadyExists(err) {
-			logger.Debugf("holder %q already exists for cluster %q, it should never be updated", cephPluginHolder.Name, c.cluster.Namespace)
+			_, err = r.context.Clientset.AppsV1().DaemonSets(r.opConfig.OperatorNamespace).Update(r.opManagerContext, cephPluginHolder, metav1.UpdateOptions{})
+			if err != nil {
+				return errors.Wrapf(err, "failed to update ceph plugin holder daemonset %q", cephPluginHolder.Name)
+			}
+			logger.Debugf("holder %q already exists for cluster %q, updating it, restart holder pods to take effect of update", cephPluginHolder.Name, c.cluster.Namespace)
 		} else {
 			return errors.Wrapf(err, "failed to start ceph plugin holder daemonset %q", cephPluginHolder.Name)
 		}
